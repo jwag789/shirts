@@ -28,6 +28,16 @@ export const products = [
       { name: 'Mist', swatch: '#dce5e8', tone: 'tee-sand' },
     ],
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    printify: {
+      productId: '6a1ce44f8e5b9b44da0a235c',
+      variantsBySize: {
+        S: 63293,
+        M: 63298,
+        L: 63303,
+        XL: 63308,
+        '2XL': 63313,
+      },
+    },
     details: [
       'High-contrast front artwork',
       'Clean linework with a low-light glow',

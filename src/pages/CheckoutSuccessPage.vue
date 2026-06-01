@@ -70,7 +70,7 @@ onMounted(async () => {
           </p>
 
           <div class="checkout-summary">
-            <span>Order</span>
+            <span>Order #</span>
             <strong>{{ orderDisplay }}</strong>
             <span>Status</span>
             <strong>{{ statusLabel }}</strong>
