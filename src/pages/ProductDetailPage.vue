@@ -24,7 +24,9 @@ watch(
 )
 
 const relatedProducts = computed(() =>
-  products.filter((item) => item.slug !== product.value.slug).slice(0, 3),
+  [...products.filter((item) => item.slug !== product.value.slug)]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3),
 )
 
 const addToBag = () => {
@@ -116,8 +118,10 @@ const addToBag = () => {
 
       <section class="content-section">
         <div class="section-heading">
-          <p class="eyebrow">You may also like</p>
-          <h2>More from the shop</h2>
+          <div>
+            <p class="eyebrow">You may also like</p>
+            <h2>More picks</h2>
+          </div>
         </div>
 
         <div class="product-grid">

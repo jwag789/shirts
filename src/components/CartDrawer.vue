@@ -100,11 +100,8 @@ const startCheckout = async () => {
 
         <div v-else class="cart-empty">
           <p class="eyebrow">Nothing here yet</p>
-          <h2>Start building the bag.</h2>
-          <p>
-            Product variants you add here can later map directly to Printify options for checkout
-            and fulfillment.
-          </p>
+          <h2>Your bag is empty.</h2>
+          <p>Browse the collections and add a shirt to get started.</p>
         </div>
 
         <div class="cart-drawer__footer">
@@ -120,7 +117,7 @@ const startCheckout = async () => {
           <button class="button" type="button" :disabled="!canCheckout || isCheckingOut" @click="startCheckout">
             {{ isCheckingOut ? 'Opening checkout...' : 'Checkout' }}
           </button>
-          <p class="cart-helper">Secure payment through Stripe. Fulfillment is sent to Printify after payment.</p>
+          <p class="cart-helper">Secure checkout. Ships in 3–6 business days.</p>
         </div>
       </aside>
     </transition>

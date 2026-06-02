@@ -6,7 +6,7 @@ const { itemCount, toggleCart } = useCart()
 
 <template>
   <div class="announcement-bar">
-    <span>Free US shipping over $60</span>
+    <span>Ships in 3–6 business days</span>
     <span>Made to order</span>
     <span>New designs weekly</span>
   </div>
@@ -15,12 +15,11 @@ const { itemCount, toggleCart } = useCart()
     <RouterLink class="brand-lockup" to="/" aria-label="InkSpirit home">InkSpirit</RouterLink>
 
     <nav class="site-nav" aria-label="Primary">
-      <RouterLink to="/collections/japanese-style">Japanese Style</RouterLink>
-      <RouterLink to="/collections/pun-shirts">Pun Shirts</RouterLink>
-      <RouterLink to="/collections/ink-art">Ink Art</RouterLink>
-      <RouterLink to="/collections/anime">Anime</RouterLink>
-      <RouterLink to="/collections">Collections</RouterLink>
-      <RouterLink to="/#new">New</RouterLink>
+      <RouterLink to="/collections/japanese-style">Torii</RouterLink>
+      <RouterLink to="/collections/pun-shirts">Funny Business</RouterLink>
+      <RouterLink to="/collections/ink-art">Fine Lines</RouterLink>
+      <RouterLink to="/collections/anime">Frame Rate</RouterLink>
+      <RouterLink class="nav-collections" to="/collections">Collections</RouterLink>
     </nav>
 
     <button class="cart-trigger" type="button" @click="toggleCart">

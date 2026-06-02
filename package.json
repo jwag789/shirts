@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n vite,server -c cyan,yellow \"vite\" \"node server/index.js\"",
+    "predev": "kill $(lsof -ti :4242) 2>/dev/null; true",
+    "dev": "concurrently -n vite,server -c cyan,yellow \"vite\" \"nodemon --watch server --watch src/data/products.js --ext js,json server/index.js\"",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "node server/index.js",
+    "server": "nodemon --watch server --watch src/data/products.js --ext js,json server/index.js",
     "start": "npm run build && node server/index.js"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "concurrently": "^10.0.1",
+    "nodemon": "^3.1.14",
     "vite": "^6.3.1"
   }
 }
