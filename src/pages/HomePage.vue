@@ -112,7 +112,7 @@ onBeforeUnmount(() => window.clearInterval(heroTimer))
       </section>
 
       <section id="shop" class="content-section">
-        <div class="section-heading section-heading--rail">
+        <div v-reveal class="section-heading section-heading--rail">
           <div>
             <p class="eyebrow">Shop collections</p>
             <h2>Shop by category</h2>
@@ -137,7 +137,7 @@ onBeforeUnmount(() => window.clearInterval(heroTimer))
         :key="collection.slug"
         class="content-section"
       >
-        <div class="section-heading">
+        <div v-reveal class="section-heading">
           <div>
             <p class="eyebrow">{{ collection.eyebrow }}</p>
             <h2>{{ collection.name }}</h2>
@@ -148,8 +148,9 @@ onBeforeUnmount(() => window.clearInterval(heroTimer))
         </div>
         <div class="product-rail">
           <ShirtCard
-            v-for="shirt in getProductsByCollection(collection.slug).slice(0, 4)"
+            v-for="(shirt, i) in getProductsByCollection(collection.slug).slice(0, 4)"
             :key="shirt.slug"
+            v-reveal="i * 80"
             :shirt="shirt"
           />
         </div>
@@ -157,7 +158,7 @@ onBeforeUnmount(() => window.clearInterval(heroTimer))
 
       <section class="site-footer">
         <div>
-          <h2>InkSpirit</h2>
+          <img src="/images/is-logo.png" alt="InkSpirit" class="footer-logo" />
           <p>Original graphic t-shirts, made to order and organized by artwork style.</p>
         </div>
         <nav aria-label="Footer">

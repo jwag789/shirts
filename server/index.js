@@ -1,15 +1,14 @@
 import express from 'express'
-import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { config } from 'dotenv'
+import pg from 'pg'
 import { products } from '../src/data/products.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const rootDir = path.resolve(__dirname, '..')
-const privateDir = path.join(rootDir, '.private', 'orders')
 const distDir = path.join(rootDir, 'dist')
 
 config({ path: path.join(rootDir, '.env.local') })
@@ -20,6 +19,11 @@ const port = Number(process.env.PORT ?? 4242)
 const siteUrl = process.env.SITE_URL ?? `http://localhost:${port}`
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '')
+
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+})
 
 const productBySlug = new Map(products.map((product) => [product.slug, product]))
 
@@ -89,22 +93,31 @@ function buildCheckoutItems(cartItems) {
   })
 }
 
-async function ensurePrivateDir() {
-  await fs.mkdir(privateDir, { recursive: true })
-}
-
-function orderFilePath(sessionId) {
-  return path.join(privateDir, `${sessionId}.json`)
+async function initDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS orders (
+      session_id   TEXT        PRIMARY KEY,
+      order_number TEXT        NOT NULL,
+      status       TEXT        NOT NULL,
+      data         JSONB       NOT NULL,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `)
 }
 
 async function saveOrder(sessionId, order) {
-  await ensurePrivateDir()
-  await fs.writeFile(orderFilePath(sessionId), JSON.stringify(order, null, 2))
+  await pool.query(
+    `INSERT INTO orders (session_id, order_number, status, data)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (session_id) DO UPDATE SET status = EXCLUDED.status, data = EXCLUDED.data`,
+    [sessionId, order.orderNumber, order.status, JSON.stringify(order)],
+  )
 }
 
 async function readOrder(sessionId) {
-  const raw = await fs.readFile(orderFilePath(sessionId), 'utf8')
-  return JSON.parse(raw)
+  const { rows } = await pool.query('SELECT data FROM orders WHERE session_id = $1', [sessionId])
+  if (!rows.length) throw new Error('Order not found')
+  return rows[0].data
 }
 
 function splitCustomerName(name) {
@@ -320,6 +333,14 @@ app.get(/.*/, (_req, res) => {
   res.sendFile(path.join(distDir, 'index.html'))
 })
 
-app.listen(port, () => {
-  console.log(`Store server running at ${siteUrl}`)
+async function start() {
+  await initDb()
+  app.listen(port, () => {
+    console.log(`Store server running at ${siteUrl}`)
+  })
+}
+
+start().catch((err) => {
+  console.error('Failed to start server:', err)
+  process.exit(1)
 })

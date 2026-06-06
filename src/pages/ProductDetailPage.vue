@@ -53,7 +53,9 @@ const addToBag = () => {
             </button>
           </div>
 
-          <img class="product-gallery__main" :src="activeGallery" :alt="product.name" />
+          <Transition name="gallery-fade" mode="out-in">
+            <img :key="activeGallery" class="product-gallery__main" :src="activeGallery" :alt="product.name" />
+          </Transition>
         </div>
 
         <div class="product-summary">

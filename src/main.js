@@ -3,4 +3,23 @@ import App from './App.vue'
 import router from './router'
 import './styles.css'
 
-createApp(App).use(router).mount('#app')
+const app = createApp(App)
+
+app.directive('reveal', {
+  mounted(el, binding) {
+    el.classList.add('reveal')
+    if (binding.value) el.style.transitionDelay = `${binding.value}ms`
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('is-revealed')
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.08 },
+    )
+    observer.observe(el)
+  },
+})
+
+app.use(router).mount('#app')
