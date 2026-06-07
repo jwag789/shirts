@@ -158,7 +158,7 @@ onBeforeUnmount(() => window.clearInterval(heroTimer))
 
       <section class="site-footer">
         <div>
-          <img src="/images/is-logo.png" alt="InkSpirit" class="footer-logo" />
+          <img src="/images/is-logo-2.png" alt="InkSpirit" class="footer-logo" />
           <p>Original graphic t-shirts, made to order and organized by artwork style.</p>
         </div>
         <nav aria-label="Footer">

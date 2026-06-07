@@ -13,7 +13,7 @@ const { itemCount, toggleCart } = useCart()
 
   <header class="site-header">
     <RouterLink class="brand-lockup" to="/" aria-label="InkSpirit home">
-      <img src="/images/is-logo.png" alt="InkSpirit" class="brand-logo" />
+      <img src="/images/is-logo-2.png" alt="InkSpirit" class="brand-logo" />
     </RouterLink>
 
     <nav class="site-nav" aria-label="Primary">
