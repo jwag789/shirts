@@ -1846,3 +1846,273 @@ h3 {
 .mockup-lightbox__close:hover {
   opacity: 1;
 }
+
+/* ── Pet portrait slide journey ──────────────────────────────────────────── */
+
+.pet-journey-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.pet-journey {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pet-journey__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.pet-back-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 140ms;
+}
+
+.pet-back-btn svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+.pet-back-btn:hover {
+  color: var(--ink);
+}
+
+.pet-back-btn--ghost {
+  width: 60px;
+}
+
+.pet-step-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pet-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 300ms, transform 300ms;
+}
+
+.pet-step-dot.is-active {
+  background: var(--accent);
+  transform: scale(1.3);
+}
+
+.pet-step-dot.is-done {
+  background: var(--accent);
+  opacity: 0.4;
+}
+
+/* Slides */
+
+.pet-slides-viewport {
+  overflow: hidden;
+  flex: 1;
+}
+
+.pet-slides-track {
+  display: flex;
+  width: 300%;
+  height: 100%;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pet-slide {
+  width: calc(100% / 3);
+  min-height: calc(100svh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.pet-slide__inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 52px 40px 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pet-slide__inner--narrow {
+  max-width: 600px;
+}
+
+.pet-slide__inner--center {
+  align-items: center;
+  justify-content: center;
+}
+
+.pet-slide__inner--result {
+  max-width: 1100px;
+  padding-top: 40px;
+}
+
+.pet-slide__heading {
+  margin-bottom: 36px;
+}
+
+.pet-slide__title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 8px 0 12px;
+}
+
+.pet-slide__sub {
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 520px;
+}
+
+/* Updated style card emoji */
+
+.style-card__emoji {
+  font-size: 4rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 12px rgba(0,0,0,0.5));
+}
+
+/* Generating screen */
+
+.pet-generating {
+  text-align: center;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.pet-generating__ring {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  animation: pet-spin 1s linear infinite;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.pet-generating__emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+  animation: pet-spin-reverse 1s linear infinite;
+}
+
+@keyframes pet-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pet-spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+
+.pet-generating__title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.pet-generating__sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Result layout */
+
+.pet-result-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 52px;
+  align-items: start;
+}
+
+.pet-result__mockup {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pet-regen-btn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 140ms;
+}
+
+.pet-regen-btn:hover {
+  color: var(--ink);
+}
+
+.pet-result__buy {
+  padding-top: 8px;
+}
+
+.pet-result__title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin: 8px 0 4px;
+}
+
+.pet-result__style {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 12px;
+}
+
+.pet-result__price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.pet-result__actions {
+  margin-top: 28px;
+}
+
+.pet-result__actions .button {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .pet-journey__topbar {
+    padding: 14px 20px;
+  }
+
+  .pet-slide__inner {
+    padding: 32px 20px 48px;
+  }
+
+  .pet-result-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}

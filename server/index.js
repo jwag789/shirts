@@ -397,15 +397,15 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
 
     // Step 4: generate portrait using image-to-image — preserves the pet's likeness
     const stylePrompt = PET_PORTRAIT_STYLES[style]
-    const prompt = `Dramatic fantasy portrait painting of ${petDescription}, ${stylePrompt}. The animal's face and distinctive markings clearly preserved. Highly detailed digital painting, cinematic lighting, rich painterly textures, vivid colors, dramatic shadows, detailed fur and fabric, fantasy art style, centered subject, no text, masterpiece quality.`
+    const prompt = `Dramatic fantasy portrait of ${petDescription}, visually dressed as and fully transformed into: ${stylePrompt}. The costume and setting are clearly visible. The animal's face, fur color, and markings are recognizable. Highly detailed digital painting, cinematic lighting, rich textures, vivid colors, dramatic shadows, fantasy art style, centered subject, no text, masterpiece quality.`
 
     const result = await fal.subscribe('fal-ai/flux/dev/image-to-image', {
       input: {
         image_url: petPhotoUrl,
         prompt,
-        strength: 0.8,
+        strength: 0.92,
         num_inference_steps: 35,
-        guidance_scale: 3.5,
+        guidance_scale: 4.0,
         num_images: 1,
         enable_safety_checker: true,
       },
