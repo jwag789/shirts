@@ -203,6 +203,12 @@ onBeforeUnmount(() => window.clearInterval(heroTimer))
           <RouterLink to="/pet-portrait">Custom Pet Portraits</RouterLink>
         </nav>
       </section>
+      <div class="site-credit">
+        <a href="https://www.kingdomwebbuilders.com" target="_blank" rel="noopener">
+          <img src="/images/KW-logo.png" alt="Kingdom Web Builders" class="site-credit__logo" />
+          <span>A Kingdom Web Builders site</span>
+        </a>
+      </div>
     </main>
   </div>
 </template>

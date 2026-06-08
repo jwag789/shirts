@@ -10,17 +10,17 @@ export const products = [
     mark: 'SW',
     tone: 'tee-ink',
     art: 'linear-gradient(135deg, #122030 0%, #1f4563 52%, #5ec4b8 100%)',
-    cardImage: '/images/IMG_2110.PNG',
+    cardImage: '/images/mockups/shrine-walk-2-front.jpg',
     headline: 'A lone samurai approaches an illuminated Inari gate at night.',
     longDescription:
       'Shrine Walk captures a cinematic moment — a samurai silhouette against the glow of a torii gate, rendered with deep color and clean graphic contrast.',
     shipping: 'Limited batch, ships in 4-6 business days',
     note: 'High-contrast artwork with oversized chest placement.',
     gallery: [
-      '/images/mockups/shrine-walk-1-lifestyle.jpg',
       '/images/mockups/shrine-walk-2-front.jpg',
-      '/images/mockups/shrine-walk-3-folded.jpg',
       '/images/mockups/shrine-walk-4-person-1-front.jpg',
+      '/images/mockups/shrine-walk-1-lifestyle.jpg',
+      '/images/mockups/shrine-walk-3-folded.jpg',
     ],
     colors: [
       { name: 'Ink', swatch: '#101820', tone: 'tee-ink' },
@@ -65,7 +65,7 @@ export const products = [
     mark: 'BB',
     tone: 'tee-rose',
     art: 'linear-gradient(135deg, #eb8f8f 0%, #f7d8d3 44%, #fff3eb 100%)',
-    cardImage: '/images/IMG_2119.PNG',
+    cardImage: '/images/mockups/busy-bee-3-front.jpg',
     headline: 'A very busy bee with a very important briefcase.',
     longDescription:
       'Busy Bee is the Funny Business collection in one image — a suited-up bee on a serious schedule, executed with clean lines and zero apologies.',
@@ -117,7 +117,7 @@ export const products = [
     mark: 'SC',
     tone: 'tee-sand',
     art: 'linear-gradient(135deg, #f2d8b9 0%, #fff4e6 100%)',
-    cardImage: '/images/IMG_2115.PNG',
+    cardImage: '/images/mockups/stay-cool-3-front.jpg',
     headline: 'A milkshake in sunglasses, absolutely staying cool.',
     longDescription:
       'Stay Cool keeps the joke simple: a milkshake, some shades, maximum chill. Straightforward humor with a clean graphic that works without explaining itself.',
@@ -160,7 +160,7 @@ export const products = [
     mark: 'SM',
     tone: 'tee-rose',
     art: 'linear-gradient(135deg, #f0b7b7 0%, #fde9e2 100%)',
-    cardImage: '/images/IMG_2117.PNG',
+    cardImage: '/images/mockups/spilled-milk-1-front.jpg',
     headline: "Don't cry over it. The milk is smiling.",
     longDescription:
       "Spilled Milk leans into the classic pun with an illustration that makes the milk the happiest thing in the room — which honestly makes it funnier.",
@@ -204,7 +204,7 @@ export const products = [
     mark: 'GT',
     tone: 'tee-ink',
     art: 'linear-gradient(135deg, #d7dbe1 0%, #f7f3ef 100%)',
-    cardImage: '/images/IMG_2118.PNG',
+    cardImage: '/images/mockups/gravy-train-1-front.jpg',
     headline: 'A train. Made of gravy. No further explanation needed.',
     longDescription:
       "Gravy Train takes a pun that shouldn't work and commits to it completely — a fully illustrated gravy locomotive, rendered with enough detail to reward a second look.",
@@ -248,7 +248,7 @@ export const products = [
     mark: 'WT',
     tone: 'tee-rose',
     art: 'linear-gradient(135deg, #e6c1bb 0%, #fff3ed 100%)',
-    cardImage: '/images/IMG_2121.PNG',
+    cardImage: '/images/mockups/weiner-takes-all-3-front.jpg',
     headline: 'He crossed the finish line first. He is the weiner.',
     longDescription:
       'Weiner Takes All follows one determined hot dog from start to finish line — a clean racing graphic with a punchline that lands the moment you read it.',
@@ -291,18 +291,28 @@ export const products = [
     mark: 'LS',
     tone: 'tee-sand',
     art: 'linear-gradient(135deg, #f4dfc8 0%, #fff8f0 100%)',
-    cardImage: '/images/IMG_2124.PNG',
+    cardImage: 'https://images-api.printify.com/mockup/6a1e4fd021a81c96530aea3d/38185/97992/long-time-no-sea-wave-and-sand-heart-t-shirt-cute-beach-pun-tee.jpg?camera_label=front',
     headline: 'A sea and a beach running into each other after a long time apart.',
     longDescription:
       'Long Time No Sea gives the pun a full scene — two old friends catching up, rendered with enough warmth that the joke hits naturally without needing a caption.',
     shipping: 'Made to order, ships in 3-5 business days',
     note: 'Good for everyday wear without looking like a novelty tee.',
-    gallery: ['/images/IMG_2124.PNG'],
-    colors: [
-      { name: 'Bone', swatch: '#eee4d8', tone: 'tee-sand' },
-      { name: 'Sand', swatch: '#d7c2a7', tone: 'tee-sand' },
+    gallery: [
+      'https://images-api.printify.com/mockup/6a1e4fd021a81c96530aea3d/38185/97992/long-time-no-sea-wave-and-sand-heart-t-shirt-cute-beach-pun-tee.jpg?camera_label=front',
+      'https://images-api.printify.com/mockup/6a1e4fd021a81c96530aea3d/38185/100616/long-time-no-sea-wave-and-sand-heart-t-shirt-cute-beach-pun-tee.jpg?camera_label=person-1-front',
+      'https://images-api.printify.com/mockup/6a1e4fd021a81c96530aea3d/38185/127673/long-time-no-sea-wave-and-sand-heart-t-shirt-cute-beach-pun-tee.jpg?camera_label=lifestyle',
+      'https://images-api.printify.com/mockup/6a1e4fd021a81c96530aea3d/38185/100619/long-time-no-sea-wave-and-sand-heart-t-shirt-cute-beach-pun-tee.jpg?camera_label=person-2-front',
+      'https://images-api.printify.com/mockup/6a1e4fd021a81c96530aea3d/38185/100621/long-time-no-sea-wave-and-sand-heart-t-shirt-cute-beach-pun-tee.jpg?camera_label=person-3-context',
+      'https://images-api.printify.com/mockup/6a1e4fd021a81c96530aea3d/38185/100623/long-time-no-sea-wave-and-sand-heart-t-shirt-cute-beach-pun-tee.jpg?camera_label=person-4-context',
     ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL'],
+    colors: [
+      { name: 'Light Blue', swatch: '#81d4fa', tone: 'tee-sand' },
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    printify: {
+      productId: '6a1e4fd021a81c96530aea3d',
+      variantsBySize: { S: 38157, M: 38171, L: 38185, XL: 38199, '2XL': 38213 },
+    },
     details: [
       'Sea and beach reunion front artwork',
       'Soft neutral palette',
@@ -326,18 +336,29 @@ export const products = [
     mark: 'OR',
     tone: 'tee-ink',
     art: 'linear-gradient(135deg, #d6dde4 0%, #f8f4ef 100%)',
-    cardImage: '/images/IMG_2139.PNG',
+    cardImage: 'https://images-api.printify.com/mockup/6a26210c29769c27560febae/38183/97992/im-on-a-roll-bread-roll-graphic-t-shirt-kawaii-food-pun-tee.jpg?camera_label=front',
     headline: 'Smiling butter. Smiling roll. Things are going well.',
     longDescription:
       "On a Roll keeps the pun clean and the illustration cleaner — a quick joke, a polished graphic, and a shirt you can wear without having to explain it every time.",
     shipping: 'Made to order, ships in 3-5 business days',
     note: 'Works well as a graphic-forward everyday shirt.',
-    gallery: ['/images/IMG_2139.PNG'],
+    gallery: [
+      'https://images-api.printify.com/mockup/6a26210c29769c27560febae/38183/97992/im-on-a-roll-bread-roll-graphic-t-shirt-kawaii-food-pun-tee.jpg?camera_label=front',
+      'https://images-api.printify.com/mockup/6a26210c29769c27560febae/38183/100616/im-on-a-roll-bread-roll-graphic-t-shirt-kawaii-food-pun-tee.jpg?camera_label=person-1-front',
+      'https://images-api.printify.com/mockup/6a26210c29769c27560febae/38183/127673/im-on-a-roll-bread-roll-graphic-t-shirt-kawaii-food-pun-tee.jpg?camera_label=lifestyle',
+      'https://images-api.printify.com/mockup/6a26210c29769c27560febae/38183/100619/im-on-a-roll-bread-roll-graphic-t-shirt-kawaii-food-pun-tee.jpg?camera_label=person-2-front',
+      'https://images-api.printify.com/mockup/6a26210c29769c27560febae/38183/100621/im-on-a-roll-bread-roll-graphic-t-shirt-kawaii-food-pun-tee.jpg?camera_label=person-3-context',
+      'https://images-api.printify.com/mockup/6a26210c29769c27560febae/38183/100623/im-on-a-roll-bread-roll-graphic-t-shirt-kawaii-food-pun-tee.jpg?camera_label=person-4-context',
+      'https://images-api.printify.com/mockup/6a26210c29769c27560febae/38183/127670/im-on-a-roll-bread-roll-graphic-t-shirt-kawaii-food-pun-tee.jpg?camera_label=folded-2',
+    ],
     colors: [
-      { name: 'Ink', swatch: '#111820', tone: 'tee-ink' },
-      { name: 'Mist', swatch: '#dde2e6', tone: 'tee-sand' },
+      { name: 'Dark Chocolate', swatch: '#3b2314', tone: 'tee-ink' },
     ],
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    printify: {
+      productId: '6a26210c29769c27560febae',
+      variantsBySize: { S: 38155, M: 38169, L: 38183, XL: 38197, '2XL': 38211 },
+    },
     details: [
       'Butter and roll front artwork',
       'Cooler palette, clean spacing',
@@ -361,16 +382,16 @@ export const products = [
     mark: 'CH',
     tone: 'tee-sand',
     art: 'linear-gradient(135deg, #f0c59b 0%, #f7f0e8 100%)',
-    cardImage: '/images/IMG_2095.PNG',
+    cardImage: '/images/mockups/cherry-horizon-2-front.jpg',
     headline: 'A quiet figure looks out over Fuji, winding rivers, and cherry blossom trees.',
     longDescription:
       'Cherry Horizon brings together the most iconic elements of a Japanese landscape in a single layered graphic — calm, warm, and easy to wear.',
     shipping: 'Made to order, ships in 3-5 business days',
     note: 'Oversized print placement with a softened garment wash.',
     gallery: [
-      '/images/mockups/cherry-horizon-1-lifestyle.jpg',
       '/images/mockups/cherry-horizon-2-front.jpg',
       '/images/mockups/cherry-horizon-3-person-1-front.jpg',
+      '/images/mockups/cherry-horizon-1-lifestyle.jpg',
       '/images/mockups/cherry-horizon-4-person-2-front.jpg',
     ],
     colors: [
@@ -405,7 +426,7 @@ export const products = [
     mark: 'NB',
     tone: 'tee-ink',
     art: 'linear-gradient(135deg, #122030 0%, #1f4563 52%, #5ec4b8 100%)',
-    cardImage: '/images/IMG_2096.PNG',
+    cardImage: '/images/mockups/night-bloom-1-front.jpg',
     headline: 'The same landscape, pushed darker — deeper color, stronger contrast.',
     longDescription:
       'Night Bloom takes the cinematic Japanese landscape approach and pushes it into night — richer color, tighter composition, a more dramatic mood.',
@@ -413,9 +434,9 @@ export const products = [
     note: 'High-contrast artwork with oversized chest placement.',
     gallery: [
       '/images/mockups/night-bloom-1-front.jpg',
-      '/images/mockups/night-bloom-2-folded.jpg',
       '/images/mockups/night-bloom-3-person-1-front.jpg',
       '/images/mockups/night-bloom-4-person-2-front.jpg',
+      '/images/mockups/night-bloom-2-folded.jpg',
     ],
     colors: [
       { name: 'White', swatch: '#ffffff', tone: 'tee-sand' },
@@ -454,7 +475,7 @@ export const products = [
     mark: 'PS',
     tone: 'tee-rose',
     art: 'linear-gradient(135deg, #e8b6a8 0%, #f8e9df 100%)',
-    cardImage: '/images/IMG_2109.PNG',
+    cardImage: '/images/mockups/petal-storm-1-front.jpg',
     headline: 'Cherry blossom petals caught mid-flight in a clean graphic print.',
     longDescription:
       'Petal Storm strips back the landscape and focuses on the blossom itself — petals scattered in the wind, rendered with soft color and open spacing.',
@@ -535,7 +556,7 @@ export const products = [
     mark: 'DB',
     tone: 'tee-ink',
     art: 'linear-gradient(135deg, #101010 0%, #303030 100%)',
-    cardImage: '/images/SKETCH-2.png',
+    cardImage: '/images/mockups/divine-blade-1-front-2.jpg',
     headline: 'An angel descends with wings spread and a sword of fire.',
     longDescription:
       'Divine Blade brings raw ink energy to a dramatic scene — heavy linework, strong contrast, and a composition that fills the shirt without crowding it.',
@@ -584,7 +605,7 @@ export const collections = [
       'Japanese-inspired graphic shirts with atmospheric artwork, strong contrast, and a clean everyday feel.',
     longDescription:
       'Named after the iconic gate, this collection brings together cinematic Japanese artwork — warm tones, darker contrast pieces, and graphics with a calm visual rhythm.',
-    heroImage: '/images/IMG_2095.PNG',
+    heroImage: '/images/mockups/cherry-horizon-2-front.jpg',
     accent: 'linear-gradient(135deg, #e8bf87 0%, #f6ead8 100%)',
   },
   {
@@ -595,7 +616,7 @@ export const collections = [
       'Clever pun shirts with polished layouts — funny without looking cheap.',
     longDescription:
       'The jokes are direct, the artwork is clean, and the shirts actually look designed. Funny Business keeps the humor sharp without the novelty-tee feel.',
-    heroImage: '/images/IMG_2119.PNG',
+    heroImage: '/images/mockups/busy-bee-3-front.jpg',
     accent: 'linear-gradient(135deg, #e1b0a8 0%, #f7e7df 100%)',
   },
   {
@@ -604,7 +625,7 @@ export const collections = [
     eyebrow: 'Collection 03',
     description: 'Raw ink marks, dramatic scenes, and high-contrast art-shirt energy.',
     longDescription: 'Sketchbook energy translated into wearable graphics — classical ruins, angels with fire swords, and a sharper art-store feel.',
-    heroImage: '/images/SKETCH-1.png',
+    heroImage: '/images/mockups/divine-blade-1-front-2.jpg',
     accent: 'linear-gradient(135deg, #d3d3d3 0%, #f0f0f0 100%)',
   },
 ]
