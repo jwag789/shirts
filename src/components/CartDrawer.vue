@@ -25,11 +25,24 @@ const startCheckout = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        items: state.items.map((item) => ({
-          productSlug: item.productSlug,
-          size: item.size,
-          quantity: item.quantity,
-        })),
+        items: state.items.map((item) => {
+          if (item.isPetPortrait) {
+            return {
+              isPetPortrait: true,
+              style: item.style,
+              generatedImageUrl: item.generatedImageUrl,
+              size: item.size,
+              color: item.color ?? '',
+              printifyVariantId: item.printifyVariantId ?? null,
+              quantity: item.quantity,
+            }
+          }
+          return {
+            productSlug: item.productSlug,
+            size: item.size,
+            quantity: item.quantity,
+          }
+        }),
       }),
     })
 
@@ -81,6 +94,7 @@ const startCheckout = async () => {
 
               <div class="cart-item__meta">
                 <span>Size {{ item.size }}</span>
+                <span v-if="item.color"> · {{ item.color }}</span>
               </div>
 
               <div class="cart-item__actions">

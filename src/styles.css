@@ -1362,3 +1362,487 @@ h3 {
     justify-content: flex-start;
   }
 }
+
+/* ── Pet Portrait Page ── */
+
+.nav-pet-portraits {
+  color: var(--accent-2) !important;
+}
+
+.nav-pet-portraits:hover,
+.nav-pet-portraits:focus-visible {
+  color: var(--accent) !important;
+}
+
+.pet-portrait-hero {
+  width: min(calc(100% - (var(--pad) * 2)), var(--max));
+  margin-inline: auto;
+  padding-top: clamp(48px, 7vw, 94px);
+}
+
+.pet-portrait-hero h1 {
+  margin: 0 0 18px;
+  line-height: 0.92;
+}
+
+.pet-portrait-hero__sub {
+  max-width: 580px;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.6;
+}
+
+.pet-portrait-layout {
+  width: min(calc(100% - (var(--pad) * 2)), 900px);
+  margin-inline: auto;
+  margin-top: clamp(48px, 7vw, 80px);
+  display: grid;
+  gap: clamp(48px, 7vw, 80px);
+  padding-bottom: clamp(64px, 10vw, 120px);
+}
+
+.pet-portrait-section__label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.pet-step-num {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: border-color 200ms, background 200ms, color 200ms;
+}
+
+.pet-step-num.is-done {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.pet-section-title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.style-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.style-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--line);
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 160ms, transform 160ms;
+  padding: 0;
+  overflow: hidden;
+}
+
+.style-card:hover {
+  border-color: #aaa;
+  transform: translateY(-2px);
+}
+
+.style-card.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.18);
+}
+
+.style-card__art {
+  aspect-ratio: 1.4;
+  display: grid;
+  place-items: center;
+}
+
+.style-card__icon {
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.style-card__copy {
+  padding: 12px 14px 14px;
+}
+
+.style-card__copy strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.style-card__copy span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.style-card__check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  background: var(--accent);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.upload-zone {
+  position: relative;
+  border: 2px dashed var(--line);
+  background: var(--soft);
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 160ms;
+}
+
+.upload-zone:hover {
+  border-color: var(--accent);
+}
+
+.upload-zone.has-preview {
+  border-style: solid;
+  border-color: var(--accent);
+  min-height: 300px;
+  overflow: hidden;
+}
+
+.upload-zone__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.upload-zone__icon {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.upload-zone__hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.upload-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  object-position: center;
+  background: #111;
+}
+
+.upload-preview__overlay {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 14px;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+}
+
+.pet-generate-btn {
+  width: 100%;
+  min-height: 56px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pet-generate-hint {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.pet-error {
+  margin: 12px 0 0;
+  color: #c0392b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@keyframes pet-spin {
+  to { transform: rotate(360deg); }
+}
+
+.pet-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: pet-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.pet-preview-section {
+  border-top: 1px solid var(--line);
+  padding-top: clamp(32px, 5vw, 56px);
+}
+
+.pet-preview-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 4vw, 48px);
+  align-items: start;
+}
+
+.pet-preview-image-wrap {
+  background: var(--soft);
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.pet-preview-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-preview-buy {
+  position: sticky;
+  top: 104px;
+}
+
+.pet-preview-title {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  margin: 8px 0 4px;
+}
+
+.pet-preview-style {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 4px;
+}
+
+.pet-preview-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.pet-preview-actions {
+  margin-top: 22px;
+}
+
+.pet-preview-actions .button {
+  width: 100%;
+  min-height: 54px;
+  font-size: 1rem;
+}
+
+.pet-preview-info {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.pet-start-over {
+  display: inline-block;
+  margin-top: 10px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* Color swatch picker */
+
+.color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 140ms, transform 140ms, box-shadow 140ms;
+  flex-shrink: 0;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+  border-color: #aaa;
+}
+
+.color-swatch.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.22);
+  transform: scale(1.1);
+}
+
+/* Shirt SVG mockup */
+
+.shirt-mockup-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 240 / 270;
+}
+
+.shirt-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* SVG fallback: portrait in chest print area (viewBox 240×270, rect x=80 y=80 w=80 h=80) */
+.shirt-art-overlay {
+  position: absolute;
+  left: 33.33%;
+  top: 29.63%;
+  width: 33.33%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Real Printify photo mockup */
+.shirt-photo-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Portrait overlaid on Printify photo.
+   Approximates the chest print area on a standard Printify front-view mockup. */
+.shirt-photo-art {
+  position: absolute;
+  left: 31%;
+  top: 29%;
+  width: 38%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .style-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pet-preview-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .pet-preview-buy {
+    position: static;
+  }
+}
+
+/* ── Shirt mockup zoom button ─────────────────────────────────────────────── */
+
+.shirt-mockup-container {
+  position: relative;
+}
+
+.mockup-zoom-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.mockup-zoom-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.mockup-zoom-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* ── Lightbox ─────────────────────────────────────────────────────────────── */
+
+.mockup-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.mockup-lightbox__inner {
+  position: relative;
+  width: min(70vmin, 560px);
+}
+
+.mockup-lightbox__close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  opacity: 0.8;
+}
+
+.mockup-lightbox__close:hover {
+  opacity: 1;
+}

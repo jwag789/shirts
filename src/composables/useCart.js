@@ -62,6 +62,35 @@ function addItem(product, color, size) {
   openCart()
 }
 
+function addPetPortraitItem(style, generatedImageUrl, size, color = 'White', printifyVariantId = null) {
+  const id = `pet-portrait::${style}::${color}::${size}::${generatedImageUrl.slice(-24)}`
+  const existing = state.items.find((item) => item.id === id)
+
+  if (existing) {
+    existing.quantity += 1
+  } else {
+    state.items.push({
+      id,
+      isPetPortrait: true,
+      productSlug: 'pet-portrait',
+      name: `Custom Pet Portrait — ${style.charAt(0).toUpperCase() + style.slice(1)}`,
+      collection: 'Pet Portraits',
+      priceValue: 38,
+      price: currency.format(38),
+      style,
+      generatedImageUrl,
+      image: generatedImageUrl,
+      size,
+      color,
+      printifyVariantId,
+      quantity: 1,
+      isPrintifyConnected: true,
+    })
+  }
+
+  openCart()
+}
+
 function updateQuantity(id, nextQuantity) {
   const item = state.items.find((entry) => entry.id === id)
   if (!item) {
@@ -103,6 +132,7 @@ export function useCart() {
     closeCart,
     toggleCart,
     addItem,
+    addPetPortraitItem,
     updateQuantity,
     removeItem,
   }
