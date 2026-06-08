@@ -20,7 +20,6 @@ const { itemCount, toggleCart } = useCart()
       <RouterLink to="/collections/japanese-style">Torii</RouterLink>
       <RouterLink to="/collections/pun-shirts">Funny Business</RouterLink>
       <RouterLink to="/collections/ink-art">Fine Lines</RouterLink>
-      <RouterLink to="/collections/anime">Frame Rate</RouterLink>
       <RouterLink class="nav-collections" to="/collections">Collections</RouterLink>
       <RouterLink class="nav-pet-portraits" to="/pet-portrait">Pet Portraits</RouterLink>
     </nav>

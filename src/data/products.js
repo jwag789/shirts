@@ -573,126 +573,6 @@ export const products = [
       }
     ]
   },
-  {
-    slug: 'anime-one',
-    name: 'Star Ronin',
-    collection: 'Frame Rate',
-    collectionSlug: 'anime',
-    price: '$45',
-    priceValue: 45,
-    tag: 'New',
-    mark: 'SR',
-    tone: 'tee-ink',
-    art: 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)',
-    cardImage: '/images/anime-1.png',
-    headline: "A lone space fighter with a ronin's code and a pilot's edge.",
-    longDescription:
-      'Star Ronin fuses samurai discipline with sci-fi scale — a solitary fighter against the void, rendered in the dark, detailed style of a collector\'s tee.',
-    shipping: 'Made to order, ships in 3-5 business days',
-    note: 'Character-focused space fighter artwork.',
-    gallery: ['/images/anime-1.png'],
-    colors: [
-      { name: 'Ink', swatch: '#101820', tone: 'tee-ink' },
-      { name: 'Slate', swatch: '#374857', tone: 'tee-ink' }
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    details: [
-      'Space fighter character front artwork',
-      'Dark, detailed collector-tee style',
-      'Samurai meets sci-fi in one graphic'
-    ],
-    story: [{ title: 'Artwork direction', copy: 'The ronin code, applied to deep space. Same discipline, different battlefield.' }]
-  },
-  {
-    slug: 'anime-two',
-    name: 'Iron Age',
-    collection: 'Frame Rate',
-    collectionSlug: 'anime',
-    price: '$45',
-    priceValue: 45,
-    tag: 'New',
-    mark: 'IA',
-    tone: 'tee-sand',
-    art: 'linear-gradient(135deg, #e5e5e5 0%, #f9f9f9 100%)',
-    cardImage: '/images/anime-2.png',
-    headline: 'Heavy armor, sharp edges, and a medieval world built for battle.',
-    longDescription:
-      'Iron Age brings the medieval era into anime — knights with weight, battles with scale, and a graphic presence that carries the whole shirt.',
-    shipping: 'Made to order, ships in 3-5 business days',
-    note: 'Medieval action-focused front artwork.',
-    gallery: ['/images/anime-2.png'],
-    colors: [
-      { name: 'Bone', swatch: '#eee6da', tone: 'tee-sand' },
-      { name: 'Mist', swatch: '#dce5e8', tone: 'tee-sand' }
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    details: [
-      'Medieval anime character artwork',
-      'Action-forward composition',
-      'The lighter, more dynamic piece in the collection'
-    ],
-    story: [{ title: 'Artwork direction', copy: 'Medieval combat drawn with anime intensity — armor that feels heavy, action that feels fast.' }]
-  },
-  {
-    slug: 'anime-three',
-    name: 'Wanderer',
-    collection: 'Frame Rate',
-    collectionSlug: 'anime',
-    price: '$45',
-    priceValue: 45,
-    tag: 'Limited',
-    mark: 'WA',
-    tone: 'tee-rose',
-    art: 'linear-gradient(135deg, #ffd1d1 0%, #ffe8e8 100%)',
-    cardImage: '/images/anime-3.png',
-    headline: 'An adventurer mid-journey, somewhere between the last town and the next.',
-    longDescription:
-      'Wanderer captures the anime adventurer at their most compelling — on the road, in the landscape, with a clean character pose and an open world behind them.',
-    shipping: 'Made to order, ships in 3-5 business days',
-    note: 'Adventure-style portrait artwork.',
-    gallery: ['/images/anime-3.png'],
-    colors: [
-      { name: 'Rose', swatch: '#dba2a1', tone: 'tee-rose' },
-      { name: 'Cream', swatch: '#f1e5dc', tone: 'tee-sand' }
-    ],
-    sizes: ['XS', 'S', 'M', 'L'],
-    details: [
-      'Adventure character portrait artwork',
-      'Softer palette, quieter mood',
-      'More expressive and less action-heavy than the other Frame Rate pieces'
-    ],
-    story: [{ title: 'Artwork direction', copy: 'The space between adventures — a character with somewhere to be and a world behind them.' }]
-  },
-  {
-    slug: 'anime-four',
-    name: 'Steel Frame',
-    collection: 'Frame Rate',
-    collectionSlug: 'anime',
-    price: '$45',
-    priceValue: 45,
-    tag: 'New',
-    mark: 'SF',
-    tone: 'tee-ink',
-    art: 'linear-gradient(135deg, #171717 0%, #4b4b4b 100%)',
-    cardImage: '/images/anime-4.png',
-    headline: 'A mecha built for adventure, rendered in full anime detail.',
-    longDescription:
-      'Steel Frame gives the Frame Rate collection its biggest, boldest piece — a mech suit in motion, with the kind of detail that turns a shirt into a statement.',
-    shipping: 'Made to order, ships in 3-5 business days',
-    note: 'Bold mecha character artwork.',
-    gallery: ['/images/anime-4.png'],
-    colors: [
-      { name: 'Ink', swatch: '#101820', tone: 'tee-ink' },
-      { name: 'Mist', swatch: '#dce5e8', tone: 'tee-sand' }
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    details: [
-      'Mecha suit front artwork',
-      'Dark, high-contrast collector-tee mood',
-      'The most detailed and dramatic piece in the collection'
-    ],
-    story: [{ title: 'Artwork direction', copy: 'A mech mid-mission — built with enough detail to make the shirt feel like a collectible.' }]
-  }
 ]
 
 export const collections = [
@@ -727,19 +607,10 @@ export const collections = [
     heroImage: '/images/SKETCH-1.png',
     accent: 'linear-gradient(135deg, #d3d3d3 0%, #f0f0f0 100%)',
   },
-  {
-    slug: 'anime',
-    name: 'Frame Rate',
-    eyebrow: 'Collection 04',
-    description: 'Character-driven anime shirts with bold artwork and a collector-tee finish.',
-    longDescription: 'Space fighters, medieval knights, wandering adventurers, and heavy mechs — all rendered in the kind of anime detail that makes shirts worth keeping.',
-    heroImage: '/images/anime-1.png',
-    accent: 'linear-gradient(135deg, #a6b5e0 0%, #c9d2ef 100%)',
-  },
 ]
 
 export const siteStats = [
-  { value: '4', label: 'collections live now' },
+  { value: '3', label: 'collections live now' },
   { value: '100%', label: 'made to order' },
   { value: 'New', label: 'designs added regularly' },
 ]

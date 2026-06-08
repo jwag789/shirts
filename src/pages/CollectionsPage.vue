@@ -12,7 +12,7 @@ import { collections, getProductsByCollection } from '../data/products'
       <section class="collection-title">
         <p class="eyebrow">Collections</p>
         <h1>Shop every category</h1>
-        <p>Browse by artwork style, from Japanese-inspired graphics and anime pieces to puns and ink art.</p>
+        <p>Browse by artwork style, from Japanese-inspired graphics and ink art to puns and custom pet portraits.</p>
       </section>
 
       <section class="content-section">

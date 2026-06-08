@@ -1847,6 +1847,99 @@ h3 {
   opacity: 1;
 }
 
+/* ── Pet Portrait home promo ─────────────────────────────────────────────── */
+
+.pet-promo {
+  background: #0a0a0f;
+  padding: 80px 40px;
+}
+
+.pet-promo__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.eyebrow--light {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.pet-promo__title {
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 900;
+  line-height: 1.05;
+  color: #ffffff;
+  margin: 10px 0 18px;
+}
+
+.pet-promo__desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 420px;
+  margin-bottom: 32px;
+}
+
+.pet-promo__cta {
+  display: inline-flex;
+}
+
+.pet-promo__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.pet-promo__chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 200ms, box-shadow 200ms;
+  aspect-ratio: 1;
+}
+
+.pet-promo__chip:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.pet-promo__chip-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+}
+
+.pet-promo__chip-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 700px) {
+  .pet-promo {
+    padding: 60px 24px;
+  }
+
+  .pet-promo__inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .pet-promo__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* ── Pet portrait slide journey ──────────────────────────────────────────── */
 
 .pet-journey-page {
