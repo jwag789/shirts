@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import CollectionCard from '../components/CollectionCard.vue'
 import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
@@ -14,67 +14,13 @@ const PET_STYLES = [
   { icon: '🔮', label: 'Wizard',    gradient: 'linear-gradient(160deg, #070012 0%, #1e0040 55%, #7b2fff 100%)' },
 ]
 
-const heroSlides = [
-  {
-    eyebrow: 'Torii',
-    title: 'Shirts built around the artwork.',
-    copy: 'Japanese-inspired graphics with clean contrast and an everyday feel that doesn\'t try too hard.',
-    image: '/images/IMG_2110.PNG',
-    scale: 1.005,
-    overlay: 'linear-gradient(90deg, rgba(0, 0, 0, 0.64) 0%, rgba(0, 0, 0, 0.34) 42%, rgba(0, 0, 0, 0.12) 100%)',
-    cta: 'Shop Torii',
-    to: '/collections/japanese-style',
-  },
-  {
-    eyebrow: 'Fine Lines',
-    title: 'Bold lines, raw marks, strong graphics.',
-    copy: 'Sketch energy and heavy ink turned into shirts worth wearing — not just owning.',
-    image: '/images/SKETCH-1.png',
-    scale: 0.99,
-    overlay: 'linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.48) 42%, rgba(0, 0, 0, 0.08) 100%)',
-    cta: 'Shop Fine Lines',
-    to: '/collections/ink-art',
-  },
-  {
-    eyebrow: 'All collections',
-    title: 'Four collections worth a look.',
-    copy: 'Torii, Funny Business, Fine Lines, and Frame Rate — all made to order, all with the artwork up front.',
-    image: '/images/IMG_2096.PNG',
-    scale: 0.985,
-    overlay: 'linear-gradient(90deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.36) 46%, rgba(0, 0, 0, 0.14) 100%)',
-    cta: 'Browse all collections',
-    to: '/collections',
-  },
-]
-
-const activeSlide = ref(0)
-const slide = computed(() => heroSlides[activeSlide.value])
 const categoryRail = ref(null)
-
-let heroTimer
-
-const startHeroTimer = () => {
-  window.clearInterval(heroTimer)
-  heroTimer = window.setInterval(nextSlide, 7000)
-}
-
-const showSlide = (index) => {
-  activeSlide.value = index
-  startHeroTimer()
-}
-
-const nextSlide = () => {
-  activeSlide.value = (activeSlide.value + 1) % heroSlides.length
-}
 
 const scrollCategoryRail = (direction) => {
   const rail = categoryRail.value
   if (!rail) return
   rail.scrollBy({ left: direction * Math.round(rail.clientWidth * 0.88), behavior: 'smooth' })
 }
-
-onMounted(() => startHeroTimer())
-onBeforeUnmount(() => window.clearInterval(heroTimer))
 </script>
 
 <template>
@@ -84,39 +30,15 @@ onBeforeUnmount(() => window.clearInterval(heroTimer))
     <main>
       <section class="hero-carousel">
         <div class="hero-carousel__slides" aria-hidden="true">
-          <div
-            v-for="(heroSlide, index) in heroSlides"
-            :key="heroSlide.title"
-            class="hero-carousel__slide"
-            :class="{ 'is-active': index === activeSlide }"
-            :style="{
-              '--slide-position': heroSlide.position,
-              '--slide-scale': heroSlide.scale,
-              '--slide-overlay': heroSlide.overlay,
-            }"
-          >
-            <img :src="heroSlide.image" :alt="heroSlide.title" />
+          <div class="hero-carousel__slide is-active">
+            <img src="/images/mockups/cherry-horizon-1-lifestyle.jpg" alt="InkSpirit graphic tees" />
           </div>
         </div>
-
-        <Transition name="hero-copy" mode="out-in">
-          <div :key="slide.title" class="hero-carousel__content">
-            <p class="eyebrow">{{ slide.eyebrow }}</p>
-            <h1>{{ slide.title }}</h1>
-            <p>{{ slide.copy }}</p>
-            <RouterLink class="button" :to="slide.to">{{ slide.cta }}</RouterLink>
-          </div>
-        </Transition>
-
-        <div class="hero-carousel__controls" aria-label="Hero slides">
-          <button
-            v-for="(heroSlide, index) in heroSlides"
-            :key="heroSlide.title"
-            type="button"
-            :class="{ 'is-active': index === activeSlide }"
-            :aria-label="`Show slide ${index + 1}`"
-            @click="showSlide(index)"
-          ></button>
+        <div class="hero-carousel__content">
+          <p class="eyebrow">Original graphic tees</p>
+          <h1>Wear art. Stand out.</h1>
+          <p>Bold graphics, clean cuts — shirts for every style, made to order.</p>
+          <RouterLink class="button" to="/collections">Shop all collections</RouterLink>
         </div>
       </section>
 
