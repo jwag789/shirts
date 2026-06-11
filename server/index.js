@@ -6,6 +6,7 @@ import { config } from 'dotenv'
 import pg from 'pg'
 import OpenAI from 'openai'
 import { fal } from '@fal-ai/client'
+import sharp from 'sharp'
 import { products } from '../src/data/products.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -333,6 +334,67 @@ async function fulfillCheckoutSession(session) {
   return nextOrder
 }
 
+// curve: px the arc control point rises above (positive) or dips below (negative) baseline
+const STYLE_TEXT_THEMES = {
+  superhero: { fill: '#FFD700', stroke: '#0a0a3f', glow: null,      spacing: 2,  curve: 80  },
+  viking:    { fill: '#d4a017', stroke: '#180a00', glow: null,      spacing: 5,  curve: -45 },
+  pirate:    { fill: '#FFD700', stroke: '#000000', glow: null,      spacing: 2,  curve: 55  },
+  astronaut: { fill: '#00e5ff', stroke: '#001133', glow: '#00e5ff', spacing: 8,  curve: 0   },
+  samurai:   { fill: '#ffffff', stroke: '#7a0000', glow: null,      spacing: 14, curve: 22  },
+  wizard:    { fill: '#dd66ff', stroke: '#1a0030', glow: '#dd66ff', spacing: 3,  curve: 95  },
+}
+
+async function compositeNameOnImage(imgBuffer, name, style) {
+  const theme = STYLE_TEXT_THEMES[style] ?? STYLE_TEXT_THEMES.superhero
+  const meta = await sharp(imgBuffer).metadata()
+  const w = meta.width
+  const h = meta.height
+
+  const fontSize = Math.round(w * 0.11)
+  const strokeW = Math.round(fontSize * 0.06)
+  const baseY = Math.round(h * 0.87)
+  const arcPath = `M ${Math.round(w * 0.07)},${baseY} Q ${Math.round(w / 2)},${baseY - theme.curve} ${Math.round(w * 0.93)},${baseY}`
+
+  const escaped = name.toUpperCase()
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+  const shadowDist = Math.round(fontSize * 0.07)
+  const shadowBlur = Math.round(fontSize * 0.04)
+  const haloBlur = Math.round(fontSize * 0.22)
+  const glowBlur = Math.round(fontSize * 0.18)
+
+  const textAttrs = `font-family="Impact, Arial Black, Arial, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="${theme.spacing}"`
+  const textPath = `<textPath xlink:href="#arc" startOffset="50%" text-anchor="middle">${escaped}</textPath>`
+
+  const glowLayer = theme.glow ? `
+    <text ${textAttrs} fill="${theme.glow}" opacity="0.65" filter="url(#glow-f)">${textPath}</text>` : ''
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}">
+    <defs>
+      <path id="arc" d="${arcPath}"/>
+      <filter id="halo-f" x="-20%" y="-100%" width="140%" height="300%">
+        <feGaussianBlur stdDeviation="${haloBlur}"/>
+      </filter>
+      <filter id="glow-f" x="-25%" y="-100%" width="150%" height="300%">
+        <feGaussianBlur stdDeviation="${glowBlur}" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="pop-f" x="-10%" y="-40%" width="120%" height="200%">
+        <feDropShadow dx="${shadowDist}" dy="${shadowDist}" stdDeviation="${shadowBlur}" flood-color="black" flood-opacity="0.95"/>
+      </filter>
+    </defs>
+    <text ${textAttrs} fill="black" opacity="0.8" filter="url(#halo-f)">${textPath}</text>
+    ${glowLayer}
+    <text ${textAttrs} stroke="${theme.stroke}" stroke-width="${strokeW}" stroke-linejoin="round" fill="none">${textPath}</text>
+    <text ${textAttrs} fill="${theme.fill}" filter="url(#pop-f)">${textPath}</text>
+  </svg>`
+
+  return sharp(imgBuffer)
+    .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
+    .png()
+    .toBuffer()
+}
+
 app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (req, res) => {
   try {
     const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
@@ -340,7 +402,8 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
       return res.status(429).json({ error: `Limit reached — you can generate up to ${PET_PORTRAIT_DAILY_LIMIT} portraits per day. Try again tomorrow.` })
     }
 
-    const { imageBase64, mimeType, style } = req.body
+    const { imageBase64, mimeType, style, petName } = req.body
+    const safePetName = typeof petName === 'string' ? petName.trim().slice(0, 20) : ''
 
     if (!imageBase64 || !mimeType || !style) {
       return res.status(400).json({ error: 'Missing imageBase64, mimeType, or style.' })
@@ -425,7 +488,14 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
       },
     })
 
-    const imageUrl = bgResult.data.image?.url ?? rawImageUrl
+    let imageUrl = bgResult.data.image?.url ?? rawImageUrl
+
+    if (safePetName) {
+      const imgBuffer = Buffer.from(await fetch(imageUrl).then(r => r.arrayBuffer()))
+      const composited = await compositeNameOnImage(imgBuffer, safePetName, style)
+      const blob = new Blob([composited], { type: 'image/png' })
+      imageUrl = await fal.storage.upload(blob)
+    }
 
     res.json({ imageUrl, petDescription })
   } catch (error) {

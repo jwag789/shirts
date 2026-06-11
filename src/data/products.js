@@ -194,6 +194,49 @@ export const products = [
     ],
   },
   {
+    slug: 'deadpan-drops',
+    name: 'Weiner Takes All',
+    collection: 'Funny Business',
+    collectionSlug: 'pun-shirts',
+    price: '$38',
+    priceValue: 38,
+    tag: 'Limited',
+    mark: 'WT',
+    tone: 'tee-rose',
+    art: 'linear-gradient(135deg, #e6c1bb 0%, #fff3ed 100%)',
+    cardImage: '/images/mockups/weiner-takes-all-3-front.jpg',
+    headline: 'He crossed the finish line first. He is the weiner.',
+    longDescription:
+      'Weiner Takes All follows one determined hot dog from start to finish line — a clean racing graphic with a punchline that lands the moment you read it.',
+    shipping: 'Limited batch, ships in 4-6 business days',
+    note: 'Strong choice for centered graphic layouts.',
+    gallery: [
+      '/images/mockups/weiner-takes-all-3-front.jpg',
+      '/images/mockups/weiner-takes-all-2-lifestyle.jpg',
+      '/images/mockups/weiner-takes-all-1-folded-2.jpg',
+    ],
+    colors: [
+      { name: 'Rose', swatch: '#ddb0aa', tone: 'tee-rose' },
+      { name: 'Cream', swatch: '#f3e5da', tone: 'tee-sand' },
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    printify: {
+      productId: '6a1e4e02e67750d9af0105f2',
+      variantsBySize: { S: 68759, M: 68767, L: 68773, XL: 68779, '2XL': 68785 },
+    },
+    details: [
+      'Hot dog racing graphic',
+      'Open layout with room for the joke to breathe',
+      'A calmer color option in the collection',
+    ],
+    story: [
+      {
+        title: 'Artwork direction',
+        copy: 'First place. Clean finish. No one saw it coming except everyone.',
+      },
+    ],
+  },
+  {
     slug: 'side-splitter',
     name: 'Gravy Train',
     collection: 'Funny Business',
@@ -234,49 +277,6 @@ export const products = [
       {
         title: 'Artwork direction',
         copy: 'Full commitment. A working train, rendered in gravy. All aboard.',
-      },
-    ],
-  },
-  {
-    slug: 'deadpan-drops',
-    name: 'Weiner Takes All',
-    collection: 'Funny Business',
-    collectionSlug: 'pun-shirts',
-    price: '$38',
-    priceValue: 38,
-    tag: 'Limited',
-    mark: 'WT',
-    tone: 'tee-rose',
-    art: 'linear-gradient(135deg, #e6c1bb 0%, #fff3ed 100%)',
-    cardImage: '/images/mockups/weiner-takes-all-3-front.jpg',
-    headline: 'He crossed the finish line first. He is the weiner.',
-    longDescription:
-      'Weiner Takes All follows one determined hot dog from start to finish line — a clean racing graphic with a punchline that lands the moment you read it.',
-    shipping: 'Limited batch, ships in 4-6 business days',
-    note: 'Strong choice for centered graphic layouts.',
-    gallery: [
-      '/images/mockups/weiner-takes-all-3-front.jpg',
-      '/images/mockups/weiner-takes-all-2-lifestyle.jpg',
-      '/images/mockups/weiner-takes-all-1-folded-2.jpg',
-    ],
-    colors: [
-      { name: 'Rose', swatch: '#ddb0aa', tone: 'tee-rose' },
-      { name: 'Cream', swatch: '#f3e5da', tone: 'tee-sand' },
-    ],
-    sizes: ['S', 'M', 'L', 'XL', '2XL'],
-    printify: {
-      productId: '6a1e4e02e67750d9af0105f2',
-      variantsBySize: { S: 68759, M: 68767, L: 68773, XL: 68779, '2XL': 68785 },
-    },
-    details: [
-      'Hot dog racing graphic',
-      'Open layout with room for the joke to breathe',
-      'A calmer color option in the collection',
-    ],
-    story: [
-      {
-        title: 'Artwork direction',
-        copy: 'First place. Clean finish. No one saw it coming except everyone.',
       },
     ],
   },
@@ -519,20 +519,26 @@ export const products = [
     mark: 'OW',
     tone: 'tee-sand',
     art: 'linear-gradient(135deg, #d3d3d3 0%, #f0f0f0 100%)',
-    cardImage: '/images/SKETCH-1.png',
+    cardImage: 'https://images-api.printify.com/mockup/6a29fea636880479c709c90b/38190/97992/haunted-castle-skull-t-shirt-gothic-skull-castle-artwork.jpg?camera_label=front',
     headline: 'An ancient landscape of columns, ruins, and epic scale.',
     longDescription:
       'Old World translates classical architecture into a wearable graphic — wide views, layered ruins, and the kind of detail that rewards a closer look.',
     shipping: 'Made to order, ships in 3-5 business days',
     note: 'Raw ink-inspired front artwork with architectural detail.',
     gallery: [
-      '/images/SKETCH-1.png'
+      'https://images-api.printify.com/mockup/6a29fea636880479c709c90b/38190/97992/haunted-castle-skull-t-shirt-gothic-skull-castle-artwork.jpg?camera_label=front',
+      'https://images-api.printify.com/mockup/6a29fea636880479c709c90b/38190/127673/haunted-castle-skull-t-shirt-gothic-skull-castle-artwork.jpg?camera_label=lifestyle',
+      'https://images-api.printify.com/mockup/6a29fea636880479c709c90b/38190/100616/haunted-castle-skull-t-shirt-gothic-skull-castle-artwork.jpg?camera_label=person-1-front',
+      'https://images-api.printify.com/mockup/6a29fea636880479c709c90b/38190/100619/haunted-castle-skull-t-shirt-gothic-skull-castle-artwork.jpg?camera_label=person-2-front',
     ],
     colors: [
-      { name: 'Sand', swatch: '#d7c7b5', tone: 'tee-sand' },
-      { name: 'Bone', swatch: '#eee6da', tone: 'tee-sand' }
+      { name: 'Sport Grey', swatch: '#b0b8bc', tone: 'tee-sand' },
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL'],
+    printify: {
+      productId: '6a29fea636880479c709c90b',
+      variantsBySize: { XS: 67827, S: 38162, M: 38176, L: 38190, XL: 38204, '2XL': 38218 },
+    },
     details: [
       'Roman/Greek ruins and columns front artwork',
       'Strong ink linework with open spacing',
@@ -556,31 +562,25 @@ export const products = [
     mark: 'DB',
     tone: 'tee-ink',
     art: 'linear-gradient(135deg, #101010 0%, #303030 100%)',
-    cardImage: '/images/mockups/divine-blade-1-front-2.jpg',
+    cardImage: 'https://images-api.printify.com/mockup/6a2a001bbbf0294ff40c9002/38191/97992/fallen-angel-illustration-t-shirt-gothic-winged-figure-grayscale-artwork.jpg?camera_label=front',
     headline: 'An angel descends with wings spread and a sword of fire.',
     longDescription:
       'Divine Blade brings raw ink energy to a dramatic scene — heavy linework, strong contrast, and a composition that fills the shirt without crowding it.',
-    shipping: 'Limited batch, ships in 4-6 business days',
+    shipping: 'Made to order, ships in 3-5 business days',
     note: 'High-contrast ink artwork with a dramatic vertical composition.',
     gallery: [
-      '/images/mockups/divine-blade-1-front-2.jpg',
-      '/images/mockups/divine-blade-2-person-1.jpg',
-      '/images/mockups/divine-blade-3-person-2.jpg',
-      '/images/mockups/divine-blade-4-person-3.jpg',
+      'https://images-api.printify.com/mockup/6a2a001bbbf0294ff40c9002/38191/97992/fallen-angel-illustration-t-shirt-gothic-winged-figure-grayscale-artwork.jpg?camera_label=front',
+      'https://images-api.printify.com/mockup/6a2a001bbbf0294ff40c9002/38191/127673/fallen-angel-illustration-t-shirt-gothic-winged-figure-grayscale-artwork.jpg?camera_label=lifestyle',
+      'https://images-api.printify.com/mockup/6a2a001bbbf0294ff40c9002/38191/100616/fallen-angel-illustration-t-shirt-gothic-winged-figure-grayscale-artwork.jpg?camera_label=person-1-front',
+      'https://images-api.printify.com/mockup/6a2a001bbbf0294ff40c9002/38191/100619/fallen-angel-illustration-t-shirt-gothic-winged-figure-grayscale-artwork.jpg?camera_label=person-2-front',
     ],
     colors: [
-      { name: 'White', swatch: '#ffffff', tone: 'tee-sand' }
+      { name: 'White', swatch: '#ffffff', tone: 'tee-sand' },
     ],
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
     printify: {
-      productId: '6a0e63c36e860af763029aca',
-      variantsBySize: {
-        S: 12102,
-        M: 12101,
-        L: 12100,
-        XL: 12103,
-        '2XL': 12104,
-      },
+      productId: '6a2a001bbbf0294ff40c9002',
+      variantsBySize: { S: 38163, M: 38177, L: 38191, XL: 38205, '2XL': 38219 },
     },
     details: [
       'Angel with fire sword front artwork',
@@ -593,6 +593,92 @@ export const products = [
         copy: 'Wings out, sword raised, descended — a moment that needs the whole shirt to hold it.'
       }
     ]
+  },
+  {
+    slug: 'ink-samurai',
+    name: 'Ink Samurai',
+    collection: 'Fine Lines',
+    collectionSlug: 'ink-art',
+    price: '$36',
+    priceValue: 36,
+    tag: 'New',
+    mark: 'IS',
+    tone: 'tee-sand',
+    art: 'linear-gradient(135deg, #1a1a1a 0%, #3d3d3d 50%, #888888 100%)',
+    cardImage: 'https://images-api.printify.com/mockup/6a26ac4b3df0c6dfab06443a/66243/97992/samurai-ink-brush-art-t-shirt-japanese-kanji-warrior-shirt.jpg?camera_label=front',
+    headline: 'A samurai rendered in raw ink brushwork with Japanese kanji.',
+    longDescription:
+      'Ink Samurai strips the warrior down to essentials — bold brushwork, kanji script, and the kind of graphic weight that holds up across the whole shirt.',
+    shipping: 'Made to order, ships in 3-5 business days',
+    note: 'Ink brushwork with kanji typography — strong front graphic placement.',
+    gallery: [
+      'https://images-api.printify.com/mockup/6a26ac4b3df0c6dfab06443a/66243/97992/samurai-ink-brush-art-t-shirt-japanese-kanji-warrior-shirt.jpg?camera_label=front',
+      'https://images-api.printify.com/mockup/6a26ac4b3df0c6dfab06443a/66243/127673/samurai-ink-brush-art-t-shirt-japanese-kanji-warrior-shirt.jpg?camera_label=lifestyle',
+      'https://images-api.printify.com/mockup/6a26ac4b3df0c6dfab06443a/66243/100616/samurai-ink-brush-art-t-shirt-japanese-kanji-warrior-shirt.jpg?camera_label=person-1-front',
+      'https://images-api.printify.com/mockup/6a26ac4b3df0c6dfab06443a/66243/100619/samurai-ink-brush-art-t-shirt-japanese-kanji-warrior-shirt.jpg?camera_label=person-2-front',
+    ],
+    colors: [
+      { name: 'Ice Grey', swatch: '#bfc4c9', tone: 'tee-sand' },
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    printify: {
+      productId: '6a26ac4b3df0c6dfab06443a',
+      variantsBySize: { S: 66241, M: 66242, L: 66243, XL: 66244, '2XL': 66245 },
+    },
+    details: [
+      'Samurai ink brush artwork with kanji script',
+      'Bold brushwork and strong graphic weight',
+      'The sharpest, most calligraphic piece in the Fine Lines collection',
+    ],
+    story: [
+      {
+        title: 'Artwork direction',
+        copy: 'The warrior reduced to its essentials — brushwork, kanji, presence.',
+      },
+    ],
+  },
+  {
+    slug: 'coastal-village',
+    name: 'Coastal Village',
+    collection: 'Fine Lines',
+    collectionSlug: 'ink-art',
+    price: '$36',
+    priceValue: 36,
+    tag: 'New',
+    mark: 'CV',
+    tone: 'tee-ink',
+    art: 'linear-gradient(135deg, #1a3a6b 0%, #2a6098 50%, #7ab8d4 100%)',
+    cardImage: 'https://images-api.printify.com/mockup/6a275234f9043b4bb8032e5f/42833/97992/coastal-village-illustration-t-shirt-mediterranean-seaside-scene.jpg?camera_label=front',
+    headline: 'A Mediterranean seaside village illustrated with detailed ink linework.',
+    longDescription:
+      'Coastal Village captures the layered architecture and warm light of a Mediterranean harbor town — tightly illustrated, full of detail, and grounded by the deep Sapphire shirt.',
+    shipping: 'Made to order, ships in 3-5 business days',
+    note: 'Dense linework illustration with a strong sense of place.',
+    gallery: [
+      'https://images-api.printify.com/mockup/6a275234f9043b4bb8032e5f/42833/97992/coastal-village-illustration-t-shirt-mediterranean-seaside-scene.jpg?camera_label=front',
+      'https://images-api.printify.com/mockup/6a275234f9043b4bb8032e5f/42833/127673/coastal-village-illustration-t-shirt-mediterranean-seaside-scene.jpg?camera_label=lifestyle',
+      'https://images-api.printify.com/mockup/6a275234f9043b4bb8032e5f/42833/100616/coastal-village-illustration-t-shirt-mediterranean-seaside-scene.jpg?camera_label=person-1-front',
+      'https://images-api.printify.com/mockup/6a275234f9043b4bb8032e5f/42833/100619/coastal-village-illustration-t-shirt-mediterranean-seaside-scene.jpg?camera_label=person-2-front',
+    ],
+    colors: [
+      { name: 'Sapphire', swatch: '#1e4f8c', tone: 'tee-ink' },
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    printify: {
+      productId: '6a275234f9043b4bb8032e5f',
+      variantsBySize: { S: 42821, M: 42827, L: 42833, XL: 42839, '2XL': 42845 },
+    },
+    details: [
+      'Mediterranean seaside village front artwork',
+      'Dense ink illustration with layered architecture',
+      'Deep Sapphire shirt grounds the detailed linework',
+    ],
+    story: [
+      {
+        title: 'Artwork direction',
+        copy: 'Whitewashed walls, fishing boats, narrow streets — the whole village in one frame.',
+      },
+    ],
   },
 ]
 

@@ -53,6 +53,7 @@ const selectedSize = ref('M')
 const addedToBag = ref(false)
 const mockupPhotoUrl = ref(null)
 const showLightbox = ref(false)
+const petName = ref('')
 
 function onKeydown(e) {
   if (e.key === 'Escape') showLightbox.value = false
@@ -145,7 +146,7 @@ async function generate() {
     const response = await fetch('/api/pet-portrait/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageBase64, mimeType, style: selectedStyle.value }),
+      body: JSON.stringify({ imageBase64, mimeType, style: selectedStyle.value, petName: petName.value.trim() }),
     })
 
     const data = await response.json()
@@ -183,6 +184,7 @@ function startOver() {
   generateError.value = ''
   addedToBag.value = false
   selectedSize.value = 'M'
+  petName.value = ''
   if (colors.value.length) selectedColor.value = colors.value[0]
 }
 
@@ -290,6 +292,17 @@ const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.valu
                   accept="image/jpeg,image/png,image/webp"
                   style="display: none"
                   @change="onFileChange"
+                />
+              </div>
+
+              <div class="pet-name-field">
+                <label for="pet-name-input">What's your pet's name? <span>(optional)</span></label>
+                <input
+                  id="pet-name-input"
+                  v-model="petName"
+                  type="text"
+                  maxlength="20"
+                  placeholder="e.g. Biscuit"
                 />
               </div>
 
