@@ -1,10 +1,11 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import { useCart } from '../composables/useCart'
 import { products } from '../data/products'
+import { setDocumentHead } from '../composables/useDocumentHead'
 
 const route = useRoute()
 const { addItem } = useCart()
@@ -32,6 +33,15 @@ const relatedProducts = computed(() =>
 const addToBag = () => {
   addItem(product.value, undefined, activeSize.value)
 }
+
+watchEffect(() => {
+  setDocumentHead({
+    title: `${product.value.name} — ${product.value.collection} T-Shirt | InkSpirit Studio`,
+    description: `${product.value.headline} ${product.value.price}, ${product.value.shipping}.`,
+    path: `/products/${product.value.slug}`,
+    image: product.value.cardImage,
+  })
+})
 </script>
 
 <template>

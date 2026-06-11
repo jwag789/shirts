@@ -776,7 +776,7 @@ app.get('/api/orders/:sessionId', async (req, res) => {
   }
 })
 
-app.use(express.static(distDir))
+app.use(express.static(distDir, { extensions: ['html'] }))
 
 app.get(/.*/, (_req, res) => {
   res.sendFile(path.join(distDir, 'index.html'))

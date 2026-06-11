@@ -2,6 +2,13 @@
 import CollectionCard from '../components/CollectionCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import { collections, getProductsByCollection } from '../data/products'
+import { setDocumentHead } from '../composables/useDocumentHead'
+
+setDocumentHead({
+  title: 'Shop All Collections | InkSpirit Studio',
+  description: 'Browse every InkSpirit graphic t-shirt collection: Japanese-style art, funny pun tees, ink art designs, and custom pet portraits.',
+  path: '/collections',
+})
 </script>
 
 <template>

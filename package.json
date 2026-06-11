@@ -6,7 +6,7 @@
   "scripts": {
     "predev": "kill $(lsof -ti :4242) 2>/dev/null; true",
     "dev": "concurrently -n vite,server -c cyan,yellow \"vite\" \"nodemon --watch server --watch src/data/products.js --ext js,json server/index.js\"",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender.js",
     "preview": "vite preview",
     "server": "nodemon --watch server --watch src/data/products.js --ext js,json server/index.js",
     "start": "npm run build && node server/index.js"

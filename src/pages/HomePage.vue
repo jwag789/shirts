@@ -4,6 +4,14 @@ import CollectionCard from '../components/CollectionCard.vue'
 import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import { collections, getProductsByCollection } from '../data/products'
+import { setDocumentHead } from '../composables/useDocumentHead'
+
+setDocumentHead({
+  title: 'InkSpirit Studio — Original Graphic T-Shirts & Custom Pet Portraits',
+  description: 'Original, made-to-order graphic t-shirts: Japanese-inspired art, illustrated puns, raw ink designs, and custom AI-generated pet portrait tees.',
+  path: '/',
+  image: '/images/mockups/cherry-horizon-1-lifestyle.jpg',
+})
 
 const PET_STYLES = [
   { icon: '⚡', label: 'Superhero', gradient: 'linear-gradient(160deg, #0f0c29 0%, #302b63 55%, #c0392b 100%)' },

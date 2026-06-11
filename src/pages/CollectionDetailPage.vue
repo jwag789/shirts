@@ -1,14 +1,24 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import { getCollectionBySlug, getProductsByCollection } from '../data/products'
+import { setDocumentHead } from '../composables/useDocumentHead'
 
 const route = useRoute()
 
 const collection = computed(() => getCollectionBySlug(route.params.slug))
 const collectionProducts = computed(() => getProductsByCollection(collection.value.slug))
+
+watchEffect(() => {
+  setDocumentHead({
+    title: `${collection.value.name} T-Shirts | InkSpirit Studio`,
+    description: collection.value.description,
+    path: `/collections/${collection.value.slug}`,
+    image: collection.value.heroImage,
+  })
+})
 </script>
 
 <template>

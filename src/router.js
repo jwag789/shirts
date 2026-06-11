@@ -6,6 +6,7 @@ import ProductDetailPage from './pages/ProductDetailPage.vue'
 import CheckoutSuccessPage from './pages/CheckoutSuccessPage.vue'
 import CheckoutCancelPage from './pages/CheckoutCancelPage.vue'
 import PetPortraitPage from './pages/PetPortraitPage.vue'
+import SeoLandingPage from './pages/SeoLandingPage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -34,6 +35,12 @@ const router = createRouter({
       path: '/products/:slug',
       name: 'product',
       component: ProductDetailPage,
+      props: true,
+    },
+    {
+      path: '/info/:slug',
+      name: 'seo-landing',
+      component: SeoLandingPage,
       props: true,
     },
     {
