@@ -1,10 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import CollectionCard from '../components/CollectionCard.vue'
 import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import { collections, getProductsByCollection } from '../data/products'
 import { setDocumentHead } from '../composables/useDocumentHead'
+import banner1 from '../../images/banner-1.png'
+import banner2 from '../../images/banner-2.png'
+import banner3 from '../../images/banner-3.png'
 
 setDocumentHead({
   title: 'InkSpirit Studio — Original Graphic T-Shirts & Custom Pet Portraits',
@@ -22,6 +25,48 @@ const PET_STYLES = [
   { icon: '🔮', label: 'Wizard',    gradient: 'linear-gradient(160deg, #070012 0%, #1e0040 55%, #7b2fff 100%)' },
 ]
 
+const HERO_BANNERS = [
+  { src: banner1, alt: 'InkSpirit banner featuring graphic t-shirt designs' },
+  { src: banner2, alt: 'InkSpirit banner showcasing bold illustrated apparel' },
+  { src: banner3, alt: 'InkSpirit banner with signature streetwear-inspired artwork' },
+]
+
+const HERO_AUTOPLAY_MS = 5000
+const activeHeroSlide = ref(0)
+let heroCarouselInterval = null
+
+const goToHeroSlide = (index) => {
+  activeHeroSlide.value = index
+}
+
+const nextHeroSlide = () => {
+  activeHeroSlide.value = (activeHeroSlide.value + 1) % HERO_BANNERS.length
+}
+
+const stopHeroCarousel = () => {
+  if (heroCarouselInterval === null) return
+  window.clearInterval(heroCarouselInterval)
+  heroCarouselInterval = null
+}
+
+const startHeroCarousel = () => {
+  if (heroCarouselInterval !== null || HERO_BANNERS.length < 2) return
+  heroCarouselInterval = window.setInterval(nextHeroSlide, HERO_AUTOPLAY_MS)
+}
+
+const selectHeroSlide = (index) => {
+  goToHeroSlide(index)
+  stopHeroCarousel()
+  startHeroCarousel()
+}
+
+const pauseHeroCarousel = () => {
+  stopHeroCarousel()
+}
+
+const resumeHeroCarousel = () => {
+  startHeroCarousel()
+}
 const categoryRail = ref(null)
 
 const scrollCategoryRail = (direction) => {
@@ -29,6 +74,14 @@ const scrollCategoryRail = (direction) => {
   if (!rail) return
   rail.scrollBy({ left: direction * Math.round(rail.clientWidth * 0.88), behavior: 'smooth' })
 }
+
+onMounted(() => {
+  startHeroCarousel()
+})
+
+onBeforeUnmount(() => {
+  stopHeroCarousel()
+})
 </script>
 
 <template>
@@ -36,10 +89,21 @@ const scrollCategoryRail = (direction) => {
     <SiteHeader />
 
     <main>
-      <section class="hero-carousel">
+      <section
+        class="hero-carousel"
+        @mouseenter="pauseHeroCarousel"
+        @mouseleave="resumeHeroCarousel"
+        @focusin="pauseHeroCarousel"
+        @focusout="resumeHeroCarousel"
+      >
         <div class="hero-carousel__slides" aria-hidden="true">
-          <div class="hero-carousel__slide is-active">
-            <img src="/images/mockups/cherry-horizon-1-lifestyle.jpg" alt="InkSpirit graphic tees" />
+          <div
+            v-for="(banner, index) in HERO_BANNERS"
+            :key="banner.src"
+            class="hero-carousel__slide"
+            :class="{ 'is-active': index === activeHeroSlide }"
+          >
+            <img :src="banner.src" :alt="banner.alt" />
           </div>
         </div>
         <div class="hero-carousel__content">
@@ -47,6 +111,17 @@ const scrollCategoryRail = (direction) => {
           <h1>Wear art. Stand out.</h1>
           <p>Bold graphics, clean cuts — shirts for every style, made to order.</p>
           <RouterLink class="button" to="/collections">Shop all collections</RouterLink>
+        </div>
+        <div class="hero-carousel__controls" aria-label="Hero banner controls">
+          <button
+            v-for="(banner, index) in HERO_BANNERS"
+            :key="`banner-control-${index}`"
+            type="button"
+            :class="{ 'is-active': index === activeHeroSlide }"
+            @click="selectHeroSlide(index)"
+          >
+            <span class="sr-only">Show banner {{ index + 1 }}</span>
+          </button>
         </div>
       </section>
 
