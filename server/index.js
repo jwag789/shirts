@@ -236,7 +236,7 @@ function buildPrintifyOrderPayload(session, order, printifyUploads) {
         variant_id: variantId,
         quantity: item.quantity,
         external_id: `${session.id}-${index + 1}`,
-        print_areas: { front: [{ src: upload.preview_url, scale: 0.9, x: 0.5, y: 0.5, angle: 0 }] },
+        print_areas: [{ position: 'front', images: [{ id: upload.id, x: 0.5, y: 0.5, scale: 0.9, angle: 0 }] }],
       }
     }
     return {
