@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { config } from 'dotenv'
 import pg from 'pg'
-import OpenAI from 'openai'
+import OpenAI, { toFile } from 'openai'
 import { fal } from '@fal-ai/client'
 import sharp from 'sharp'
 import { products } from '../src/data/products.js'
@@ -29,6 +29,8 @@ fal.config({ credentials: process.env.FAL_KEY ?? '' })
 
 const PET_PORTRAIT_PRICE = 38
 const PET_PORTRAIT_DAILY_LIMIT = 10
+// How many portrait options to generate per request (each is a separate gpt-image-1 image → separate cost)
+const PET_PORTRAIT_OPTION_COUNT = 3
 
 // ip → { count, date } — resets each calendar day
 const generateRateLimit = new Map()
@@ -46,12 +48,12 @@ function checkRateLimit(ip) {
 }
 
 const PET_PORTRAIT_STYLES = {
-  superhero: 'wearing a superhero cape and mask, heroic pose, dynamic comic book superhero art style',
-  viking: 'dressed as a fierce Viking warrior with horned helmet, fur cloak, and battle axe, epic Norse scene',
-  pirate: 'dressed as a swashbuckling pirate captain with tricorn hat, eyepatch, and cutlass, sea adventure scene',
-  astronaut: 'dressed as an astronaut in a detailed spacesuit, floating in deep space with planets and stars',
-  samurai: 'dressed as an honorable Japanese samurai with katana and traditional armor, cherry blossom background',
-  wizard: 'dressed as a powerful wizard with flowing robes and glowing magical staff, casting colorful spells',
+  superhero: 'a caped superhero in a bright hero costume with a chest emblem and eye mask, striking a bold heroic pose with the cape billowing dynamically and a few speed-lines and sparks',
+  viking: 'a fierce Viking warrior in a horned helmet and fur cloak, raising a battle axe, with swirling snow, ravens and a couple of Norse rune accents around them',
+  pirate: 'a swashbuckling pirate captain in a tricorn hat brandishing a cutlass, with a tattered flag, crossed swords and a splash of sea spray flowing around them',
+  astronaut: 'a brave astronaut in a detailed white spacesuit with a glowing helmet visor, drifting heroically with a few orbiting planets, stars and a comet streak around them',
+  samurai: 'an honorable Japanese samurai in ornate armor holding a katana, with drifting cherry blossom petals and a bold rising-sun accent swirling around them',
+  wizard: 'a powerful wizard in a starry pointed hat and flowing robes, holding a glowing crystal staff and conjuring swirling colorful magic sparks and arcane symbols around them',
 }
 
 const pool = new pg.Pool({
@@ -460,51 +462,44 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
 
     const petDescription = vision.choices[0].message.content.trim()
 
-    // Step 3: upload pet photo to FAL storage so the model can reference it
+    // Step 3: generate the portrait with gpt-image-1, editing from the real pet photo
+    // so the likeness is preserved, and prompting for a full immersive background.
     const petBuffer = Buffer.from(imageBase64, 'base64')
-    const petBlob = new Blob([petBuffer], { type: mimeType })
-    const petPhotoUrl = await fal.storage.upload(petBlob)
+    const petImageFile = await toFile(petBuffer, 'pet.png', { type: mimeType })
 
-    // Step 4: generate portrait using image-to-image — preserves the pet's likeness
     const stylePrompt = PET_PORTRAIT_STYLES[style]
-    const prompt = `Dramatic fantasy portrait of ${petDescription}, visually dressed as and fully transformed into: ${stylePrompt}. The costume and setting are clearly visible. The animal's face, fur color, and markings are recognizable. Highly detailed digital painting, cinematic lighting, rich textures, vivid colors, dramatic shadows, fantasy art style, centered subject, no text, masterpiece quality.`
+    const prompt = `Turn the pet in this photo into a richly detailed, semi-photorealistic character portrait, reimagined as ${stylePrompt}.
 
-    const result = await fal.subscribe('fal-ai/flux/dev/image-to-image', {
-      input: {
-        image_url: petPhotoUrl,
-        prompt,
-        strength: 0.92,
-        num_inference_steps: 35,
-        guidance_scale: 4.0,
-        num_images: 1,
-        enable_safety_checker: true,
-      },
+The pet is this exact animal — ${petDescription}. Keep its real face, fur/coat color, markings and expression clearly recognizable, with realistic fur texture and lifelike eyes.
+
+Render it like premium movie-poster art: painterly photorealism with cinematic lighting, real material textures on the fur, costume and props, and rich depth. Avoid flat cartoon shading and heavy cartoon outlines. The pet is the hero — large and centered in an energetic pose, with the themed props and effects flowing outward from the character into an organic, irregular, die-cut silhouette — NOT a rectangle, square, circle or scenery box.
+
+The background must be FULLY TRANSPARENT (alpha). Isolate the artwork with a natural, ragged outer edge like a sticker or die-cut print. Absolutely no background fill, no backdrop, no scenery, no border, no frame, no text, no words, no letters.`
+
+    const generation = await openai.images.edit({
+      model: 'gpt-image-1',
+      image: petImageFile,
+      prompt,
+      size: '1024x1024',
+      quality: 'high',
+      background: 'transparent',
+      n: PET_PORTRAIT_OPTION_COUNT,
     })
 
-    const rawImageUrl = result.data.images?.[0]?.url
-    if (!rawImageUrl) throw new Error('Image generation returned no result.')
+    const b64List = (generation.data ?? []).map((d) => d.b64_json).filter(Boolean)
+    if (!b64List.length) throw new Error('Image generation returned no result.')
 
-    // Step 4: remove background → transparent PNG
-    const bgResult = await fal.subscribe('fal-ai/birefnet', {
-      input: {
-        image_url: rawImageUrl,
-        model: 'General Use (Light)',
-        operating_resolution: '1024x1024',
-        output_format: 'png',
-        refine_foreground: true,
-      },
-    })
+    // Host each option so Printify (and the browser) can load it by URL.
+    // Optionally stamp the pet's name onto each before uploading.
+    const imageUrls = await Promise.all(
+      b64List.map(async (b64) => {
+        let buffer = Buffer.from(b64, 'base64')
+        if (safePetName) buffer = await compositeNameOnImage(buffer, safePetName, style)
+        return fal.storage.upload(new Blob([buffer], { type: 'image/png' }))
+      }),
+    )
 
-    let imageUrl = bgResult.data.image?.url ?? rawImageUrl
-
-    if (safePetName) {
-      const imgBuffer = Buffer.from(await fetch(imageUrl).then(r => r.arrayBuffer()))
-      const composited = await compositeNameOnImage(imgBuffer, safePetName, style)
-      const blob = new Blob([composited], { type: 'image/png' })
-      imageUrl = await fal.storage.upload(blob)
-    }
-
-    res.json({ imageUrl, petDescription })
+    res.json({ imageUrls, petDescription })
   } catch (error) {
     console.error('Pet portrait generation error:', error)
     res.status(500).json({ error: error.message ?? 'Generation failed.' })

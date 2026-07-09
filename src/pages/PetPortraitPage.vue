@@ -47,16 +47,17 @@ const selectedStyle = ref(null)
 const uploadedFile = ref(null)
 const uploadedPreview = ref(null)
 const isGenerating = ref(false)
-const generatedImageUrl = ref(null)
+const generatedOptions = ref([])
+const selectedOptions = ref([])
 const generateError = ref('')
 const selectedSize = ref('M')
 const addedToBag = ref(false)
 const mockupPhotoUrl = ref(null)
-const showLightbox = ref(false)
+const lightboxUrl = ref(null)
 const petName = ref('')
 
 function onKeydown(e) {
-  if (e.key === 'Escape') showLightbox.value = false
+  if (e.key === 'Escape') lightboxUrl.value = null
 }
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
@@ -80,7 +81,8 @@ async function fetchMockupPhoto(color) {
 function selectStyle(key) {
   selectedStyle.value = key
   addedToBag.value = false
-  generatedImageUrl.value = null
+  generatedOptions.value = []
+  selectedOptions.value = []
   generateError.value = ''
   setTimeout(() => { step.value = 2 }, 360)
 }
@@ -117,7 +119,8 @@ function handleFile(file) {
   }
   generateError.value = ''
   uploadedFile.value = file
-  generatedImageUrl.value = null
+  generatedOptions.value = []
+  selectedOptions.value = []
   addedToBag.value = false
   uploadedPreview.value = URL.createObjectURL(file)
 }
@@ -135,7 +138,8 @@ async function generate() {
   if (!uploadedFile.value || !selectedStyle.value || isGenerating.value) return
   isGenerating.value = true
   generateError.value = ''
-  generatedImageUrl.value = null
+  generatedOptions.value = []
+  selectedOptions.value = []
   addedToBag.value = false
   step.value = 3
 
@@ -152,7 +156,9 @@ async function generate() {
     const data = await response.json()
     if (!response.ok) throw new Error(data.error ?? 'Generation failed.')
 
-    generatedImageUrl.value = data.imageUrl
+    generatedOptions.value = data.imageUrls ?? (data.imageUrl ? [data.imageUrl] : [])
+    // Pre-select the first option so the buy panel is ready to go
+    selectedOptions.value = generatedOptions.value.slice(0, 1)
     if (selectedColor.value) fetchMockupPhoto(selectedColor.value)
   } catch (err) {
     generateError.value = err.message
@@ -162,16 +168,25 @@ async function generate() {
   }
 }
 
+function toggleOption(url) {
+  const i = selectedOptions.value.indexOf(url)
+  if (i >= 0) selectedOptions.value.splice(i, 1)
+  else selectedOptions.value.push(url)
+  addedToBag.value = false
+}
+
 function addToBag() {
-  if (!generatedImageUrl.value || !selectedStyle.value) return
+  if (!selectedOptions.value.length || !selectedStyle.value) return
   const variantId = selectedColor.value?.variantsBySize?.[selectedSize.value] ?? null
-  addPetPortraitItem(
-    selectedStyle.value,
-    generatedImageUrl.value,
-    selectedSize.value,
-    selectedColor.value?.name ?? 'White',
-    variantId,
-  )
+  for (const url of selectedOptions.value) {
+    addPetPortraitItem(
+      selectedStyle.value,
+      url,
+      selectedSize.value,
+      selectedColor.value?.name ?? 'White',
+      variantId,
+    )
+  }
   addedToBag.value = true
 }
 
@@ -180,7 +195,8 @@ function startOver() {
   selectedStyle.value = null
   uploadedFile.value = null
   uploadedPreview.value = null
-  generatedImageUrl.value = null
+  generatedOptions.value = []
+  selectedOptions.value = []
   generateError.value = ''
   addedToBag.value = false
   selectedSize.value = 'M'
@@ -189,6 +205,8 @@ function startOver() {
 }
 
 const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.value))
+const selectedCount = computed(() => selectedOptions.value.length)
+const selectedTotal = computed(() => selectedCount.value * 38)
 </script>
 
 <template>
@@ -323,7 +341,7 @@ const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.valu
                 Create my portrait — Free preview →
               </button>
               <p class="pet-generate-hint" style="margin-top: 12px">
-                Takes about 15–30 seconds. Your photo is never stored.
+                Takes about 30–60 seconds. Your photo is never stored.
               </p>
             </div>
           </div>
@@ -342,85 +360,103 @@ const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.valu
                 </div>
                 <h2 class="pet-generating__title">Painting your portrait<span class="pet-generating__dots"><i>.</i><i>.</i><i>.</i></span></h2>
                 <p class="pet-generating__sub">
-                  Turning your pet into a {{ activeStyle?.label }}. This usually takes 15–30 seconds.
+                  Turning your pet into a {{ activeStyle?.label }}. This usually takes 30–60 seconds.
                 </p>
                 <div class="pet-generating__bar" aria-hidden="true"><span></span></div>
               </div>
             </div>
 
             <!-- Result state -->
-            <div v-else-if="generatedImageUrl" class="pet-slide__inner pet-slide__inner--result">
-              <div class="pet-result-layout">
+            <div v-else-if="generatedOptions.length" class="pet-slide__inner pet-slide__inner--result">
+              <div class="pet-slide__heading">
+                <p class="eyebrow">Your portraits are ready</p>
+                <h1 class="pet-slide__title">Pick your <span>favorites</span></h1>
+                <p class="pet-slide__sub">Tap any you love — each selected design is its own shirt. Add just one or the whole set.</p>
+              </div>
 
-                <div class="pet-result__mockup">
-                  <div class="shirt-mockup-container">
-                    <ShirtMockup :color="previewSwatch" :art-url="generatedImageUrl" :photo-url="mockupPhotoUrl" />
-                    <button class="mockup-zoom-btn" type="button" title="View larger" @click="showLightbox = true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <div class="pet-options-grid">
+                <div
+                  v-for="(url, i) in generatedOptions"
+                  :key="url"
+                  class="pet-option"
+                >
+                  <button
+                    class="pet-option__card"
+                    :class="{ 'is-selected': selectedOptions.includes(url) }"
+                    type="button"
+                    :aria-pressed="selectedOptions.includes(url)"
+                    @click="toggleOption(url)"
+                  >
+                    <ShirtMockup :color="previewSwatch" :art-url="url" :photo-url="mockupPhotoUrl" />
+                    <span class="pet-option__check" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
                       </svg>
-                    </button>
+                    </span>
+                  </button>
+                  <button class="pet-option__zoom" type="button" :title="`View option ${i + 1} larger`" @click="lightboxUrl = url">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"/>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="pet-result__buy pet-result__buy--wide">
+                <div v-if="colors.length > 0" class="product-options">
+                  <div class="product-options__label">
+                    <span>Shirt color</span>
+                    <strong>{{ selectedColor?.name }}</strong>
                   </div>
-                  <button class="pet-regen-btn" type="button" @click="step = 2">← Try a different photo</button>
+                  <div class="color-swatches">
+                    <button
+                      v-for="color in colors"
+                      :key="color.name"
+                      class="color-swatch"
+                      :class="{ 'is-active': selectedColor?.name === color.name }"
+                      :style="{ background: color.swatch }"
+                      :title="color.name"
+                      type="button"
+                      @click="selectColor(color)"
+                    />
+                  </div>
                 </div>
 
-                <div class="pet-result__buy">
-                  <p class="eyebrow">Your portrait is ready</p>
-                  <h2 class="pet-result__title">Custom Pet Portrait</h2>
-                  <p class="pet-result__style">{{ activeStyle?.label }} edition</p>
-                  <p class="pet-result__price">$38</p>
-
-                  <div v-if="colors.length > 0" class="product-options" style="margin-top: 24px">
-                    <div class="product-options__label">
-                      <span>Shirt color</span>
-                      <strong>{{ selectedColor?.name }}</strong>
-                    </div>
-                    <div class="color-swatches">
-                      <button
-                        v-for="color in colors"
-                        :key="color.name"
-                        class="color-swatch"
-                        :class="{ 'is-active': selectedColor?.name === color.name }"
-                        :style="{ background: color.swatch }"
-                        :title="color.name"
-                        type="button"
-                        @click="selectColor(color)"
-                      />
-                    </div>
+                <div class="product-options" style="margin-top: 20px">
+                  <div class="product-options__label">
+                    <span>Size</span>
+                    <strong>{{ selectedSize }}</strong>
                   </div>
-
-                  <div class="product-options" style="margin-top: 20px">
-                    <div class="product-options__label">
-                      <span>Size</span>
-                      <strong>{{ selectedSize }}</strong>
-                    </div>
-                    <div class="product-sizes">
-                      <button
-                        v-for="size in availableSizes"
-                        :key="size"
-                        class="product-sizes__item"
-                        :class="{ 'is-active': size === selectedSize }"
-                        type="button"
-                        @click="selectedSize = size"
-                      >{{ size }}</button>
-                    </div>
-                  </div>
-
-                  <div class="pet-result__actions">
+                  <div class="product-sizes">
                     <button
-                      class="button"
+                      v-for="size in availableSizes"
+                      :key="size"
+                      class="product-sizes__item"
+                      :class="{ 'is-active': size === selectedSize }"
                       type="button"
-                      :disabled="addedToBag"
-                      @click="addToBag"
-                    >
-                      {{ addedToBag ? '✓ Added to bag' : 'Add to bag — $38' }}
-                    </button>
+                      @click="selectedSize = size"
+                    >{{ size }}</button>
                   </div>
+                </div>
 
+                <div class="pet-result__actions">
+                  <button
+                    class="button"
+                    type="button"
+                    :disabled="addedToBag || selectedCount === 0"
+                    @click="addToBag"
+                  >
+                    <template v-if="addedToBag">✓ Added {{ selectedCount }} to bag</template>
+                    <template v-else-if="selectedCount === 0">Select a design</template>
+                    <template v-else>Add {{ selectedCount }} {{ selectedCount === 1 ? 'shirt' : 'shirts' }} to bag — ${{ selectedTotal }}</template>
+                  </button>
+                </div>
+
+                <div class="pet-result__footlinks">
+                  <button class="pet-regen-btn" type="button" @click="step = 2">← Try a different photo</button>
                   <button class="pet-start-over" type="button" @click="startOver">Start over</button>
                 </div>
-
               </div>
             </div>
 
@@ -431,10 +467,10 @@ const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.valu
     </div>
 
     <Teleport to="body">
-      <div v-if="showLightbox" class="mockup-lightbox" @click.self="showLightbox = false">
+      <div v-if="lightboxUrl" class="mockup-lightbox" @click.self="lightboxUrl = null">
         <div class="mockup-lightbox__inner">
-          <button class="mockup-lightbox__close" type="button" @click="showLightbox = false">✕</button>
-          <ShirtMockup :color="previewSwatch" :art-url="generatedImageUrl" :photo-url="mockupPhotoUrl" />
+          <button class="mockup-lightbox__close" type="button" @click="lightboxUrl = null">✕</button>
+          <ShirtMockup :color="previewSwatch" :art-url="lightboxUrl" :photo-url="mockupPhotoUrl" />
         </div>
       </div>
     </Teleport>

@@ -16,15 +16,6 @@ setDocumentHead({
   image: '/images/mockups/cherry-horizon-1-lifestyle.jpg',
 })
 
-const PET_STYLES = [
-  { icon: '⚡', label: 'Superhero' },
-  { icon: '🪓', label: 'Viking' },
-  { icon: '☠️', label: 'Pirate' },
-  { icon: '🚀', label: 'Astronaut' },
-  { icon: '⛩️', label: 'Samurai' },
-  { icon: '🔮', label: 'Wizard' },
-]
-
 const HERO_BANNERS = [
   { src: banner1, alt: 'InkSpirit banner featuring graphic t-shirt designs' },
   { src: banner2, alt: 'InkSpirit banner showcasing bold illustrated apparel' },
@@ -107,16 +98,6 @@ onBeforeUnmount(() => {
             <div class="personalize__actions">
               <RouterLink class="button personalize__cta" to="/pet-portrait">Create my portrait →</RouterLink>
               <span class="personalize__note">Free preview · No signup needed</span>
-            </div>
-            <div class="personalize__chips">
-              <RouterLink
-                v-for="s in PET_STYLES"
-                :key="s.label"
-                class="personalize__chip"
-                to="/pet-portrait"
-              >
-                <span>{{ s.icon }}</span>{{ s.label }}
-              </RouterLink>
             </div>
           </div>
 
