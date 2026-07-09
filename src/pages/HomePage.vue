@@ -17,12 +17,12 @@ setDocumentHead({
 })
 
 const PET_STYLES = [
-  { icon: '⚡', label: 'Superhero', gradient: 'linear-gradient(160deg, #0f0c29 0%, #302b63 55%, #c0392b 100%)' },
-  { icon: '🪓', label: 'Viking',    gradient: 'linear-gradient(160deg, #1a0a00 0%, #5c3317 55%, #c8972a 100%)' },
-  { icon: '☠️', label: 'Pirate',    gradient: 'linear-gradient(160deg, #020b18 0%, #0d2137 55%, #1a6b8a 100%)' },
-  { icon: '🚀', label: 'Astronaut', gradient: 'linear-gradient(160deg, #000005 0%, #0a0a2e 55%, #3535a0 100%)' },
-  { icon: '⛩️', label: 'Samurai',   gradient: 'linear-gradient(160deg, #0d0000 0%, #3d0000 55%, #a0001a 100%)' },
-  { icon: '🔮', label: 'Wizard',    gradient: 'linear-gradient(160deg, #070012 0%, #1e0040 55%, #7b2fff 100%)' },
+  { icon: '⚡', label: 'Superhero' },
+  { icon: '🪓', label: 'Viking' },
+  { icon: '☠️', label: 'Pirate' },
+  { icon: '🚀', label: 'Astronaut' },
+  { icon: '⛩️', label: 'Samurai' },
+  { icon: '🔮', label: 'Wizard' },
 ]
 
 const HERO_BANNERS = [
@@ -89,6 +89,51 @@ onBeforeUnmount(() => {
     <SiteHeader />
 
     <main>
+      <!-- Personalize — flagship feature -->
+      <section class="personalize" v-reveal>
+        <div class="personalize__inner">
+          <div class="personalize__copy">
+            <p class="eyebrow">Custom · AI-powered</p>
+            <h2 class="personalize__title">Turn your pet<br>into a <span>legend.</span></h2>
+            <p class="personalize__desc">
+              Upload one photo and watch your best friend become a superhero, samurai,
+              pirate, or astronaut — hand-finished and printed on a premium tee.
+            </p>
+            <div class="personalize__steps">
+              <span><b>1</b> Upload a photo</span>
+              <span><b>2</b> Pick a style</span>
+              <span><b>3</b> Wear it</span>
+            </div>
+            <div class="personalize__actions">
+              <RouterLink class="button personalize__cta" to="/pet-portrait">Create my portrait →</RouterLink>
+              <span class="personalize__note">Free preview · No signup needed</span>
+            </div>
+            <div class="personalize__chips">
+              <RouterLink
+                v-for="s in PET_STYLES"
+                :key="s.label"
+                class="personalize__chip"
+                to="/pet-portrait"
+              >
+                <span>{{ s.icon }}</span>{{ s.label }}
+              </RouterLink>
+            </div>
+          </div>
+
+          <div class="personalize__showcase">
+            <RouterLink to="/pet-portrait" class="personalize__frame" aria-label="Create a custom pet portrait">
+              <img
+                src="/images/dog-ai.png"
+                alt="A dog's photo transformed into superhero, viking, pirate, astronaut and samurai portraits, printed on a t-shirt"
+              />
+            </RouterLink>
+            <div class="personalize__badge personalize__badge--tl">✨ 6 legendary styles</div>
+            <div class="personalize__badge personalize__badge--br">⚡ Ready in ~30s</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hero carousel — temporarily hidden
       <section
         class="hero-carousel"
         @mouseenter="pauseHeroCarousel"
@@ -124,6 +169,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
       </section>
+      -->
 
       <section id="shop" class="content-section">
         <div v-reveal class="section-heading section-heading--rail">
@@ -143,31 +189,6 @@ onBeforeUnmount(() => {
             :collection="collection"
             :product-count="getProductsByCollection(collection.slug).length"
           />
-        </div>
-      </section>
-
-      <!-- Pet Portrait promo -->
-      <section class="pet-promo" v-reveal>
-        <div class="pet-promo__inner">
-          <div class="pet-promo__copy">
-            <p class="eyebrow eyebrow--light">Custom — AI powered</p>
-            <h2 class="pet-promo__title">Your pet,<br>legendary.</h2>
-            <p class="pet-promo__desc">Upload a photo of your pet and we'll transform them into a one-of-a-kind fantasy portrait — printed on a premium tee. Superhero, pirate, samurai, and more.</p>
-            <RouterLink class="button pet-promo__cta" to="/pet-portrait">Create my portrait →</RouterLink>
-          </div>
-          <div class="pet-promo__grid">
-            <RouterLink
-              v-for="s in PET_STYLES"
-              :key="s.icon"
-              class="pet-promo__chip"
-              :style="{ background: s.gradient }"
-              to="/pet-portrait"
-              :aria-label="s.label"
-            >
-              <span class="pet-promo__chip-icon">{{ s.icon }}</span>
-              <span class="pet-promo__chip-label">{{ s.label }}</span>
-            </RouterLink>
-          </div>
         </div>
       </section>
 

@@ -7,12 +7,12 @@ import { useCart } from '../composables/useCart'
 const { addPetPortraitItem } = useCart()
 
 const STYLES = [
-  { key: 'superhero', label: 'Superhero', desc: 'Cape, mask, heroic pose', icon: '⚡', gradient: 'linear-gradient(160deg, #0f0c29 0%, #302b63 55%, #c0392b 100%)' },
-  { key: 'viking', label: 'Viking', desc: 'Horned helmet, battle axe', icon: '🪓', gradient: 'linear-gradient(160deg, #1a0a00 0%, #5c3317 55%, #c8972a 100%)' },
-  { key: 'pirate', label: 'Pirate', desc: 'Tricorn hat, cutlass, sea', icon: '☠️', gradient: 'linear-gradient(160deg, #020b18 0%, #0d2137 55%, #1a6b8a 100%)' },
-  { key: 'astronaut', label: 'Astronaut', desc: 'Spacesuit, deep space', icon: '🚀', gradient: 'linear-gradient(160deg, #000005 0%, #0a0a2e 55%, #3535a0 100%)' },
-  { key: 'samurai', label: 'Samurai', desc: 'Katana, armor, cherry blossoms', icon: '⛩️', gradient: 'linear-gradient(160deg, #0d0000 0%, #3d0000 55%, #a0001a 100%)' },
-  { key: 'wizard', label: 'Wizard', desc: 'Robes, staff, magic spells', icon: '🔮', gradient: 'linear-gradient(160deg, #070012 0%, #1e0040 55%, #7b2fff 100%)' },
+  { key: 'superhero', label: 'Superhero', desc: 'Cape, mask, heroic pose', icon: '⚡', img: '/images/pet-styles/superhero.png' },
+  { key: 'viking', label: 'Viking', desc: 'Horned helmet, battle axe', icon: '🪓', img: '/images/pet-styles/viking.png' },
+  { key: 'pirate', label: 'Pirate', desc: 'Tricorn hat, cutlass, sea', icon: '☠️', img: '/images/pet-styles/pirate.png' },
+  { key: 'astronaut', label: 'Astronaut', desc: 'Spacesuit, deep space', icon: '🚀', img: '/images/pet-styles/astronaut.png' },
+  { key: 'samurai', label: 'Samurai', desc: 'Katana, armor, cherry blossoms', icon: '⛩️', img: '/images/pet-styles/samurai.png' },
+  { key: 'wizard', label: 'Wizard', desc: 'Robes, staff, magic spells', icon: '🔮', img: '/images/pet-styles/wizard.png' },
 ]
 
 const colors = ref([])
@@ -233,7 +233,7 @@ const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.valu
             <div class="pet-slide__inner">
               <div class="pet-slide__heading">
                 <p class="eyebrow">Step 1 of 3</p>
-                <h1 class="pet-slide__title">Choose your style</h1>
+                <h1 class="pet-slide__title">Choose your <span>style</span></h1>
                 <p class="pet-slide__sub">What legendary world should your pet live in?</p>
               </div>
               <div class="style-grid">
@@ -245,13 +245,18 @@ const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.valu
                   type="button"
                   @click="selectStyle(s.key)"
                 >
-                  <div class="style-card__art" :style="{ background: s.gradient }">
-                    <span class="style-card__emoji">{{ s.icon }}</span>
-                  </div>
-                  <div class="style-card__copy">
+                  <span class="style-card__medallion">
+                    <img :src="s.img" :alt="`${s.label} pet portrait example`" loading="lazy" />
+                  </span>
+                  <span class="style-card__copy">
                     <strong>{{ s.label }}</strong>
                     <span>{{ s.desc }}</span>
-                  </div>
+                  </span>
+                  <span class="style-card__check" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </span>
                 </button>
               </div>
             </div>
