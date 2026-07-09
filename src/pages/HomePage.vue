@@ -108,7 +108,7 @@ onBeforeUnmount(() => {
                 alt="A dog's photo transformed into superhero, viking, pirate, astronaut and samurai portraits, printed on a t-shirt"
               />
             </RouterLink>
-            <div class="personalize__badge personalize__badge--tl">✨ 6 legendary styles</div>
+            <div class="personalize__badge personalize__badge--tl">✨ 12 legendary styles</div>
             <div class="personalize__badge personalize__badge--br">⚡ Ready in ~30s</div>
           </div>
         </div>

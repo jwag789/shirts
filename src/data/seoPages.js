@@ -250,7 +250,7 @@ export const seoPages = [
       'Turn your dog or cat into a custom illustrated portrait on a t-shirt. Upload a photo, choose a style (superhero, viking, pirate, astronaut, samurai, or wizard), and get a free preview.',
     h1: 'Custom Pet Portrait T-Shirts',
     intro:
-      "Want a t-shirt with your own pet on it? InkSpirit's custom pet portrait tool lets you upload a photo of your dog, cat, or any pet, choose from six illustrated styles, and preview the artwork on a shirt before you buy. Each portrait is generated from your photo and printed on a made-to-order tee.",
+      "Want a t-shirt with your own pet on it? InkSpirit's custom pet portrait tool lets you upload a photo of your dog, cat, or any pet, choose from twelve illustrated styles, and preview the artwork on a shirt before you buy. Each portrait is generated from your photo and printed on a made-to-order tee.",
     bullets: [
       'Upload any clear photo of your pet\'s face',
       'Choose from Superhero, Viking, Pirate, Astronaut, Samurai, or Wizard styles',
