@@ -372,6 +372,11 @@ h3 {
   transform: scale(1.05);
 }
 
+/* nudge the 3rd banner's crop down a touch */
+.hero-carousel__slide:nth-child(3) img {
+  object-position: center 42%;
+}
+
 /* dark gradient left-side overlay for text legibility */
 .hero-carousel__slide::after {
   content: '';

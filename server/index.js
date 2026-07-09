@@ -209,7 +209,7 @@ async function uploadImageToPrintify(imageUrl) {
   return body
 }
 
-function buildPrintifyOrderPayload(session, order, printifyUploads) {
+function buildPrintifyOrderPayload(session, order, printifyUploads, petPortraitMeta) {
   const customer = session.customer_details ?? {}
   const address = session.shipping_details?.address ?? customer.address
   const name = splitCustomerName(session.shipping_details?.name ?? customer.name)
@@ -221,22 +221,26 @@ function buildPrintifyOrderPayload(session, order, printifyUploads) {
   const petPortraitVariants = process.env.PRINTIFY_PET_PORTRAIT_VARIANTS
     ? JSON.parse(process.env.PRINTIFY_PET_PORTRAIT_VARIANTS)
     : null
-  const petPortraitProductId = process.env.PRINTIFY_PET_PORTRAIT_PRODUCT_ID ?? null
+  const { blueprintId, printProviderId } = petPortraitMeta ?? {}
 
   const lineItems = order.items.map((item, index) => {
     if (item.isPetPortrait) {
       const upload = printifyUploads?.[index]
       const variantId = item.printifyVariantId || petPortraitVariants?.[item.size] || null
-      if (!upload || !petPortraitProductId || !variantId) {
-        console.warn(`Pet portrait item ${index + 1} cannot be auto-fulfilled. Set PRINTIFY_PET_PORTRAIT_PRODUCT_ID and PRINTIFY_PET_PORTRAIT_VARIANTS.`)
+      // Custom images require ordering by blueprint + print provider so Printify
+      // applies the per-order artwork. Ordering by product_id reuses the product's
+      // saved (blank) design and silently drops the uploaded image.
+      if (!upload || !blueprintId || !printProviderId || !variantId) {
+        console.warn(`Pet portrait item ${index + 1} cannot be auto-fulfilled (upload=${!!upload}, blueprint=${blueprintId}, provider=${printProviderId}, variant=${variantId}).`)
         return null
       }
       return {
-        product_id: petPortraitProductId,
+        blueprint_id: blueprintId,
+        print_provider_id: printProviderId,
         variant_id: variantId,
         quantity: item.quantity,
         external_id: `${session.id}-${index + 1}`,
-        print_areas: [{ position: 'front', images: [{ id: upload.id, x: 0.5, y: 0.5, scale: 0.9, angle: 0 }] }],
+        print_areas: { front: [{ src: upload.preview_url, x: 0.5, y: 0.5, scale: 0.9, angle: 0 }] },
       }
     }
     return {
@@ -289,7 +293,10 @@ async function createPrintifyOrder(session, order) {
     }),
   )
 
-  const payload = buildPrintifyOrderPayload(session, order, printifyUploads)
+  const hasPetPortrait = order.items.some((item) => item.isPetPortrait)
+  const petPortraitMeta = hasPetPortrait ? await getPetPortraitVariantData() : null
+
+  const payload = buildPrintifyOrderPayload(session, order, printifyUploads, petPortraitMeta)
 
   if (payload.line_items.length === 0) {
     console.warn('No Printify line items after filtering — order may need manual fulfillment')
@@ -605,7 +612,12 @@ async function getPetPortraitVariantData() {
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
   })
 
-  petVariantsCache = { colors: [...colorMap.values()], sizes }
+  petVariantsCache = {
+    colors: [...colorMap.values()],
+    sizes,
+    blueprintId: product.blueprint_id ?? null,
+    printProviderId: product.print_provider_id ?? null,
+  }
   petVariantsCachedAt = now
   return petVariantsCache
 }
