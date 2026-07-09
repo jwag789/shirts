@@ -29,7 +29,7 @@ fal.config({ credentials: process.env.FAL_KEY ?? '' })
 const PET_PORTRAIT_PRICE = 38
 const PET_PORTRAIT_DAILY_LIMIT = 10
 // How many portrait options to generate per request (each is a separate gpt-image-1 image → separate cost)
-const PET_PORTRAIT_OPTION_COUNT = 3
+const PET_PORTRAIT_OPTION_COUNT = 1
 
 // ip → { count, date } — resets each calendar day
 const generateRateLimit = new Map()
