@@ -215,6 +215,8 @@ async function initDb() {
       created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `)
+  // Customers look orders up by order number, so index it.
+  await pool.query('CREATE INDEX IF NOT EXISTS orders_order_number_idx ON orders (order_number)')
 }
 
 async function saveOrder(sessionId, order) {
@@ -1041,6 +1043,60 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.json({ url: session.url })
   } catch (error) {
     res.status(400).json({ error: error.message })
+  }
+})
+
+// Customer-facing order lookup by order number + email. The email must match
+// the order's Stripe customer email — that's the auth guard, and we return the
+// same generic "not found" whether the number or the email is wrong so order
+// numbers can't be enumerated.
+const orderLookupRateLimit = new Map()
+
+app.post('/api/orders/lookup', express.json(), async (req, res) => {
+  try {
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(orderLookupRateLimit, ip, 40)) {
+      return res.status(429).json({ error: 'Too many lookups. Please try again later.' })
+    }
+
+    let orderNumber = String(req.body?.orderNumber ?? '').trim().toUpperCase()
+    const email = String(req.body?.email ?? '').trim().toLowerCase()
+    if (!orderNumber || !email) {
+      return res.status(400).json({ error: 'Enter your order number and email.' })
+    }
+    if (!orderNumber.startsWith('INK-')) orderNumber = `INK-${orderNumber}`
+
+    const notFound = () =>
+      res.status(404).json({ error: "We couldn't find an order matching that number and email." })
+
+    const { rows } = await pool.query('SELECT data FROM orders WHERE order_number = $1', [orderNumber])
+    if (!rows.length) return notFound()
+
+    const order = rows[0].data
+    let customerEmail = order.customerEmail ?? null
+    // Orders still at checkout_created haven't captured the email yet — hydrate
+    // it live from Stripe so lookups work the moment payment completes.
+    if (!customerEmail && order.id) {
+      try {
+        const session = await stripe.checkout.sessions.retrieve(order.id)
+        customerEmail = session.customer_details?.email ?? null
+      } catch {
+        // ignore — treated as no match below
+      }
+    }
+    if (!customerEmail || customerEmail.toLowerCase() !== email) return notFound()
+
+    res.json({
+      id: order.id,
+      orderNumber: order.orderNumber ?? null,
+      status: order.status,
+      customerEmail,
+      items: order.items,
+      createdAt: order.createdAt ?? null,
+      printifyOrderId: order.printifyOrder?.id ?? null,
+    })
+  } catch {
+    res.status(500).json({ error: 'Something went wrong. Please try again.' })
   }
 })
 

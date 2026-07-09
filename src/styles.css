@@ -3179,3 +3179,26 @@ h3 {
   .personalize-carousel__arrow { display: none; }
   .personalize-carousel__dots { bottom: 14px; }
 }
+
+/* ── Order lookup page ───────────────────────────────────────────────────────── */
+.order-lookup__form {
+  max-width: 420px;
+  margin: 28px 0 0;
+  text-align: left;
+}
+
+.order-lookup__form .ts-field {
+  margin-bottom: 18px;
+}
+
+.order-lookup__form .button {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.order-lookup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}

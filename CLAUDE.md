@@ -34,17 +34,16 @@ src/
   styles.css        # All styles — no scoped CSS
   main.js / router.js
 .env.local          # Secret keys — never commit
-.private/orders/    # Order JSON files (one per Stripe session) — gitignored
 dist/               # Built frontend — served by Express in production
 ```
 
 ## Key Architecture
 
 **Checkout flow:**
-1. CartDrawer → `POST /api/create-checkout-session` → saves order to `.private/orders/<sessionId>.json`, returns Stripe URL
+1. CartDrawer → `POST /api/create-checkout-session` → saves order to Postgres (`checkout_created`), returns Stripe URL
 2. Customer pays on Stripe hosted page
-3. Stripe webhook → `POST /api/webhooks/stripe` → `checkout.session.completed` → creates Printify order, updates order file to `printify_created`
-4. Success page → `GET /api/orders/:sessionId` → shows order status (hydrates customer email live from Stripe if not yet in file)
+3. Stripe webhook → `POST /api/webhooks/stripe` → `checkout.session.completed` → creates Printify order, updates order row to `printify_created`
+4. Success page → `GET /api/orders/:sessionId` → shows order status (hydrates customer email live from Stripe if not yet stored)
 
 **Products and Printify:**
 - Products without a `printify` block cannot be checked out (cart blocks them with a warning)
@@ -73,6 +72,9 @@ All in `.env.local`:
 | `STRIPE_WEBHOOK_SECRET` | From `stripe listen` (dev) or Stripe Dashboard (prod) |
 | `PRINTIFY_API_TOKEN` | Printify personal access token |
 | `PRINTIFY_SHOP_ID` | Printify shop ID |
+| `DATABASE_URL` | Postgres connection string (order storage). SSL enabled when `NODE_ENV=production`. |
+| `OPENAI_API_KEY` | For AI pet portrait + team shirt generation (gpt-image-1) |
+| `FAL_KEY` | fal.ai storage — hosts generated images for Printify |
 | `SITE_URL` | Full URL of the site (used for Stripe redirect URLs and image URLs) |
 | `PORT` | Defaults to 4242 |
 
@@ -88,11 +90,11 @@ For test mode, omit `--live`. Use test card `4242 4242 4242 4242`.
 
 ## Order Storage
 
-Orders are flat JSON files in `.private/orders/<sessionId>.json`. Statuses:
+Orders live in a Postgres `orders` table (via `pg`, connection from `DATABASE_URL`). Each row is keyed by the Stripe `session_id` with the full order object stored in a `data` JSONB column; `order_number` is indexed for customer lookups. `initDb()` creates the table/index on startup. Statuses:
 - `checkout_created` — session created, payment not yet confirmed
 - `printify_created` — payment confirmed, Printify order created
 
-**Production caveat:** This file-based storage is ephemeral on most hosting platforms. Before scaling up, migrate to a database (SQLite or Postgres).
+Customers can retrieve an order at `/orders` (`POST /api/orders/lookup` with order number + email; the email must match the order's Stripe customer email). The post-checkout success page reads a single order via `GET /api/orders/:sessionId`.
 
 ## Wiring Up New Products
 

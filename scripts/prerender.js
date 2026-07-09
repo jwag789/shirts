@@ -283,6 +283,23 @@ async function main() {
   )
   count++
 
+  // Order lookup (utility page — not in sitemap)
+  await writePage(
+    path.join(distDir, 'orders.html'),
+    renderPage(template, {
+      title: `Track Your Order | ${siteName}`,
+      description: 'Look up your InkSpirit order status with your order number and the email you checked out with.',
+      canonicalPath: '/orders',
+      jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'Track Your Order', url: '/orders' }])],
+      bodyHtml: `
+      <h1>Track Your Order</h1>
+      <p>Enter your order number and the email you checked out with to see your InkSpirit order status.</p>
+      <p><a href="/orders">Look up your order</a></p>
+  `,
+    }),
+  )
+  count++
+
   // Collections list
   await writePage(
     path.join(distDir, 'collections.html'),

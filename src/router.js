@@ -5,6 +5,7 @@ import CollectionDetailPage from './pages/CollectionDetailPage.vue'
 import ProductDetailPage from './pages/ProductDetailPage.vue'
 import CheckoutSuccessPage from './pages/CheckoutSuccessPage.vue'
 import CheckoutCancelPage from './pages/CheckoutCancelPage.vue'
+import OrderLookupPage from './pages/OrderLookupPage.vue'
 import PetPortraitPage from './pages/PetPortraitPage.vue'
 import TeamShirtPage from './pages/TeamShirtPage.vue'
 import SeoLandingPage from './pages/SeoLandingPage.vue'
@@ -48,6 +49,11 @@ const router = createRouter({
       name: 'seo-landing',
       component: SeoLandingPage,
       props: true,
+    },
+    {
+      path: '/orders',
+      name: 'order-lookup',
+      component: OrderLookupPage,
     },
     {
       path: '/checkout/success',

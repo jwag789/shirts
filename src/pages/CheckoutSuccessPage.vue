@@ -95,7 +95,10 @@ onMounted(async () => {
             </div>
           </div>
 
-          <RouterLink class="button" to="/collections">Keep shopping</RouterLink>
+          <div class="order-lookup__actions">
+            <RouterLink class="button" to="/collections">Keep shopping</RouterLink>
+            <RouterLink class="button button--outline" to="/orders">Track your order</RouterLink>
+          </div>
         </template>
       </section>
     </main>
