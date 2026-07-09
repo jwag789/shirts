@@ -9,14 +9,14 @@ const { addTeamShirtItem } = useCart()
 const TOTAL_STEPS = 5
 
 const STYLES = [
-  { key: 'modern-pro', label: 'Modern Pro', desc: 'Clean, bold, premium', icon: '🏆', art: 'linear-gradient(135deg,#0f172a,#1e40af)' },
-  { key: 'vintage', label: 'Vintage Sports', desc: 'Distressed, retro, timeless', icon: '🎽', art: 'linear-gradient(135deg,#7c2d12,#b45309)' },
-  { key: 'varsity', label: 'Varsity', desc: 'Block letters, collegiate', icon: '🎓', art: 'linear-gradient(135deg,#1e3a8a,#b91c1c)' },
-  { key: 'streetwear', label: 'Streetwear', desc: 'Bold oversized graphics', icon: '🔥', art: 'linear-gradient(135deg,#111827,#4b5563)' },
-  { key: 'heritage', label: 'Heritage Crest', desc: 'Shield, banner, elegant', icon: '🛡️', art: 'linear-gradient(135deg,#064e3b,#065f46)' },
-  { key: 'championship', label: 'Championship', desc: 'Trophy-inspired, layered', icon: '🥇', art: 'linear-gradient(135deg,#78350f,#ca8a04)' },
-  { key: 'esports', label: 'Esports', desc: 'Aggressive, angular mascot', icon: '🎮', art: 'linear-gradient(135deg,#4c1d95,#db2777)' },
-  { key: 'minimal', label: 'Minimal', desc: 'Clean, understated logo', icon: '⚪', art: 'linear-gradient(135deg,#374151,#111827)' },
+  { key: 'modern-pro', label: 'Modern Pro', desc: 'Clean, bold, premium', img: '/images/team-styles/modern-pro.png' },
+  { key: 'vintage', label: 'Vintage Sports', desc: 'Distressed, retro, timeless', img: '/images/team-styles/vintage.png' },
+  { key: 'varsity', label: 'Varsity', desc: 'Block letters, collegiate', img: '/images/team-styles/varsity.png' },
+  { key: 'streetwear', label: 'Streetwear', desc: 'Bold oversized graphics', img: '/images/team-styles/streetwear.png' },
+  { key: 'heritage', label: 'Heritage Crest', desc: 'Shield, banner, elegant', img: '/images/team-styles/heritage.png' },
+  { key: 'championship', label: 'Championship', desc: 'Trophy-inspired, layered', img: '/images/team-styles/championship.png' },
+  { key: 'esports', label: 'Esports', desc: 'Aggressive, angular mascot', img: '/images/team-styles/esports.png' },
+  { key: 'minimal', label: 'Minimal', desc: 'Clean, understated logo', img: '/images/team-styles/minimal.png' },
 ]
 
 const LOGO_EXAMPLES = [
@@ -383,8 +383,8 @@ function startOver() {
               type="button"
               @click="selectStyle(s.key)"
             >
-              <span class="style-card__medallion" :style="{ background: s.art }">
-                <span class="ts-style-icon">{{ s.icon }}</span>
+              <span class="style-card__medallion ts-style-medallion">
+                <img :src="s.img" :alt="`${s.label} team logo style`" loading="lazy" />
               </span>
               <span class="style-card__copy">
                 <strong>{{ s.label }}</strong>
@@ -498,8 +498,8 @@ function startOver() {
             <div class="pet-generating">
               <div class="pet-generating__orb">
                 <span class="pet-generating__spinner" aria-hidden="true"></span>
-                <span class="pet-generating__avatar" :style="{ background: activeStyle?.art }">
-                  <span class="ts-style-icon ts-style-icon--lg">{{ activeStyle?.icon }}</span>
+                <span class="pet-generating__avatar ts-style-medallion">
+                  <img :src="activeStyle?.img" :alt="`${activeStyle?.label} team logo style`" />
                 </span>
               </div>
               <h2 class="pet-generating__title">Designing your team graphic<span class="pet-generating__dots"><i>.</i><i>.</i><i>.</i></span></h2>
