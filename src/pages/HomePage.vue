@@ -58,6 +58,41 @@ const pauseHeroCarousel = () => {
 const resumeHeroCarousel = () => {
   startHeroCarousel()
 }
+// ── Personalize carousel (pet portrait + team shirt promos) ──────────────────
+const PERSONALIZE_SLIDES = 2
+const PERSONALIZE_AUTOPLAY_MS = 7000
+const activePersonalizeSlide = ref(0)
+let personalizeInterval = null
+
+const nextPersonalizeSlide = () => {
+  activePersonalizeSlide.value = (activePersonalizeSlide.value + 1) % PERSONALIZE_SLIDES
+}
+
+const stopPersonalizeCarousel = () => {
+  if (personalizeInterval === null) return
+  window.clearInterval(personalizeInterval)
+  personalizeInterval = null
+}
+
+const startPersonalizeCarousel = () => {
+  if (personalizeInterval !== null) return
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+  personalizeInterval = window.setInterval(nextPersonalizeSlide, PERSONALIZE_AUTOPLAY_MS)
+}
+
+const selectPersonalizeSlide = (index) => {
+  activePersonalizeSlide.value = index
+  stopPersonalizeCarousel()
+  startPersonalizeCarousel()
+}
+
+const stepPersonalizeSlide = (direction) => {
+  activePersonalizeSlide.value =
+    (activePersonalizeSlide.value + direction + PERSONALIZE_SLIDES) % PERSONALIZE_SLIDES
+  stopPersonalizeCarousel()
+  startPersonalizeCarousel()
+}
+
 const categoryRail = ref(null)
 
 const scrollCategoryRail = (direction) => {
@@ -68,10 +103,12 @@ const scrollCategoryRail = (direction) => {
 
 onMounted(() => {
   startHeroCarousel()
+  startPersonalizeCarousel()
 })
 
 onBeforeUnmount(() => {
   stopHeroCarousel()
+  stopPersonalizeCarousel()
 })
 </script>
 
@@ -80,8 +117,22 @@ onBeforeUnmount(() => {
     <SiteHeader />
 
     <main>
+      <!-- Personalize carousel — pet portraits + team shirts -->
+      <div
+        class="personalize-carousel"
+        v-reveal
+        @mouseenter="stopPersonalizeCarousel"
+        @mouseleave="startPersonalizeCarousel"
+        @focusin="stopPersonalizeCarousel"
+        @focusout="startPersonalizeCarousel"
+      >
+        <div class="personalize-carousel__viewport">
+          <div
+            class="personalize-carousel__track"
+            :style="{ transform: `translateX(${-activePersonalizeSlide * (100 / PERSONALIZE_SLIDES)}%)` }"
+          >
       <!-- Personalize — flagship feature -->
-      <section class="personalize" v-reveal>
+      <section class="personalize">
         <div class="personalize__inner">
           <div class="personalize__copy">
             <p class="eyebrow">Custom · AI-powered</p>
@@ -115,7 +166,7 @@ onBeforeUnmount(() => {
       </section>
 
       <!-- AI Team Shirt Generator -->
-      <section class="personalize personalize--team" v-reveal>
+      <section class="personalize personalize--team">
         <div class="personalize__inner">
           <div class="personalize__copy">
             <p class="eyebrow">New · AI-powered</p>
@@ -148,6 +199,33 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </section>
+          </div>
+        </div>
+
+        <button
+          class="personalize-carousel__arrow personalize-carousel__arrow--prev"
+          type="button"
+          aria-label="Previous"
+          @click="stepPersonalizeSlide(-1)"
+        >‹</button>
+        <button
+          class="personalize-carousel__arrow personalize-carousel__arrow--next"
+          type="button"
+          aria-label="Next"
+          @click="stepPersonalizeSlide(1)"
+        >›</button>
+
+        <div class="personalize-carousel__dots" aria-label="Featured tools">
+          <button
+            v-for="index in PERSONALIZE_SLIDES"
+            :key="`personalize-dot-${index}`"
+            type="button"
+            :class="{ 'is-active': index - 1 === activePersonalizeSlide }"
+            :aria-label="`Show slide ${index}`"
+            @click="selectPersonalizeSlide(index - 1)"
+          />
+        </div>
+      </div>
 
       <!-- Hero carousel — temporarily hidden
       <section

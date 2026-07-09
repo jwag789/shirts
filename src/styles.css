@@ -3093,3 +3093,89 @@ h3 {
     order: -1;
   }
 }
+
+/* ── Personalize carousel (pet portrait + team shirt promos) ─────────────────── */
+.personalize-carousel {
+  position: relative;
+}
+
+.personalize-carousel__viewport {
+  overflow: hidden;
+}
+
+.personalize-carousel__track {
+  display: flex;
+  width: 200%;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.personalize-carousel__track > .personalize {
+  flex: 0 0 50%;
+  width: 50%;
+}
+
+/* Arrows overlay the band and stay legible on both the light and dark slides. */
+.personalize-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  color: #1a1533;
+  font-size: 1.7rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(20, 15, 45, 0.22);
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.personalize-carousel__arrow:hover,
+.personalize-carousel__arrow:focus-visible {
+  background: #ffffff;
+  transform: translateY(-50%) scale(1.07);
+  outline: none;
+}
+
+.personalize-carousel__arrow--prev { left: 18px; }
+.personalize-carousel__arrow--next { right: 18px; }
+
+.personalize-carousel__dots {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.personalize-carousel__dots button {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+  transition: width 220ms ease, background 220ms ease;
+}
+
+.personalize-carousel__dots button.is-active {
+  width: 28px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+@media (max-width: 700px) {
+  .personalize-carousel__arrow { display: none; }
+  .personalize-carousel__dots { bottom: 14px; }
+}
