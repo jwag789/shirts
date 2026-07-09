@@ -6,6 +6,7 @@ import { config } from 'dotenv'
 import pg from 'pg'
 import OpenAI, { toFile } from 'openai'
 import { fal } from '@fal-ai/client'
+import sharp from 'sharp'
 import { products } from '../src/data/products.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -364,6 +365,23 @@ const PET_PORTRAIT_NAME_STYLES = {
   geisha: 'graceful brush-painted lettering with delicate cherry-blossom accents on a small silk banner',
 }
 
+// Normalize an uploaded photo into a clean sRGB PNG that every OpenAI call
+// will accept. iPhone photos are the common failure case: they arrive either
+// as HEIC or as JPEGs tagged with a Display P3 ICC profile, and gpt-image-1's
+// edit endpoint rejects both with "invalid image file or mode for image 1".
+// Transcoding through sharp bakes in EXIF orientation, drops the embedded
+// colour profile (PNG export strips metadata by default), caps the dimensions,
+// and guarantees a standard 8-bit RGB PNG.
+async function normalizePetImage(buffer) {
+  return await sharp(buffer, { failOn: 'none' })
+    .rotate()
+    .resize({ width: 1024, height: 1024, fit: 'inside', withoutEnlargement: true })
+    .flatten({ background: '#ffffff' })
+    .toColourspace('srgb')
+    .png()
+    .toBuffer()
+}
+
 app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (req, res) => {
   try {
     const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
@@ -385,6 +403,19 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
     requireEnv('OPENAI_API_KEY')
     requireEnv('FAL_KEY')
 
+    // Transcode the upload up front so every downstream OpenAI call gets a
+    // format it accepts (see normalizePetImage). Handles HEIC / Display P3
+    // iPhone photos that would otherwise 400 at the image edit step.
+    let petPngBuffer
+    try {
+      petPngBuffer = await normalizePetImage(Buffer.from(imageBase64, 'base64'))
+    } catch (err) {
+      console.error('Pet photo decode failed:', err)
+      return res.status(400).json({ error: "We couldn't read that photo. Please upload a JPG, PNG, or WEBP image." })
+    }
+    const petPngBase64 = petPngBuffer.toString('base64')
+    const petDataUrl = `data:image/png;base64,${petPngBase64}`
+
     // Step 1: validate this is a pet photo
     const validation = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -392,7 +423,7 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
         {
           role: 'user',
           content: [
-            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}`, detail: 'low' } },
+            { type: 'image_url', image_url: { url: petDataUrl, detail: 'low' } },
             { type: 'text', text: 'Is this a photo of a pet or animal (dog, cat, bird, rabbit, etc.)? Reply only YES or NO.' },
           ],
         },
@@ -412,7 +443,7 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
         {
           role: 'user',
           content: [
-            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}`, detail: 'low' } },
+            { type: 'image_url', image_url: { url: petDataUrl, detail: 'low' } },
             { type: 'text', text: 'Describe this pet for a portrait painter. Include: species, breed if identifiable, exact coat/fur color and texture, distinctive markings, ear shape, eye color, size/build, and any standout features. Be precise and specific. 2–3 sentences.' },
           ],
         },
@@ -424,8 +455,7 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
 
     // Step 3: generate the portrait with gpt-image-1, editing from the real pet photo
     // so the likeness is preserved, and prompting for a full immersive background.
-    const petBuffer = Buffer.from(imageBase64, 'base64')
-    const petImageFile = await toFile(petBuffer, 'pet.png', { type: mimeType })
+    const petImageFile = await toFile(petPngBuffer, 'pet.png', { type: 'image/png' })
 
     const stylePrompt = PET_PORTRAIT_STYLES[style]
 
