@@ -62,10 +62,6 @@ const selectedColor = ref(null)
 const selectedSize = ref('M')
 const mockupPhotoUrl = ref(null)
 
-// ── Personalization ──────────────────────────────────────────────────────────
-const playerName = ref('')
-const playerNumber = ref('')
-const playerRole = ref('')
 const isAdding = ref(false)
 const addedCount = ref(0)
 
@@ -84,32 +80,6 @@ const previewSwatch = computed(() => {
 })
 
 const canGenerate = computed(() => teamName.value.trim().length > 0 && selectedStyle.value)
-
-// The name line shown on the plate falls back to the role when no name is given.
-const plateName = computed(() => (playerName.value.trim() || playerRole.value.trim()).toUpperCase().slice(0, 16))
-const plateNumber = computed(() => playerNumber.value.trim().slice(0, 4))
-const hasPersonalization = computed(() => Boolean(plateName.value || plateNumber.value))
-
-function relLuminance(hex) {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex ?? '')
-  if (!m) return 0.5
-  const n = parseInt(m[1], 16)
-  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
-    const c = v / 255
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
-  })
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
-}
-
-// Use the darker team color as the letter fill and a light keyline so the
-// nameplate reads on any shirt color.
-const plateColors = computed(() => {
-  if (aiChoose.value) return { fill: '#111111', outline: '#ffffff' }
-  const p = primary.value, s = secondary.value
-  const fill = relLuminance(p) <= relLuminance(s) ? p : s
-  const outline = relLuminance(fill) < 0.4 ? '#ffffff' : '#111111'
-  return { fill, outline }
-})
 
 onMounted(async () => {
   try {
@@ -223,32 +193,9 @@ async function addToBag() {
   const variantId = selectedColor.value?.variantsBySize?.[selectedSize.value] ?? null
 
   try {
-    let imageUrl = generatedUrl.value
-
-    // Composite the player name/number onto the design server-side so the print
-    // file matches the preview exactly.
-    if (hasPersonalization.value) {
-      const res = await fetch('/api/team-shirt/personalize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          baseImageUrl: generatedUrl.value,
-          name: plateName.value,
-          number: plateNumber.value,
-          fill: plateColors.value.fill,
-          outline: plateColors.value.outline,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Could not personalize the shirt.')
-      imageUrl = data.imageUrl
-    }
-
     addTeamShirtItem({
-      generatedImageUrl: imageUrl,
+      generatedImageUrl: generatedUrl.value,
       teamName: teamName.value.trim(),
-      playerName: playerName.value.trim() || playerRole.value.trim(),
-      playerNumber: plateNumber.value,
       style: selectedStyle.value,
       size: selectedSize.value,
       color: selectedColor.value?.name ?? 'White',
@@ -256,10 +203,6 @@ async function addToBag() {
     })
 
     addedCount.value += 1
-    // Clear the player fields so the next teammate can be added quickly.
-    playerName.value = ''
-    playerNumber.value = ''
-    playerRole.value = ''
   } catch (err) {
     generateError.value = err.message
   } finally {
@@ -277,9 +220,6 @@ function startOver() {
   generatedUrl.value = null
   generateError.value = ''
   addedCount.value = 0
-  playerName.value = ''
-  playerNumber.value = ''
-  playerRole.value = ''
 }
 </script>
 
@@ -515,33 +455,18 @@ function startOver() {
             <div class="pet-slide__heading">
               <p class="eyebrow">Your design is ready</p>
               <h1 class="pet-slide__title">{{ teamName }} — <span>ready to wear</span></h1>
-              <p class="pet-slide__sub">Preview it on the shirt, personalize per player, then add each teammate to your bag.</p>
+              <p class="pet-slide__sub">Preview it on the shirt, pick your color and size, then add it to your bag.</p>
             </div>
 
             <div class="ts-result">
-              <!-- Shirt preview with live personalization overlay -->
+              <!-- Shirt preview -->
               <div class="ts-preview">
                 <div class="ts-mockup">
                   <ShirtMockup :color="previewSwatch" :art-url="generatedUrl" :photo-url="mockupPhotoUrl" />
-                  <div v-if="hasPersonalization" class="ts-plate" aria-hidden="true">
-                    <span
-                      v-if="plateName"
-                      class="ts-plate__name"
-                      :style="{ color: plateColors.fill, '-webkit-text-stroke': `1.5px ${plateColors.outline}` }"
-                    >{{ plateName }}</span>
-                    <span
-                      v-if="plateNumber"
-                      class="ts-plate__number"
-                      :style="{ color: plateColors.fill, '-webkit-text-stroke': `2px ${plateColors.outline}` }"
-                    >{{ plateNumber }}</span>
-                  </div>
                 </div>
-                <p v-if="hasPersonalization" class="ts-preview__note">
-                  Preview — your name &amp; number are printed into the design.
-                </p>
               </div>
 
-              <!-- Buy + personalize panel -->
+              <!-- Buy panel -->
               <div class="ts-buy">
                 <div v-if="colors.length" class="product-options">
                   <div class="product-options__label">
@@ -579,36 +504,15 @@ function startOver() {
                   </div>
                 </div>
 
-                <div class="ts-persona">
-                  <div class="product-options__label">
-                    <span>Personalize <em>(optional)</em></span>
-                  </div>
-                  <div class="ts-persona__grid">
-                    <label>
-                      <span>Name</span>
-                      <input v-model="playerName" type="text" maxlength="16" placeholder="JUSTIN" />
-                    </label>
-                    <label class="ts-persona__num">
-                      <span>Number</span>
-                      <input v-model="playerNumber" type="text" inputmode="numeric" maxlength="4" placeholder="17" />
-                    </label>
-                    <label>
-                      <span>Role</span>
-                      <input v-model="playerRole" type="text" maxlength="16" placeholder="Coach (optional)" />
-                    </label>
-                  </div>
-                </div>
-
                 <p v-if="generateError" class="pet-error" style="margin-top: 14px">{{ generateError }}</p>
 
                 <button class="button ts-add" type="button" :disabled="isAdding" @click="addToBag">
                   <template v-if="isAdding">Adding…</template>
-                  <template v-else-if="hasPersonalization">Add {{ plateName || 'shirt' }} {{ plateNumber }} to bag — $42</template>
                   <template v-else>Add to bag — $42</template>
                 </button>
 
                 <p v-if="addedCount > 0" class="ts-added">
-                  ✓ {{ addedCount }} shirt<span v-if="addedCount !== 1">s</span> added — change the name &amp; number above to add another teammate.
+                  ✓ Added to bag.
                 </p>
 
                 <div class="ts-footlinks">
