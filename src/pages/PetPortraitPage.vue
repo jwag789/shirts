@@ -16,7 +16,9 @@ const STYLES = [
   { key: 'princess', label: 'Princess', desc: 'Tiara, gown, royal sparkle', icon: '👑', img: '/images/pet-styles/princess.png' },
   { key: 'fairy', label: 'Fairy', desc: 'Wings, flowers, pixie dust', icon: '🧚', img: '/images/pet-styles/fairy.png' },
   { key: 'mermaid', label: 'Mermaid', desc: 'Shimmering tail, under the sea', icon: '🧜‍♀️', img: '/images/pet-styles/mermaid.png' },
-  { key: 'unicorn', label: 'Unicorn', desc: 'Magic horn, rainbow mane', icon: '🦄', img: '/images/pet-styles/unicorn.png' },
+  { key: 'angel', label: 'Angel', desc: 'Halo, wings, heavenly glow', icon: '😇', img: '/images/pet-styles/angel.png' },
+  { key: 'popstar', label: 'Pop Star', desc: 'Stage lights, mic, glam', icon: '🎤', img: '/images/pet-styles/popstar.png' },
+  { key: 'geisha', label: 'Geisha', desc: 'Kimono, fan, cherry blossoms', icon: '🎎', img: '/images/pet-styles/geisha.png' },
 ]
 
 const colors = ref([])
