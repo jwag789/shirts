@@ -32,19 +32,28 @@ const PET_PORTRAIT_DAILY_LIMIT = 10
 // How many portrait options to generate per request (each is a separate gpt-image-1 image → separate cost)
 const PET_PORTRAIT_OPTION_COUNT = 1
 
-// ip → { count, date } — resets each calendar day
-const generateRateLimit = new Map()
+const TEAM_SHIRT_PRICE = 42
+const TEAM_SHIRT_DAILY_LIMIT = 20
 
-function checkRateLimit(ip) {
+// ip → { count, date } — resets each calendar day. Keyed maps let the two AI
+// features keep independent daily budgets per visitor.
+const generateRateLimit = new Map()
+const teamGenerateRateLimit = new Map()
+
+function checkRateLimitFor(map, ip, limit) {
   const today = new Date().toISOString().slice(0, 10)
-  const entry = generateRateLimit.get(ip)
+  const entry = map.get(ip)
   if (!entry || entry.date !== today) {
-    generateRateLimit.set(ip, { count: 1, date: today })
+    map.set(ip, { count: 1, date: today })
     return true
   }
-  if (entry.count >= PET_PORTRAIT_DAILY_LIMIT) return false
+  if (entry.count >= limit) return false
   entry.count += 1
   return true
+}
+
+function checkRateLimit(ip) {
+  return checkRateLimitFor(generateRateLimit, ip, PET_PORTRAIT_DAILY_LIMIT)
 }
 
 const PET_PORTRAIT_STYLES = {
@@ -124,6 +133,39 @@ function buildCheckoutItems(cartItems) {
         printifyVariantId: Number(item.printifyVariantId) || null,
         quantity,
         unitAmount: Math.round(PET_PORTRAIT_PRICE * 100),
+        image: generatedImageUrl,
+      }
+    }
+
+    if (item.isTeamShirt) {
+      const quantity = normalizeQuantity(item.quantity)
+      if (!quantity) throw new Error('Invalid quantity for Custom Team Shirt.')
+
+      const size = String(item.size ?? '')
+      const validSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL']
+      if (!validSizes.includes(size)) throw new Error(`Custom Team Shirt is not available in size ${size}.`)
+
+      const generatedImageUrl = String(item.generatedImageUrl ?? '')
+      if (!generatedImageUrl.startsWith('https://')) throw new Error('Missing generated design for team shirt.')
+
+      const teamName = String(item.teamName ?? '').trim().slice(0, 40) || 'Team'
+      const player = String(item.playerName ?? '').trim().slice(0, 16)
+      const number = String(item.playerNumber ?? '').trim().slice(0, 4)
+      const suffix = [player, number].filter(Boolean).join(' ')
+
+      return {
+        isTeamShirt: true,
+        generatedImageUrl,
+        teamName,
+        playerName: player,
+        playerNumber: number,
+        style: String(item.style ?? ''),
+        name: `${teamName} Team Shirt${suffix ? ` — ${suffix}` : ''}`,
+        size,
+        color: String(item.color ?? ''),
+        printifyVariantId: Number(item.printifyVariantId) || null,
+        quantity,
+        unitAmount: Math.round(TEAM_SHIRT_PRICE * 100),
         image: generatedImageUrl,
       }
     }
@@ -232,14 +274,14 @@ function buildPrintifyOrderPayload(session, order, printifyUploads, petPortraitM
   const { blueprintId, printProviderId } = petPortraitMeta ?? {}
 
   const lineItems = order.items.map((item, index) => {
-    if (item.isPetPortrait) {
+    if (item.isPetPortrait || item.isTeamShirt) {
       const upload = printifyUploads?.[index]
       const variantId = item.printifyVariantId || petPortraitVariants?.[item.size] || null
       // Custom images require ordering by blueprint + print provider so Printify
       // applies the per-order artwork. Ordering by product_id reuses the product's
       // saved (blank) design and silently drops the uploaded image.
       if (!upload || !blueprintId || !printProviderId || !variantId) {
-        console.warn(`Pet portrait item ${index + 1} cannot be auto-fulfilled (upload=${!!upload}, blueprint=${blueprintId}, provider=${printProviderId}, variant=${variantId}).`)
+        console.warn(`Custom item ${index + 1} cannot be auto-fulfilled (upload=${!!upload}, blueprint=${blueprintId}, provider=${printProviderId}, variant=${variantId}).`)
         return null
       }
       return {
@@ -289,11 +331,11 @@ async function createPrintifyOrder(session, order) {
   // Upload custom images for any pet portrait items
   const printifyUploads = await Promise.all(
     order.items.map(async (item) => {
-      if (item.isPetPortrait && process.env.PRINTIFY_PET_PORTRAIT_PRODUCT_ID) {
+      if ((item.isPetPortrait || item.isTeamShirt) && process.env.PRINTIFY_PET_PORTRAIT_PRODUCT_ID) {
         try {
           return await uploadImageToPrintify(item.generatedImageUrl)
         } catch (err) {
-          console.error('Failed to upload pet portrait image to Printify:', err.message)
+          console.error('Failed to upload custom image to Printify:', err.message)
           return null
         }
       }
@@ -301,8 +343,10 @@ async function createPrintifyOrder(session, order) {
     }),
   )
 
-  const hasPetPortrait = order.items.some((item) => item.isPetPortrait)
-  const petPortraitMeta = hasPetPortrait ? await getPetPortraitVariantData() : null
+  // Team shirts and pet portraits both print on the same blank DTG tee, so they
+  // share the blueprint/print-provider/variant metadata from that product.
+  const hasCustomImage = order.items.some((item) => item.isPetPortrait || item.isTeamShirt)
+  const petPortraitMeta = hasCustomImage ? await getPetPortraitVariantData() : null
 
   const payload = buildPrintifyOrderPayload(session, order, printifyUploads, petPortraitMeta)
 
@@ -660,6 +704,252 @@ app.post('/api/pet-portrait/mockup', express.json(), async (req, res) => {
     res.status(404).json({ error: 'Variant not found.' })
   } catch (err) {
     console.error('Pet portrait mockup error:', err)
+    res.status(500).json({ error: 'Failed to get mockup.' })
+  }
+})
+
+// ── AI Team Shirt Generator ──────────────────────────────────────────────────
+
+// Each style is a distinct apparel-design direction. The prompt fragments are
+// written to read like a brief handed to a sports-apparel designer, not a
+// generic "AI art" request — flat, print-ready, vector-inspired branding.
+const TEAM_SHIRT_STYLES = {
+  'modern-pro': {
+    label: 'Modern Pro',
+    prompt: 'modern professional sports branding — clean, bold and premium, with confident contemporary athletic typography and a dynamic, well-balanced layout like a pro sports team wordmark',
+  },
+  vintage: {
+    label: 'Vintage Sports',
+    prompt: 'classic vintage athletic apparel — distressed retro texture, a worn/faded screen-print look, timeless collegiate throwback styling from the 70s and 80s, muted ink',
+  },
+  varsity: {
+    label: 'Varsity',
+    prompt: 'collegiate varsity athletics — bold block letterforms, a traditional athletic-department layout, arched lettering and classic university-crest energy',
+  },
+  streetwear: {
+    label: 'Streetwear',
+    prompt: 'modern streetwear — a bold oversized graphic, fashion-forward and graphic-heavy, the look of premium boutique apparel',
+  },
+  heritage: {
+    label: 'Heritage Crest',
+    prompt: 'a traditional club heritage crest — a shield or badge framed by a banner ribbon, with elegant typography and a refined, premium emblem',
+  },
+  championship: {
+    label: 'Championship',
+    prompt: 'official championship merchandise — a trophy-inspired, celebratory, premium layered emblem with laurels, stars and banners',
+  },
+  esports: {
+    label: 'Esports',
+    prompt: 'a modern gaming organization logo — aggressive, angular and mascot-focused, a sharp esports emblem with vibrant, high-energy geometry',
+  },
+  minimal: {
+    label: 'Minimal',
+    prompt: 'minimal modern branding — a clean, simple logo mark with very few elements, understated, refined and confident',
+  },
+}
+
+function buildTeamShirtPrompt({ teamName, subtitle, style, logoConcept, colors }) {
+  const styleDef = TEAM_SHIRT_STYLES[style] ?? TEAM_SHIRT_STYLES['modern-pro']
+
+  const concept = String(logoConcept ?? '').trim()
+  const typographyOnly = !concept || /^no logo/i.test(concept) || /typography only/i.test(concept)
+
+  const logoDirective = typographyOnly
+    ? `Make this a TYPOGRAPHY-ONLY design with no mascot or icon — build the entire graphic from expressive, well-hierarchied lettering that carries the whole design on its own.`
+    : `Feature a professional, illustrated VECTOR-STYLE logo of: ${concept}. Render it as a clean sports-branding mascot or emblem — bold solid shapes, a clear silhouette and confident linework. It must NOT be a photograph, NOT photorealistic, NOT 3D, NOT clip art. Design the logo and the lettering together as ONE integrated lockup; never just place text underneath a picture.`
+
+  const colorDirective = colors?.aiChoose
+    ? `Choose a cohesive, high-contrast palette of 2–3 colors that suits the style and reads cleanly on a t-shirt.`
+    : `Use a tight, print-friendly palette built only from these team colors — primary ${colors?.primary ?? 'navy'}, secondary ${colors?.secondary ?? 'white'}${colors?.accent ? `, accent ${colors.accent}` : ''}. Do not introduce other colors.`
+
+  const subtitleDirective = subtitle
+    ? ` Include the secondary text "${subtitle}" as a smaller supporting element — a banner, an arch, or an underline integrated into the lockup.`
+    : ''
+
+  return `Design a single premium apparel graphic for a custom team t-shirt — the kind of authentic merchandise a real athletic-apparel company would sell. It must look intentionally designed by an experienced sports-apparel designer, not AI-generated.
+
+STYLE: ${styleDef.prompt}.
+
+TEAM NAME — the hero of the design, spelled EXACTLY: "${teamName}". Set it in strong, bold type with clear visual hierarchy, for example a large stacked lockup.${subtitleDirective}
+
+${logoDirective}
+
+${colorDirective}
+
+COMPOSITION: one balanced, symmetrical, centered lockup — a crest, badge, shield, circular emblem, or stacked athletic layout — whichever best fits the style. Everything reads as a single cohesive mark with strong contrast and screen-print-ready flat color.
+
+MUST look like: real sports branding, a professional team logo, clean apparel graphics, a balanced layout.
+
+MUST AVOID: clip art, an AI collage, random floating objects, photorealism, 3D renders, product mockups, a t-shirt or any garment in the image, backgrounds, scenery, landscapes, soft gradients, glows, drop shadows, tiny fussy details, and any unnecessary decoration.
+
+Deliver flat, bold, print-ready vector-style artwork on a FULLY TRANSPARENT background (alpha) — isolate the mark with no backdrop, no frame and no border. The ONLY text anywhere in the image is the team name${subtitle ? ' and the secondary text' : ''}, spelled exactly, with no other words, letters or numbers.`
+}
+
+app.post('/api/team-shirt/generate', express.json({ limit: '1mb' }), async (req, res) => {
+  try {
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(teamGenerateRateLimit, ip, TEAM_SHIRT_DAILY_LIMIT)) {
+      return res.status(429).json({ error: `Limit reached — you can generate up to ${TEAM_SHIRT_DAILY_LIMIT} team designs per day. Try again tomorrow.` })
+    }
+
+    const { teamName, subtitle, style, logoConcept, colors } = req.body ?? {}
+    const safeTeamName = typeof teamName === 'string' ? teamName.trim().slice(0, 40) : ''
+    const safeSubtitle = typeof subtitle === 'string' ? subtitle.trim().slice(0, 30) : ''
+    const safeLogoConcept = typeof logoConcept === 'string' ? logoConcept.trim().slice(0, 60) : ''
+
+    if (!safeTeamName) return res.status(400).json({ error: 'Please enter a team name.' })
+    if (!style || !TEAM_SHIRT_STYLES[style]) return res.status(400).json({ error: 'Please choose a style.' })
+
+    requireEnv('OPENAI_API_KEY')
+    requireEnv('FAL_KEY')
+
+    const prompt = buildTeamShirtPrompt({
+      teamName: safeTeamName,
+      subtitle: safeSubtitle,
+      style,
+      logoConcept: safeLogoConcept,
+      colors: colors ?? {},
+    })
+
+    const generation = await openai.images.generate({
+      model: 'gpt-image-1',
+      prompt,
+      size: '1024x1024',
+      quality: 'high',
+      background: 'transparent',
+      n: 1,
+    })
+
+    const b64 = generation.data?.[0]?.b64_json
+    if (!b64) throw new Error('Design generation returned no result.')
+
+    const imageUrl = await fal.storage.upload(
+      new Blob([Buffer.from(b64, 'base64')], { type: 'image/png' }),
+    )
+
+    res.json({ imageUrl })
+  } catch (error) {
+    console.error('Team shirt generation error:', error)
+    res.status(500).json({ error: error.message ?? 'Generation failed.' })
+  }
+})
+
+// Personalization is composited deterministically with sharp (not re-generated
+// by the model) so the team branding is always preserved exactly and every
+// player's shirt stays consistent. A player name + jersey number are drawn as a
+// nameplate across the lower portion of the same transparent design canvas.
+function escapeXml(str) {
+  return String(str).replace(/[<>&'"]/g, (c) => (
+    { '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]
+  ))
+}
+
+async function compositeTeamPersonalization({ baseBuffer, name, number, fill, outline }) {
+  const meta = await sharp(baseBuffer).metadata()
+  const W = meta.width ?? 1024
+  const H = meta.height ?? 1024
+  const cx = W / 2
+
+  const plateFill = /^#[0-9a-fA-F]{3,8}$/.test(fill ?? '') ? fill : '#111111'
+  const plateOutline = /^#[0-9a-fA-F]{3,8}$/.test(outline ?? '') ? outline : '#ffffff'
+
+  const cleanName = String(name ?? '').trim().toUpperCase().slice(0, 16)
+  const cleanNumber = String(number ?? '').trim().slice(0, 4)
+
+  const parts = []
+  // Player name sits just above the number; the number is the dominant element,
+  // echoing a real jersey back print but composed on the front lockup.
+  if (cleanName && cleanNumber) {
+    parts.push(`<text x="${cx}" y="${H * 0.74}" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="${W * 0.085}" letter-spacing="${W * 0.006}" text-anchor="middle" fill="${plateFill}" stroke="${plateOutline}" stroke-width="${W * 0.006}" paint-order="stroke">${escapeXml(cleanName)}</text>`)
+    parts.push(`<text x="${cx}" y="${H * 0.93}" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="${W * 0.19}" text-anchor="middle" fill="${plateFill}" stroke="${plateOutline}" stroke-width="${W * 0.01}" paint-order="stroke">${escapeXml(cleanNumber)}</text>`)
+  } else if (cleanNumber) {
+    parts.push(`<text x="${cx}" y="${H * 0.92}" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="${W * 0.22}" text-anchor="middle" fill="${plateFill}" stroke="${plateOutline}" stroke-width="${W * 0.011}" paint-order="stroke">${escapeXml(cleanNumber)}</text>`)
+  } else if (cleanName) {
+    parts.push(`<text x="${cx}" y="${H * 0.9}" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="${W * 0.12}" letter-spacing="${W * 0.006}" text-anchor="middle" fill="${plateFill}" stroke="${plateOutline}" stroke-width="${W * 0.008}" paint-order="stroke">${escapeXml(cleanName)}</text>`)
+  }
+
+  if (!parts.length) return baseBuffer
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${parts.join('')}</svg>`
+  return await sharp(baseBuffer)
+    .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
+    .png()
+    .toBuffer()
+}
+
+app.post('/api/team-shirt/personalize', express.json({ limit: '1mb' }), async (req, res) => {
+  try {
+    const { baseImageUrl, name, number, fill, outline } = req.body ?? {}
+    if (typeof baseImageUrl !== 'string' || !baseImageUrl.startsWith('https://')) {
+      return res.status(400).json({ error: 'Missing base design.' })
+    }
+    if (!String(name ?? '').trim() && !String(number ?? '').trim()) {
+      // Nothing to add — hand the original design straight back.
+      return res.json({ imageUrl: baseImageUrl })
+    }
+
+    requireEnv('FAL_KEY')
+
+    const upstream = await fetch(baseImageUrl)
+    if (!upstream.ok) throw new Error('Could not load the base design.')
+    const baseBuffer = Buffer.from(await upstream.arrayBuffer())
+
+    const outBuffer = await compositeTeamPersonalization({ baseBuffer, name, number, fill, outline })
+
+    const imageUrl = await fal.storage.upload(new Blob([outBuffer], { type: 'image/png' }))
+    res.json({ imageUrl })
+  } catch (error) {
+    console.error('Team shirt personalization error:', error)
+    res.status(500).json({ error: error.message ?? 'Personalization failed.' })
+  }
+})
+
+// Team shirts print on the same blank DTG tee as pet portraits, so they reuse
+// its color/size/mockup catalogue.
+app.get('/api/team-shirt/variants', async (req, res) => {
+  try {
+    const data = await getPetPortraitVariantData()
+    if (!data) {
+      const nullSizes = { S: null, M: null, L: null, XL: null, '2XL': null }
+      return res.json({
+        colors: [
+          { name: 'White', swatch: '#ffffff', variantsBySize: nullSizes, mockupUrls: [] },
+          { name: 'Black', swatch: '#111111', variantsBySize: nullSizes, mockupUrls: [] },
+          { name: 'Navy', swatch: '#1a237e', variantsBySize: nullSizes, mockupUrls: [] },
+          { name: 'Red', swatch: '#c62828', variantsBySize: nullSizes, mockupUrls: [] },
+          { name: 'Forest Green', swatch: '#2e7d32', variantsBySize: nullSizes, mockupUrls: [] },
+          { name: 'Gold', swatch: '#f9a825', variantsBySize: nullSizes, mockupUrls: [] },
+          { name: 'Maroon', swatch: '#880e4f', variantsBySize: nullSizes, mockupUrls: [] },
+          { name: 'Charcoal', swatch: '#37474f', variantsBySize: nullSizes, mockupUrls: [] },
+        ],
+        sizes: ['S', 'M', 'L', 'XL', '2XL'],
+      })
+    }
+    res.json(data)
+  } catch (err) {
+    console.error('Team shirt variants error:', err)
+    res.status(500).json({ error: 'Failed to fetch shirt options.' })
+  }
+})
+
+app.post('/api/team-shirt/mockup', express.json(), async (req, res) => {
+  try {
+    const { variantId } = req.body ?? {}
+    if (!variantId) return res.status(400).json({ error: 'Missing variantId.' })
+
+    const data = await getPetPortraitVariantData()
+    if (!data) return res.json({ mockupUrl: null, swatch: '#ffffff', colorName: 'White' })
+
+    for (const color of data.colors) {
+      for (const vid of Object.values(color.variantsBySize)) {
+        if (vid === variantId) {
+          return res.json({ mockupUrl: color.mockupUrls[0] ?? null, swatch: color.swatch, colorName: color.name })
+        }
+      }
+    }
+    res.status(404).json({ error: 'Variant not found.' })
+  } catch (err) {
+    console.error('Team shirt mockup error:', err)
     res.status(500).json({ error: 'Failed to get mockup.' })
   }
 })

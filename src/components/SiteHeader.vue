@@ -22,6 +22,7 @@ const { itemCount, toggleCart } = useCart()
       <RouterLink to="/collections/ink-art">Fine Lines</RouterLink>
       <RouterLink class="nav-collections" to="/collections">Collections</RouterLink>
       <RouterLink class="nav-pet-portraits" to="/pet-portrait">Pet Portraits</RouterLink>
+      <RouterLink class="nav-pet-portraits" to="/team-shirt">Team Shirts</RouterLink>
     </nav>
 
     <button class="cart-trigger" type="button" @click="toggleCart">

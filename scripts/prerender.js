@@ -158,6 +158,27 @@ function homeBody() {
       ${linkList(collections.map((c) => ({ url: `/collections/${c.slug}`, name: `${c.name} — ${c.description}` })))}
       <h2>Custom Pet Portraits</h2>
       <p><a href="/pet-portrait">Upload a photo of your dog or cat</a> and turn it into a custom illustrated portrait t-shirt — superhero, viking, pirate, astronaut, samurai, or wizard styles.</p>
+      <h2>AI Team Shirt Generator</h2>
+      <p><a href="/team-shirt">Design custom team shirts with AI</a> — enter your team name, pick a style, and get authentic sports merchandise for beer leagues, family reunions, company softball, and fantasy football, with per-player names and numbers.</p>
+  `
+}
+
+function teamShirtBody() {
+  return `
+      <h1>AI Team Shirt Generator — Custom Team Shirts</h1>
+      <p>Design professional-quality custom team shirts in seconds. Enter your team name and an optional subtitle, choose a style, describe a logo concept, pick your colors, and our AI generates authentic team merchandise ready for direct-to-garment printing.</p>
+      <h2>Team shirt styles</h2>
+      <ul>
+        <li>Modern Pro — clean, bold, premium sports branding</li>
+        <li>Vintage Sports — distressed, retro athletic apparel</li>
+        <li>Varsity — collegiate block lettering</li>
+        <li>Streetwear — bold oversized graphics</li>
+        <li>Heritage Crest — shield, banner, elegant emblem</li>
+        <li>Championship — trophy-inspired premium merch</li>
+        <li>Esports — aggressive angular gaming mascot</li>
+        <li>Minimal — clean, understated logo</li>
+      </ul>
+      <p>Perfect for high school sports, college athletics, company softball leagues, beer league teams, fantasy football, family reunions, charity runs, and esports teams. Add each player's name and number, then <a href="/team-shirt">create your team shirt</a>.</p>
   `
 }
 
@@ -244,6 +265,20 @@ async function main() {
       image: '/images/mockups/cherry-horizon-1-lifestyle.jpg',
       jsonLd: [organizationLd(), breadcrumbLd([{ name: 'Home', url: '/' }])],
       bodyHtml: homeBody(),
+    }),
+  )
+  count++
+
+  // Team shirt generator
+  await writePage(
+    path.join(distDir, 'team-shirt.html'),
+    renderPage(template, {
+      title: `AI Team Shirt Generator — Custom Team Shirts | ${siteName}`,
+      description:
+        'Design custom team shirts with AI: enter your team name, pick a style, and get authentic sports merchandise for beer leagues, reunions, softball, and fantasy football.',
+      canonicalPath: '/team-shirt',
+      jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'AI Team Shirt Generator', url: '/team-shirt' }])],
+      bodyHtml: teamShirtBody(),
     }),
   )
   count++
@@ -338,6 +373,7 @@ async function main() {
     { loc: `${siteUrl}/`, priority: '1.0' },
     { loc: `${siteUrl}/collections`, priority: '0.8' },
     { loc: `${siteUrl}/pet-portrait`, priority: '0.8' },
+    { loc: `${siteUrl}/team-shirt`, priority: '0.8' },
     ...collections.map((c) => ({ loc: `${siteUrl}/collections/${c.slug}`, priority: '0.7' })),
     ...products.map((p) => ({ loc: `${siteUrl}/products/${p.slug}`, priority: '0.6' })),
     ...seoPages.map((p) => ({ loc: `${siteUrl}/info/${p.slug}`, priority: '0.5' })),

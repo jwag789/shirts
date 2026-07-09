@@ -114,6 +114,37 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
+      <!-- AI Team Shirt Generator -->
+      <section class="ts-promo" v-reveal>
+        <div class="ts-promo__inner">
+          <div class="ts-promo__copy">
+            <p class="eyebrow">New · AI-powered</p>
+            <h2 class="ts-promo__title">Design custom<br><span>team shirts</span> in seconds.</h2>
+            <p class="ts-promo__desc">
+              Beer league, family reunion, company softball, or fantasy football — enter your
+              team name, pick a style, and get authentic sports merchandise you'd be proud to wear.
+              Add each player's name &amp; number, too.
+            </p>
+            <div class="ts-promo__badges">
+              <span>🏆 Modern Pro</span>
+              <span>🎓 Varsity</span>
+              <span>🛡️ Heritage Crest</span>
+              <span>🎮 Esports</span>
+              <span>+ 4 more</span>
+            </div>
+            <RouterLink class="button ts-promo__cta" to="/team-shirt">Design my team shirt →</RouterLink>
+          </div>
+          <RouterLink to="/team-shirt" class="ts-promo__cards" aria-label="Design a custom team shirt">
+            <span class="ts-promo__card ts-promo__card--a">
+              <em>WAGNER</em><b>WOLVES</b><i>EST. 2026</i>
+            </span>
+            <span class="ts-promo__card ts-promo__card--b">
+              <em>DAD</em><b>SQUAD</b><i>BEER LEAGUE</i>
+            </span>
+          </RouterLink>
+        </div>
+      </section>
+
       <!-- Hero carousel — temporarily hidden
       <section
         class="hero-carousel"
@@ -208,6 +239,7 @@ onBeforeUnmount(() => {
           <RouterLink to="/collections/pun-shirts">Funny Business</RouterLink>
           <RouterLink to="/collections/ink-art">Fine Lines</RouterLink>
           <RouterLink to="/pet-portrait">Custom Pet Portraits</RouterLink>
+          <RouterLink to="/team-shirt">AI Team Shirts</RouterLink>
         </nav>
       </section>
       <div class="site-credit">
