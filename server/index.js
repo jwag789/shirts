@@ -395,6 +395,87 @@ async function fulfillCheckoutSession(session) {
   return nextOrder
 }
 
+// Live shipment tracking from Printify. Tracking only exists once an order
+// ships, so we fetch it on demand when a customer views their order (cached
+// briefly) rather than at fulfillment time. Best-effort: any failure just
+// yields no tracking rather than breaking the order view.
+const trackingCache = new Map() // printifyOrderId -> { at, data }
+const TRACKING_TTL_MS = 3 * 60 * 1000
+
+async function fetchPrintifyTracking(printifyOrderId) {
+  if (!printifyOrderId) return null
+
+  const cached = trackingCache.get(printifyOrderId)
+  if (cached && Date.now() - cached.at < TRACKING_TTL_MS) return cached.data
+
+  const token = process.env.PRINTIFY_API_TOKEN
+  const shopId = process.env.PRINTIFY_SHOP_ID
+  if (!token || !shopId) return null
+
+  try {
+    const res = await fetch(`https://api.printify.com/v1/shops/${shopId}/orders/${printifyOrderId}.json`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) return null
+    const po = await res.json()
+    const shipments = Array.isArray(po.shipments) ? po.shipments : []
+    const tracking = shipments
+      .filter((s) => s && (s.number || s.url))
+      .map((s) => ({
+        carrier: s.carrier ?? null,
+        number: s.number ?? null,
+        url: s.url ?? null,
+        deliveredAt: s.delivered_at ?? null,
+      }))
+    const data = { printifyStatus: po.status ?? null, tracking }
+    trackingCache.set(printifyOrderId, { at: Date.now(), data })
+    return data
+  } catch {
+    return null
+  }
+}
+
+function deriveFulfillmentStatus(order, live) {
+  if (live?.tracking?.length) {
+    return live.tracking.some((t) => t.deliveredAt) ? 'delivered' : 'shipped'
+  }
+  const ps = String(live?.printifyStatus ?? '')
+  if (/fulfilled/i.test(ps)) return 'shipped'
+  if (/production|progress/i.test(ps)) return 'in_production'
+  if (order.status === 'printify_created') return 'confirmed'
+  return 'processing'
+}
+
+// Enriches a stored order with live tracking + a friendly fulfillment status,
+// persisting back to the row when new tracking appears so it survives even if
+// Printify is later unreachable.
+async function withLiveTracking(order) {
+  let tracking = Array.isArray(order.tracking) ? order.tracking : []
+  let fulfillmentStatus = order.fulfillmentStatus ?? 'confirmed'
+
+  const printifyOrderId = order.printifyOrder?.id
+  if (printifyOrderId && order.status === 'printify_created') {
+    const live = await fetchPrintifyTracking(printifyOrderId)
+    if (live) {
+      fulfillmentStatus = deriveFulfillmentStatus(order, live)
+      if (live.tracking.length) tracking = live.tracking
+
+      const changed =
+        JSON.stringify(order.tracking ?? []) !== JSON.stringify(tracking) ||
+        order.fulfillmentStatus !== fulfillmentStatus
+      if (changed && order.id) {
+        try {
+          await saveOrder(order.id, { ...order, tracking, fulfillmentStatus })
+        } catch {
+          // persistence is a nice-to-have; the response is still correct
+        }
+      }
+    }
+  }
+
+  return { tracking, fulfillmentStatus }
+}
+
 // Themed lettering styles — how gpt-image-1 should render the pet's name in-artwork.
 const PET_PORTRAIT_NAME_STYLES = {
   superhero: 'bold chunky comic-book emblem lettering with a thick outline and a pop of color, like a superhero logo',
@@ -1086,10 +1167,14 @@ app.post('/api/orders/lookup', express.json(), async (req, res) => {
     }
     if (!customerEmail || customerEmail.toLowerCase() !== email) return notFound()
 
+    const live = await withLiveTracking(order)
+
     res.json({
       id: order.id,
       orderNumber: order.orderNumber ?? null,
       status: order.status,
+      fulfillmentStatus: live.fulfillmentStatus,
+      tracking: live.tracking,
       customerEmail,
       items: order.items,
       createdAt: order.createdAt ?? null,
@@ -1114,10 +1199,14 @@ app.get('/api/orders/:sessionId', async (req, res) => {
       }
     }
 
+    const live = await withLiveTracking(order)
+
     res.json({
       id: order.id,
       orderNumber: order.orderNumber ?? null,
       status: order.status,
+      fulfillmentStatus: live.fulfillmentStatus,
+      tracking: live.tracking,
       customerEmail,
       items: order.items,
       printifyOrderId: order.printifyOrder?.id ?? null,

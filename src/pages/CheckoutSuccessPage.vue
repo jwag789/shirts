@@ -10,10 +10,25 @@ const isLoading = ref(true)
 
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
 
+const FULFILLMENT_LABELS = {
+  confirmed: 'Order confirmed',
+  processing: 'Processing',
+  in_production: 'In production',
+  shipped: 'Shipped',
+  delivered: 'Delivered',
+}
+
 const statusLabel = computed(() => {
   if (!order.value) return ''
+  if (order.value.fulfillmentStatus) {
+    return FULFILLMENT_LABELS[order.value.fulfillmentStatus] ?? 'Order confirmed'
+  }
   return order.value.status === 'printify_created' ? 'Sent to fulfillment' : 'Order confirmed'
 })
+
+function carrierLabel(t) {
+  return (t.carrier || 'Carrier').toUpperCase()
+}
 
 const orderDisplay = computed(() => order.value?.orderNumber ?? order.value?.id ?? '')
 
@@ -78,6 +93,21 @@ onMounted(async () => {
               <span>Email</span>
               <strong>{{ order.customerEmail }}</strong>
             </template>
+          </div>
+
+          <div v-if="order.tracking?.length" class="order-tracking">
+            <span class="order-tracking__label">Tracking</span>
+            <a
+              v-for="(t, i) in order.tracking"
+              :key="i"
+              class="order-tracking__link"
+              :href="t.url"
+              target="_blank"
+              rel="noopener"
+            >
+              {{ carrierLabel(t) }}<template v-if="t.number"> · {{ t.number }}</template>
+              <span aria-hidden="true">↗</span>
+            </a>
           </div>
 
           <div v-if="order.items?.length" class="checkout-items">
