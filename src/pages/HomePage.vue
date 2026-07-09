@@ -115,33 +115,37 @@ onBeforeUnmount(() => {
       </section>
 
       <!-- AI Team Shirt Generator -->
-      <section class="ts-promo" v-reveal>
-        <div class="ts-promo__inner">
-          <div class="ts-promo__copy">
+      <section class="personalize personalize--team" v-reveal>
+        <div class="personalize__inner">
+          <div class="personalize__copy">
             <p class="eyebrow">New · AI-powered</p>
-            <h2 class="ts-promo__title">Design custom<br><span>team shirts</span> in seconds.</h2>
-            <p class="ts-promo__desc">
+            <h2 class="personalize__title">Design custom<br><span>team shirts.</span></h2>
+            <p class="personalize__desc">
               Beer league, family reunion, company softball, or fantasy football — enter your
-              team name, pick a style, and get authentic sports merchandise you'd be proud to wear.
+              team name, pick a style, and get authentic team merchandise you'd be proud to wear.
               Add each player's name &amp; number, too.
             </p>
-            <div class="ts-promo__badges">
-              <span>🏆 Modern Pro</span>
-              <span>🎓 Varsity</span>
-              <span>🛡️ Heritage Crest</span>
-              <span>🎮 Esports</span>
-              <span>+ 4 more</span>
+            <div class="personalize__steps">
+              <span><b>1</b> Name your team</span>
+              <span><b>2</b> Pick a style</span>
+              <span><b>3</b> Add names &amp; numbers</span>
             </div>
-            <RouterLink class="button ts-promo__cta" to="/team-shirt">Design my team shirt →</RouterLink>
+            <div class="personalize__actions">
+              <RouterLink class="button personalize__cta" to="/team-shirt">Design my team shirt →</RouterLink>
+              <span class="personalize__note">Free preview · No signup needed</span>
+            </div>
           </div>
-          <RouterLink to="/team-shirt" class="ts-promo__cards" aria-label="Design a custom team shirt">
-            <span class="ts-promo__card ts-promo__card--a">
-              <em>WAGNER</em><b>WOLVES</b><i>EST. 2026</i>
-            </span>
-            <span class="ts-promo__card ts-promo__card--b">
-              <em>DAD</em><b>SQUAD</b><i>BEER LEAGUE</i>
-            </span>
-          </RouterLink>
+
+          <div class="personalize__showcase">
+            <RouterLink to="/team-shirt" class="personalize__frame" aria-label="Design a custom team shirt">
+              <img
+                src="/images/team-banner.png"
+                alt="A team name and logo concept typed into the generator, turned into an Ironhawks sports crest and printed on a navy t-shirt"
+              />
+            </RouterLink>
+            <div class="personalize__badge personalize__badge--tl">🏆 8 pro styles</div>
+            <div class="personalize__badge personalize__badge--br">⚡ Ready in ~30s</div>
+          </div>
         </div>
       </section>
 
