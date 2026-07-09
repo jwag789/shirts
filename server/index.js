@@ -6,7 +6,6 @@ import { config } from 'dotenv'
 import pg from 'pg'
 import OpenAI, { toFile } from 'openai'
 import { fal } from '@fal-ai/client'
-import sharp from 'sharp'
 import { products } from '../src/data/products.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -54,6 +53,10 @@ const PET_PORTRAIT_STYLES = {
   astronaut: 'a brave astronaut in a detailed white spacesuit with a glowing helmet visor, drifting heroically with a few orbiting planets, stars and a comet streak around them',
   samurai: 'an honorable Japanese samurai in ornate armor holding a katana, with drifting cherry blossom petals and a bold rising-sun accent swirling around them',
   wizard: 'a powerful wizard in a starry pointed hat and flowing robes, holding a glowing crystal staff and conjuring swirling colorful magic sparks and arcane symbols around them',
+  princess: 'a royal princess wearing a sparkling jeweled tiara and an elegant flowing gown, with a delicate rose and drifting golden sparkles around them',
+  fairy: 'a delicate fairy with shimmering translucent iridescent wings and a flower crown, surrounded by glowing pixie-dust sparkles and blooming flowers',
+  mermaid: 'a graceful mermaid with a shimmering iridescent fish tail and a pearl-and-seashell crown, with bubbles, coral and a swirl of ocean water around them',
+  unicorn: 'a magical unicorn with a spiraled glowing horn and a flowing rainbow-colored mane, surrounded by pastel sparkles, stars and a soft rainbow',
 }
 
 const pool = new pg.Pool({
@@ -343,65 +346,18 @@ async function fulfillCheckoutSession(session) {
   return nextOrder
 }
 
-// curve: px the arc control point rises above (positive) or dips below (negative) baseline
-const STYLE_TEXT_THEMES = {
-  superhero: { fill: '#FFD700', stroke: '#0a0a3f', glow: null,      spacing: 2,  curve: 80  },
-  viking:    { fill: '#d4a017', stroke: '#180a00', glow: null,      spacing: 5,  curve: -45 },
-  pirate:    { fill: '#FFD700', stroke: '#000000', glow: null,      spacing: 2,  curve: 55  },
-  astronaut: { fill: '#00e5ff', stroke: '#001133', glow: '#00e5ff', spacing: 8,  curve: 0   },
-  samurai:   { fill: '#ffffff', stroke: '#7a0000', glow: null,      spacing: 14, curve: 22  },
-  wizard:    { fill: '#dd66ff', stroke: '#1a0030', glow: '#dd66ff', spacing: 3,  curve: 95  },
-}
-
-async function compositeNameOnImage(imgBuffer, name, style) {
-  const theme = STYLE_TEXT_THEMES[style] ?? STYLE_TEXT_THEMES.superhero
-  const meta = await sharp(imgBuffer).metadata()
-  const w = meta.width
-  const h = meta.height
-
-  const fontSize = Math.round(w * 0.11)
-  const strokeW = Math.round(fontSize * 0.06)
-  const baseY = Math.round(h * 0.87)
-  const arcPath = `M ${Math.round(w * 0.07)},${baseY} Q ${Math.round(w / 2)},${baseY - theme.curve} ${Math.round(w * 0.93)},${baseY}`
-
-  const escaped = name.toUpperCase()
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-
-  const shadowDist = Math.round(fontSize * 0.07)
-  const shadowBlur = Math.round(fontSize * 0.04)
-  const haloBlur = Math.round(fontSize * 0.22)
-  const glowBlur = Math.round(fontSize * 0.18)
-
-  const textAttrs = `font-family="Impact, Arial Black, Arial, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="${theme.spacing}"`
-  const textPath = `<textPath xlink:href="#arc" startOffset="50%" text-anchor="middle">${escaped}</textPath>`
-
-  const glowLayer = theme.glow ? `
-    <text ${textAttrs} fill="${theme.glow}" opacity="0.65" filter="url(#glow-f)">${textPath}</text>` : ''
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}">
-    <defs>
-      <path id="arc" d="${arcPath}"/>
-      <filter id="halo-f" x="-20%" y="-100%" width="140%" height="300%">
-        <feGaussianBlur stdDeviation="${haloBlur}"/>
-      </filter>
-      <filter id="glow-f" x="-25%" y="-100%" width="150%" height="300%">
-        <feGaussianBlur stdDeviation="${glowBlur}" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-      <filter id="pop-f" x="-10%" y="-40%" width="120%" height="200%">
-        <feDropShadow dx="${shadowDist}" dy="${shadowDist}" stdDeviation="${shadowBlur}" flood-color="black" flood-opacity="0.95"/>
-      </filter>
-    </defs>
-    <text ${textAttrs} fill="black" opacity="0.8" filter="url(#halo-f)">${textPath}</text>
-    ${glowLayer}
-    <text ${textAttrs} stroke="${theme.stroke}" stroke-width="${strokeW}" stroke-linejoin="round" fill="none">${textPath}</text>
-    <text ${textAttrs} fill="${theme.fill}" filter="url(#pop-f)">${textPath}</text>
-  </svg>`
-
-  return sharp(imgBuffer)
-    .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
-    .png()
-    .toBuffer()
+// Themed lettering styles — how gpt-image-1 should render the pet's name in-artwork.
+const PET_PORTRAIT_NAME_STYLES = {
+  superhero: 'bold chunky comic-book emblem lettering with a thick outline and a pop of color, like a superhero logo',
+  viking: 'rugged hand-carved Norse-style capital letters on a weathered wooden or stone banner, worn and battle-scarred',
+  pirate: 'weathered golden treasure-map lettering on a tattered, curling parchment ribbon banner',
+  astronaut: 'sleek futuristic metallic sci-fi lettering with a subtle glow, like a mission patch badge',
+  samurai: 'elegant bold brush-stroke lettering with ink-painted flair on a small cloth banner',
+  wizard: 'ornate glowing enchanted lettering with magical sparkles and a mystical aura',
+  princess: 'elegant sparkling royal script with jeweled flourishes on a delicate ribbon banner',
+  fairy: 'whimsical glowing script lettering trailing pixie-dust sparkles and tiny flowers',
+  mermaid: 'flowing pearlescent script with an iridescent shimmer on a scalloped seashell banner',
+  unicorn: 'playful pastel rainbow bubble lettering with a soft magical glow and sparkles',
 }
 
 app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (req, res) => {
@@ -468,13 +424,24 @@ app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (r
     const petImageFile = await toFile(petBuffer, 'pet.png', { type: mimeType })
 
     const stylePrompt = PET_PORTRAIT_STYLES[style]
+
+    // If the customer gave a name, ask gpt-image-1 to render it in-artwork with
+    // themed lettering; otherwise forbid all text. gpt-image-1 handles short text well.
+    const nameStyle = PET_PORTRAIT_NAME_STYLES[style] ?? PET_PORTRAIT_NAME_STYLES.superhero
+    const spelledOut = safePetName ? [...safePetName.toUpperCase()].join('-') : ''
+    const textDirective = safePetName
+      ? `Prominently feature the pet's name "${safePetName}" as themed lettering — ${nameStyle}. Render it on a banner, ribbon or emblem that sits across the lower portion of the design and overlaps the character's body a little, so it feels integrated (not floating in empty space). Make it large, bold and easy to read. Spell the name EXACTLY, letter by letter: ${spelledOut}. This name is the ONLY text anywhere in the image — no other words, letters, numbers or signatures.`
+      : `Absolutely no text, no words, no letters, no numbers, no signature anywhere in the image.`
+
     const prompt = `Turn the pet in this photo into a richly detailed, semi-photorealistic character portrait, reimagined as ${stylePrompt}.
 
 The pet is this exact animal — ${petDescription}. Keep its real face, fur/coat color, markings and expression clearly recognizable, with realistic fur texture and lifelike eyes.
 
 Render it like premium movie-poster art: painterly photorealism with cinematic lighting, real material textures on the fur, costume and props, and rich depth. Avoid flat cartoon shading and heavy cartoon outlines. The pet is the hero — large and centered in an energetic pose, with the themed props and effects flowing outward from the character into an organic, irregular, die-cut silhouette — NOT a rectangle, square, circle or scenery box.
 
-The background must be FULLY TRANSPARENT (alpha). Isolate the artwork with a natural, ragged outer edge like a sticker or die-cut print. Absolutely no background fill, no backdrop, no scenery, no border, no frame, no text, no words, no letters.`
+The background must be FULLY TRANSPARENT (alpha). Isolate the artwork with a natural, ragged outer edge like a sticker or die-cut print. No background fill, no backdrop, no scenery, no border, no frame.
+
+${textDirective}`
 
     const generation = await openai.images.edit({
       model: 'gpt-image-1',
@@ -490,13 +457,10 @@ The background must be FULLY TRANSPARENT (alpha). Isolate the artwork with a nat
     if (!b64List.length) throw new Error('Image generation returned no result.')
 
     // Host each option so Printify (and the browser) can load it by URL.
-    // Optionally stamp the pet's name onto each before uploading.
     const imageUrls = await Promise.all(
-      b64List.map(async (b64) => {
-        let buffer = Buffer.from(b64, 'base64')
-        if (safePetName) buffer = await compositeNameOnImage(buffer, safePetName, style)
-        return fal.storage.upload(new Blob([buffer], { type: 'image/png' }))
-      }),
+      b64List.map((b64) =>
+        fal.storage.upload(new Blob([Buffer.from(b64, 'base64')], { type: 'image/png' })),
+      ),
     )
 
     res.json({ imageUrls, petDescription })

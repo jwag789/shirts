@@ -13,6 +13,10 @@ const STYLES = [
   { key: 'astronaut', label: 'Astronaut', desc: 'Spacesuit, deep space', icon: '🚀', img: '/images/pet-styles/astronaut.png' },
   { key: 'samurai', label: 'Samurai', desc: 'Katana, armor, cherry blossoms', icon: '⛩️', img: '/images/pet-styles/samurai.png' },
   { key: 'wizard', label: 'Wizard', desc: 'Robes, staff, magic spells', icon: '🔮', img: '/images/pet-styles/wizard.png' },
+  { key: 'princess', label: 'Princess', desc: 'Tiara, gown, royal sparkle', icon: '👑', img: '/images/pet-styles/princess.png' },
+  { key: 'fairy', label: 'Fairy', desc: 'Wings, flowers, pixie dust', icon: '🧚', img: '/images/pet-styles/fairy.png' },
+  { key: 'mermaid', label: 'Mermaid', desc: 'Shimmering tail, under the sea', icon: '🧜‍♀️', img: '/images/pet-styles/mermaid.png' },
+  { key: 'unicorn', label: 'Unicorn', desc: 'Magic horn, rainbow mane', icon: '🦄', img: '/images/pet-styles/unicorn.png' },
 ]
 
 const colors = ref([])
