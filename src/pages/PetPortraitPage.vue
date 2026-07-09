@@ -375,12 +375,12 @@ const selectedTotal = computed(() => selectedCount.value * 38)
             <!-- Result state -->
             <div v-else-if="generatedOptions.length" class="pet-slide__inner pet-slide__inner--result">
               <div class="pet-slide__heading">
-                <p class="eyebrow">Your portraits are ready</p>
-                <h1 class="pet-slide__title">Pick your <span>favorites</span></h1>
-                <p class="pet-slide__sub">Tap any you love — each selected design is its own shirt. Add just one or the whole set.</p>
+                <p class="eyebrow">Your portrait is ready</p>
+                <h1 class="pet-slide__title">Here's your <span>portrait</span></h1>
+                <p class="pet-slide__sub">Preview it on your shirt below, then pick your color and size.</p>
               </div>
 
-              <div class="pet-options-grid">
+              <div class="pet-options-grid" :class="{ 'pet-options-grid--single': generatedOptions.length === 1 }">
                 <div
                   v-for="(url, i) in generatedOptions"
                   :key="url"
