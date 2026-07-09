@@ -56,7 +56,9 @@ const PET_PORTRAIT_STYLES = {
   princess: 'a royal princess wearing a sparkling jeweled tiara and an elegant flowing gown, with a delicate rose and drifting golden sparkles around them',
   fairy: 'a delicate fairy with shimmering translucent iridescent wings and a flower crown, surrounded by glowing pixie-dust sparkles and blooming flowers',
   mermaid: 'a graceful mermaid with a shimmering iridescent fish tail and a pearl-and-seashell crown, with bubbles, coral and a swirl of ocean water around them',
-  unicorn: 'a magical unicorn with a spiraled glowing horn and a flowing rainbow-colored mane, surrounded by pastel sparkles, stars and a soft rainbow',
+  angel: 'a serene angel in flowing white-and-gold robes with large feathered wings and a glowing golden halo, amid soft clouds, heavenly light rays and drifting golden sparkles',
+  popstar: 'a glamorous pop star in a sparkling sequined jacket and heart-shaped sunglasses, holding a microphone on a dazzling concert stage with spotlights, lasers and confetti',
+  geisha: 'an elegant geisha in an ornate floral kimono holding a delicate folding fan, with a decorative floral hair ornament, drifting cherry blossom petals and a traditional pagoda behind them',
 }
 
 const pool = new pg.Pool({
@@ -357,7 +359,9 @@ const PET_PORTRAIT_NAME_STYLES = {
   princess: 'elegant sparkling royal script with jeweled flourishes on a delicate ribbon banner',
   fairy: 'whimsical glowing script lettering trailing pixie-dust sparkles and tiny flowers',
   mermaid: 'flowing pearlescent script with an iridescent shimmer on a scalloped seashell banner',
-  unicorn: 'playful pastel rainbow bubble lettering with a soft magical glow and sparkles',
+  angel: 'elegant glowing golden serif lettering with a soft heavenly halo and drifting feathers',
+  popstar: 'bold glittering sequined lettering with a neon glow and sparkles, like a concert marquee',
+  geisha: 'graceful brush-painted lettering with delicate cherry-blossom accents on a small silk banner',
 }
 
 app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (req, res) => {
