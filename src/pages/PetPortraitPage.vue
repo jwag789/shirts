@@ -334,13 +334,17 @@ const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.valu
             <!-- Generating state -->
             <div v-if="isGenerating" class="pet-slide__inner pet-slide__inner--center">
               <div class="pet-generating">
-                <div class="pet-generating__ring">
-                  <span class="pet-generating__emoji">{{ activeStyle?.icon }}</span>
+                <div class="pet-generating__orb">
+                  <span class="pet-generating__spinner" aria-hidden="true"></span>
+                  <span class="pet-generating__avatar">
+                    <img :src="activeStyle?.img" :alt="`${activeStyle?.label} style`" />
+                  </span>
                 </div>
-                <h2 class="pet-generating__title">Painting your portrait…</h2>
+                <h2 class="pet-generating__title">Painting your portrait<span class="pet-generating__dots"><i>.</i><i>.</i><i>.</i></span></h2>
                 <p class="pet-generating__sub">
-                  Turning your pet into a {{ activeStyle?.label }}. This takes about 15–30 seconds.
+                  Turning your pet into a {{ activeStyle?.label }}. This usually takes 15–30 seconds.
                 </p>
+                <div class="pet-generating__bar" aria-hidden="true"><span></span></div>
               </div>
             </div>
 
