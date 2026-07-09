@@ -91,6 +91,39 @@ function addPetPortraitItem(style, generatedImageUrl, size, color = 'White', pri
   openCart()
 }
 
+function addTeamShirtItem({ generatedImageUrl, teamName, playerName = '', playerNumber = '', style = '', size, color = 'White', printifyVariantId = null }) {
+  const suffix = [playerName, playerNumber].filter(Boolean).join(' ')
+  const id = `team-shirt::${style}::${color}::${size}::${playerName}::${playerNumber}::${generatedImageUrl.slice(-24)}`
+  const existing = state.items.find((item) => item.id === id)
+
+  if (existing) {
+    existing.quantity += 1
+  } else {
+    state.items.push({
+      id,
+      isTeamShirt: true,
+      productSlug: 'team-shirt',
+      name: `${teamName || 'Team'} Team Shirt${suffix ? ` — ${suffix}` : ''}`,
+      collection: 'Team Shirts',
+      priceValue: 42,
+      price: currency.format(42),
+      teamName,
+      playerName,
+      playerNumber,
+      style,
+      generatedImageUrl,
+      image: generatedImageUrl,
+      size,
+      color,
+      printifyVariantId,
+      quantity: 1,
+      isPrintifyConnected: true,
+    })
+  }
+
+  openCart()
+}
+
 function updateQuantity(id, nextQuantity) {
   const item = state.items.find((entry) => entry.id === id)
   if (!item) {
@@ -133,6 +166,7 @@ export function useCart() {
     toggleCart,
     addItem,
     addPetPortraitItem,
+    addTeamShirtItem,
     updateQuantity,
     removeItem,
   }

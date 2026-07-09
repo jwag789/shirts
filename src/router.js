@@ -6,6 +6,7 @@ import ProductDetailPage from './pages/ProductDetailPage.vue'
 import CheckoutSuccessPage from './pages/CheckoutSuccessPage.vue'
 import CheckoutCancelPage from './pages/CheckoutCancelPage.vue'
 import PetPortraitPage from './pages/PetPortraitPage.vue'
+import TeamShirtPage from './pages/TeamShirtPage.vue'
 import SeoLandingPage from './pages/SeoLandingPage.vue'
 const router = createRouter({
   history: createWebHistory(),
@@ -19,6 +20,11 @@ const router = createRouter({
       path: '/pet-portrait',
       name: 'pet-portrait',
       component: PetPortraitPage,
+    },
+    {
+      path: '/team-shirt',
+      name: 'team-shirt',
+      component: TeamShirtPage,
     },
     {
       path: '/collections',
