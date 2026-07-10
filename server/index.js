@@ -26,6 +26,9 @@ config({ path: path.join(rootDir, '.env.local') })
 config({ path: path.join(rootDir, '.env') })
 
 const app = express()
+// Behind Railway's proxy the real client IP is in X-Forwarded-For; trust one
+// hop so req.ip is the visitor (per-IP rate limits depend on this).
+app.set('trust proxy', 1)
 const port = Number(process.env.PORT ?? 4242)
 const siteUrl = process.env.SITE_URL ?? `http://localhost:${port}`
 
@@ -1163,18 +1166,25 @@ async function compositeTeamPersonalization({ baseBuffer, name, number, fill, ou
 
 app.post('/api/team-shirt/personalize', express.json({ limit: '1mb' }), async (req, res) => {
   try {
-    const { baseImageUrl, name, number, fill, outline } = req.body ?? {}
-    if (typeof baseImageUrl !== 'string' || !baseImageUrl.startsWith('https://')) {
-      return res.status(400).json({ error: 'Missing base design.' })
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(designPreviewRateLimit, ip, 80)) {
+      return res.status(429).json({ error: 'Too many requests. Please try again later.' })
     }
+
+    // Reference a stored design by id — we resolve the base image URL server-side
+    // rather than fetching a client-supplied URL (avoids SSRF).
+    const { designId, name, number, fill, outline } = req.body ?? {}
+    const design = designId ? await readDesign(String(designId)) : null
+    if (!design) return res.status(404).json({ error: 'Design not found.' })
+
     if (!String(name ?? '').trim() && !String(number ?? '').trim()) {
       // Nothing to add — hand the original design straight back.
-      return res.json({ imageUrl: baseImageUrl })
+      return res.json({ imageUrl: design.imageUrl })
     }
 
     requireEnv('FAL_KEY')
 
-    const upstream = await fetch(baseImageUrl)
+    const upstream = await fetch(design.imageUrl)
     if (!upstream.ok) throw new Error('Could not load the base design.')
     const baseBuffer = Buffer.from(await upstream.arrayBuffer())
 
@@ -1184,7 +1194,7 @@ app.post('/api/team-shirt/personalize', express.json({ limit: '1mb' }), async (r
     res.json({ imageUrl })
   } catch (error) {
     console.error('Team shirt personalization error:', error)
-    res.status(500).json({ error: error.message ?? 'Personalization failed.' })
+    res.status(500).json({ error: 'Could not personalize the design.' })
   }
 })
 
@@ -1242,6 +1252,14 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   const signature = req.headers['stripe-signature']
 
+  // Fail closed in production: without a signing secret we can't verify the
+  // sender, so refuse rather than trust an unsigned payload.
+  if (!webhookSecret && process.env.NODE_ENV === 'production') {
+    console.error('STRIPE_WEBHOOK_SECRET is not set — refusing unverified webhook in production.')
+    res.status(500).send('Webhook not configured')
+    return
+  }
+
   let event
   try {
     event = webhookSecret
@@ -1290,6 +1308,10 @@ app.post('/api/webhooks/printify', express.raw({ type: '*/*' }), async (req, res
         provided.length === expected.length &&
         timingSafeEqual(Buffer.from(provided), Buffer.from(expected))
       if (!ok) return res.status(401).json({ error: 'Invalid signature' })
+    } else if (process.env.NODE_ENV === 'production') {
+      // Fail closed: unsigned webhooks can trigger fulfillment emails/status.
+      console.error('PRINTIFY_WEBHOOK_SECRET is not set — refusing unverified webhook in production.')
+      return res.status(500).json({ error: 'Webhook not configured' })
     }
 
     const event = JSON.parse(raw.toString('utf8'))
