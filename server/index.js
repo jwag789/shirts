@@ -15,6 +15,8 @@ import {
   renderShippingEmailText,
   renderOrderConfirmationHtml,
   renderOrderConfirmationText,
+  renderReviewRequestHtml,
+  renderReviewRequestText,
 } from './emails.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -249,6 +251,22 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `)
+
+  // Customer reviews — one per order, only from verified buyers.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id           BIGSERIAL   PRIMARY KEY,
+      order_id     TEXT        UNIQUE NOT NULL,
+      order_number TEXT,
+      rating       SMALLINT    NOT NULL CHECK (rating BETWEEN 1 AND 5),
+      title        TEXT,
+      body         TEXT,
+      author       TEXT,
+      status       TEXT        NOT NULL DEFAULT 'published',
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `)
+  await pool.query('CREATE INDEX IF NOT EXISTS reviews_published_idx ON reviews (status, created_at DESC)')
 }
 
 // Short, URL-safe, hard-to-guess design id (no ambiguous chars).
@@ -665,6 +683,51 @@ async function maybeSendOrderConfirmationEmail(order, session) {
     }
   } catch (err) {
     console.error('Order confirmation email failed:', err.message)
+  }
+}
+
+// Looks up an order by its number, verifying the email matches the order's
+// Stripe customer (same guard as the customer order lookup). Returns the order
+// or null — used to ensure only real buyers can review.
+async function findVerifiedOrder(orderNumberRaw, emailRaw) {
+  let orderNumber = String(orderNumberRaw ?? '').trim().toUpperCase()
+  const email = String(emailRaw ?? '').trim().toLowerCase()
+  if (!orderNumber || !email) return null
+  if (!orderNumber.startsWith('INK-')) orderNumber = `INK-${orderNumber}`
+
+  const { rows } = await pool.query('SELECT data FROM orders WHERE order_number = $1', [orderNumber])
+  if (!rows.length) return null
+
+  const order = rows[0].data
+  let customerEmail = order.customerEmail ?? null
+  if (!customerEmail && order.id) {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(order.id)
+      customerEmail = session.customer_details?.email ?? null
+    } catch {
+      // treated as no match below
+    }
+  }
+  if (!customerEmail || customerEmail.toLowerCase() !== email) return null
+  return order
+}
+
+// Sends the "how did we do?" review invite once, after delivery.
+async function maybeSendReviewRequestEmail(order) {
+  try {
+    if (!order?.customerEmail || order.reviewRequestEmailSentAt) return
+    if (!process.env.RESEND_API_KEY) return
+
+    const result = await sendEmail({
+      to: order.customerEmail,
+      subject: `How did we do? Review your InkSpirit order`,
+      html: renderReviewRequestHtml(order, siteUrl),
+      text: renderReviewRequestText(order, siteUrl),
+    })
+    if (result?.skipped) return
+    if (order.id) await saveOrder(order.id, { ...order, reviewRequestEmailSentAt: new Date().toISOString() })
+  } catch (err) {
+    console.error('Review request email failed:', err.message)
   }
 }
 
@@ -1333,6 +1396,11 @@ app.post('/api/webhooks/printify', express.raw({ type: '*/*' }), async (req, res
           }
         }
         await maybeSendShippingEmail(merged)
+
+        // Once delivered, invite a review (idempotent).
+        if (event.type === 'order:shipment:delivered' || merged.fulfillmentStatus === 'delivered') {
+          await maybeSendReviewRequestEmail(merged)
+        }
       }
     }
 
@@ -1433,6 +1501,82 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
   } catch (err) {
     console.error('Subscribe error:', err)
     res.status(500).json({ error: 'Could not sign you up. Please try again.' })
+  }
+})
+
+// Customer reviews. Submission is gated on a verified order (number + email),
+// so only real buyers can review, one per order.
+const reviewRateLimit = new Map()
+
+app.post('/api/reviews', express.json(), async (req, res) => {
+  try {
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(reviewRateLimit, ip, 20)) {
+      return res.status(429).json({ error: 'Too many attempts. Please try again later.' })
+    }
+
+    const { orderNumber, email, rating, title, body, name } = req.body ?? {}
+    const r = Number(rating)
+    if (!Number.isInteger(r) || r < 1 || r > 5) {
+      return res.status(400).json({ error: 'Please choose a rating from 1 to 5 stars.' })
+    }
+    const cleanBody = String(body ?? '').trim().slice(0, 1000)
+    if (!cleanBody) return res.status(400).json({ error: 'Please write a short review.' })
+    const cleanTitle = String(title ?? '').trim().slice(0, 80)
+
+    const order = await findVerifiedOrder(orderNumber, email)
+    if (!order) {
+      return res.status(404).json({ error: "We couldn't find an order matching that number and email." })
+    }
+
+    const author = (String(name ?? '').trim() || order.shipping?.name || 'Verified buyer').slice(0, 40)
+
+    try {
+      await pool.query(
+        `INSERT INTO reviews (order_id, order_number, rating, title, body, author)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [order.id, order.orderNumber ?? null, r, cleanTitle || null, cleanBody, author],
+      )
+    } catch (err) {
+      if (err.code === '23505') {
+        return res.status(409).json({ error: "You've already reviewed this order — thank you!" })
+      }
+      throw err
+    }
+
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('Review submit error:', err)
+    res.status(500).json({ error: 'Could not submit your review. Please try again.' })
+  }
+})
+
+app.get('/api/reviews', async (req, res) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 20, 50)
+    const summary = await pool.query(
+      "SELECT COUNT(*)::int AS count, COALESCE(AVG(rating), 0)::float AS average FROM reviews WHERE status = 'published'",
+    )
+    const list = await pool.query(
+      "SELECT rating, title, body, author, created_at FROM reviews WHERE status = 'published' ORDER BY created_at DESC LIMIT $1",
+      [limit],
+    )
+    res.json({
+      summary: {
+        count: summary.rows[0].count,
+        average: Math.round(summary.rows[0].average * 10) / 10,
+      },
+      reviews: list.rows.map((row) => ({
+        rating: row.rating,
+        title: row.title,
+        body: row.body,
+        author: row.author,
+        createdAt: row.created_at,
+      })),
+    })
+  } catch (err) {
+    console.error('Reviews fetch error:', err)
+    res.status(500).json({ error: 'Could not load reviews.' })
   }
 })
 

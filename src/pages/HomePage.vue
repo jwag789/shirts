@@ -4,6 +4,7 @@ import CollectionCard from '../components/CollectionCard.vue'
 import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import EmailSignup from '../components/EmailSignup.vue'
+import ReviewStrip from '../components/ReviewStrip.vue'
 import { collections, getProductsByCollection } from '../data/products'
 import { setDocumentHead } from '../composables/useDocumentHead'
 import banner1 from '../../images/banner-1.png'
@@ -311,6 +312,8 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
+      <ReviewStrip />
+
       <section class="newsletter" v-reveal>
         <div class="newsletter__inner">
           <p class="eyebrow">Stay in the loop</p>
@@ -333,6 +336,7 @@ onBeforeUnmount(() => {
           <RouterLink to="/pet-portrait">Custom Pet Portraits</RouterLink>
           <RouterLink to="/team-shirt">AI Team Shirts</RouterLink>
           <RouterLink to="/my-designs">My Designs</RouterLink>
+          <RouterLink to="/reviews">Reviews</RouterLink>
           <RouterLink to="/orders">Track Your Order</RouterLink>
         </nav>
       </section>

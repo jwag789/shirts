@@ -283,6 +283,38 @@ async function main() {
   )
   count++
 
+  // Reviews (public — in sitemap)
+  await writePage(
+    path.join(distDir, 'reviews.html'),
+    renderPage(template, {
+      title: `Customer Reviews | ${siteName}`,
+      description: 'Real reviews from verified InkSpirit customers on our graphic tees, pet portraits, and custom team shirts.',
+      canonicalPath: '/reviews',
+      jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'Reviews', url: '/reviews' }])],
+      bodyHtml: `
+      <h1>Customer Reviews</h1>
+      <p>Real reviews from verified InkSpirit customers. Ordered from us? <a href="/review">Leave a review</a>.</p>
+  `,
+    }),
+  )
+  count++
+
+  // Leave a review (utility page — not in sitemap)
+  await writePage(
+    path.join(distDir, 'review.html'),
+    renderPage(template, {
+      title: `Leave a Review | ${siteName}`,
+      description: 'Share your honest review of your InkSpirit order.',
+      canonicalPath: '/review',
+      jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'Leave a Review', url: '/review' }])],
+      bodyHtml: `
+      <h1>Leave a Review</h1>
+      <p>Share your honest review of your InkSpirit order using your order number and email.</p>
+  `,
+    }),
+  )
+  count++
+
   // Order lookup (utility page — not in sitemap)
   await writePage(
     path.join(distDir, 'orders.html'),
@@ -408,6 +440,7 @@ async function main() {
     { loc: `${siteUrl}/collections`, priority: '0.8' },
     { loc: `${siteUrl}/pet-portrait`, priority: '0.8' },
     { loc: `${siteUrl}/team-shirt`, priority: '0.8' },
+    { loc: `${siteUrl}/reviews`, priority: '0.6' },
     ...collections.map((c) => ({ loc: `${siteUrl}/collections/${c.slug}`, priority: '0.7' })),
     ...products.map((p) => ({ loc: `${siteUrl}/products/${p.slug}`, priority: '0.6' })),
     ...seoPages.map((p) => ({ loc: `${siteUrl}/info/${p.slug}`, priority: '0.5' })),

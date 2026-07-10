@@ -106,6 +106,11 @@ The branded emails live in `server/emails.js` (pure HTML/text builders sharing o
 Triggers:
 - **Order confirmation** — Stripe `checkout.session.completed` webhook, sent before Printify fulfillment so the customer is confirmed even if fulfillment errors (idempotent via `confirmationEmailSentAt`).
 - **Shipping** — Printify's `order:shipment:created` webhook → `POST /api/webhooks/printify`. Matches the order by its stored Printify id, refreshes tracking, sends once (idempotent via `shippingEmailSentAt`). Fallback: viewing an order after it ships also fires it.
+- **Review request** — Printify's `order:shipment:delivered` event → invites a review (idempotent via `reviewRequestEmailSentAt`).
+
+## Reviews
+
+Self-hosted in a Postgres `reviews` table — one per order, only from verified buyers. `POST /api/reviews` requires a matching order number + email (same guard as order lookup) and dedupes on `order_id`. `GET /api/reviews` returns published reviews + an aggregate (count/average). Submit at `/review` (linked from the checkout success page and the delivery email); browse at `/reviews`. The home strip (`ReviewStrip.vue`) stays hidden until real reviews exist.
 
 To go live:
 1. Create a Resend account, verify your sending domain, set `RESEND_API_KEY` + `EMAIL_FROM`.

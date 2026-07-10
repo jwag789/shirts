@@ -8,6 +8,8 @@ import CheckoutCancelPage from './pages/CheckoutCancelPage.vue'
 import OrderLookupPage from './pages/OrderLookupPage.vue'
 import SharedDesignPage from './pages/SharedDesignPage.vue'
 import MyDesignsPage from './pages/MyDesignsPage.vue'
+import ReviewPage from './pages/ReviewPage.vue'
+import ReviewsPage from './pages/ReviewsPage.vue'
 import PetPortraitPage from './pages/PetPortraitPage.vue'
 import TeamShirtPage from './pages/TeamShirtPage.vue'
 import SeoLandingPage from './pages/SeoLandingPage.vue'
@@ -66,6 +68,16 @@ const router = createRouter({
       path: '/my-designs',
       name: 'my-designs',
       component: MyDesignsPage,
+    },
+    {
+      path: '/review',
+      name: 'review',
+      component: ReviewPage,
+    },
+    {
+      path: '/reviews',
+      name: 'reviews',
+      component: ReviewsPage,
     },
     {
       path: '/checkout/success',

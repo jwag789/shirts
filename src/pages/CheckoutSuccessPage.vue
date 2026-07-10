@@ -132,6 +132,10 @@ onMounted(async () => {
           <div class="order-lookup__actions">
             <RouterLink class="button" to="/collections">Keep shopping</RouterLink>
             <RouterLink class="button button--outline" to="/orders">Track your order</RouterLink>
+            <RouterLink
+              class="button button--outline"
+              :to="order.orderNumber ? `/review?order=${order.orderNumber}` : '/review'"
+            >Leave a review</RouterLink>
           </div>
 
           <div class="checkout-signup">

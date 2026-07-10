@@ -214,6 +214,60 @@ export function renderOrderConfirmationHtml(data, siteUrl) {
   return emailShell({ preheader: `Order ${orderNumber} confirmed — thanks for your order!`, bodyRows, siteUrl: site })
 }
 
+// "How did we do?" — sent after delivery to invite a review.
+export function renderReviewRequestHtml(order, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  const orderNumber = esc(order.orderNumber ?? '')
+  const reviewUrl = `${site}/review${order.orderNumber ? `?order=${encodeURIComponent(order.orderNumber)}` : ''}`
+
+  const bodyRows = `
+        <tr>
+          <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">Your order landed</div>
+            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">How did we do? ⭐</h1>
+            <p style="margin:0;font-size:15px;color:${BRAND.muted};">Your honest review helps other customers — and it only takes a minute.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:14px 32px 4px;" align="center">
+            <div style="font-size:30px;letter-spacing:6px;color:#f4b731;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:22px 32px 8px;" align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="border-radius:999px;background:${BRAND.accent};">
+                  <a href="${esc(reviewUrl)}" target="_blank" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:999px;">Leave a review &rarr;</a>
+                </td>
+              </tr>
+            </table>
+            ${orderNumber ? `<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:${BRAND.muted};">Order ${orderNumber}</p>` : ''}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:18px 32px 36px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <p style="margin:0;font-size:13px;color:${BRAND.muted};line-height:1.6;">Not happy with something? Just reply to this email and we'll make it right.</p>
+          </td>
+        </tr>`
+
+  return emailShell({ preheader: `How did we do? Leave a review for order ${orderNumber}.`, bodyRows, siteUrl: site })
+}
+
+export function renderReviewRequestText(order, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  const reviewUrl = `${site}/review${order.orderNumber ? `?order=${encodeURIComponent(order.orderNumber)}` : ''}`
+  return [
+    `How did we do?`,
+    '',
+    `Your honest review of order ${order.orderNumber ?? ''} helps other customers — it only takes a minute.`,
+    `Leave a review: ${reviewUrl}`,
+    '',
+    "Not happy with something? Just reply to this email and we'll make it right.",
+    'InkSpirit Studio',
+  ].join('\n')
+}
+
 export function renderOrderConfirmationText(data, siteUrl) {
   const site = String(siteUrl ?? '').replace(/\/$/, '')
   return [
