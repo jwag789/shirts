@@ -441,6 +441,39 @@ async function createPrintifyOrder(session, order) {
   return JSON.parse(body)
 }
 
+// Ship-to details from a Stripe Checkout session. Prefers the collected shipping
+// address, falling back to customer (billing) details.
+function extractShippingFromSession(session) {
+  const sd = session?.shipping_details ?? session?.collected_information?.shipping_details ?? null
+  const cd = session?.customer_details ?? null
+  const src = sd?.address ? sd : cd?.address ? cd : null
+  if (!src?.address) return null
+  const a = src.address
+  return {
+    name: src.name ?? cd?.name ?? '',
+    address: {
+      line1: a.line1 ?? '',
+      line2: a.line2 ?? '',
+      city: a.city ?? '',
+      state: a.state ?? '',
+      postalCode: a.postal_code ?? '',
+      country: a.country ?? '',
+    },
+  }
+}
+
+// Order totals (cents), preferring Stripe's figures, falling back to item math.
+function extractAmountsFromSession(session, order) {
+  const computedSubtotal = (order?.items ?? []).reduce(
+    (sum, it) => sum + (it.unitAmount ?? 0) * (it.quantity ?? 1),
+    0,
+  )
+  const amountSubtotal = session?.amount_subtotal ?? computedSubtotal
+  const amountShipping = session?.total_details?.amount_shipping ?? session?.shipping_cost?.amount_total ?? 499
+  const amountTotal = session?.amount_total ?? amountSubtotal + amountShipping
+  return { amountSubtotal, amountShipping, amountTotal }
+}
+
 async function fulfillCheckoutSession(session) {
   const order = await readOrder(session.id)
 
@@ -454,6 +487,8 @@ async function fulfillCheckoutSession(session) {
     status: 'printify_created',
     stripePaymentStatus: session.payment_status,
     customerEmail: session.customer_details?.email ?? null,
+    shipping: extractShippingFromSession(session),
+    ...extractAmountsFromSession(session, order),
     printifyOrder,
     fulfilledAt: new Date().toISOString(),
   }
@@ -603,28 +638,16 @@ async function maybeSendOrderConfirmationEmail(order, session) {
     if (!email || order.confirmationEmailSentAt) return
     if (!process.env.RESEND_API_KEY) return
 
-    const items = order.items ?? []
-    const computedSubtotal = items.reduce((sum, it) => sum + (it.unitAmount ?? 0) * (it.quantity ?? 1), 0)
-    const shippingCents = session?.total_details?.amount_shipping ?? session?.shipping_cost?.amount_total ?? 499
-    const subtotalCents = session?.amount_subtotal ?? computedSubtotal
-    const totalCents = session?.amount_total ?? subtotalCents + shippingCents
-
-    const addr = session?.customer_details?.address ?? {}
+    const { amountSubtotal, amountShipping, amountTotal } = extractAmountsFromSession(session, order)
+    const shipping = extractShippingFromSession(session)
     const data = {
       orderNumber: order.orderNumber,
-      items,
-      subtotalCents,
-      shippingCents,
-      totalCents,
-      customerName: session?.customer_details?.name ?? '',
-      address: {
-        line1: addr.line1 ?? '',
-        line2: addr.line2 ?? '',
-        city: addr.city ?? '',
-        state: addr.state ?? '',
-        postalCode: addr.postal_code ?? '',
-        country: addr.country ?? '',
-      },
+      items: order.items ?? [],
+      subtotalCents: amountSubtotal,
+      shippingCents: amountShipping,
+      totalCents: amountTotal,
+      customerName: shipping?.name ?? session?.customer_details?.name ?? '',
+      address: shipping?.address ?? {},
     }
 
     const result = await sendEmail({
@@ -1432,6 +1455,10 @@ app.post('/api/orders/lookup', express.json(), async (req, res) => {
     if (!customerEmail || customerEmail.toLowerCase() !== email) return notFound()
 
     const live = await withLiveTracking(order)
+    const amounts =
+      order.amountTotal != null
+        ? { amountSubtotal: order.amountSubtotal, amountShipping: order.amountShipping, amountTotal: order.amountTotal }
+        : extractAmountsFromSession(null, order)
 
     res.json({
       id: order.id,
@@ -1441,6 +1468,10 @@ app.post('/api/orders/lookup', express.json(), async (req, res) => {
       tracking: live.tracking,
       customerEmail,
       items: order.items,
+      shipping: order.shipping ?? null,
+      amountSubtotal: amounts.amountSubtotal,
+      amountShipping: amounts.amountShipping,
+      amountTotal: amounts.amountTotal,
       createdAt: order.createdAt ?? null,
       printifyOrderId: order.printifyOrder?.id ?? null,
     })
@@ -1454,14 +1485,25 @@ app.get('/api/orders/:sessionId', async (req, res) => {
     const order = await readOrder(req.params.sessionId)
 
     let customerEmail = order.customerEmail ?? null
-    if (!customerEmail) {
+    let shipping = order.shipping ?? null
+    let amounts =
+      order.amountTotal != null
+        ? { amountSubtotal: order.amountSubtotal, amountShipping: order.amountShipping, amountTotal: order.amountTotal }
+        : null
+
+    // Hydrate anything not yet stored (e.g. the success page loads before the
+    // webhook fulfills) from the Stripe session in a single fetch.
+    if (!customerEmail || !shipping || !amounts) {
       try {
         const session = await stripe.checkout.sessions.retrieve(req.params.sessionId)
-        customerEmail = session.customer_details?.email ?? null
+        customerEmail = customerEmail ?? session.customer_details?.email ?? null
+        shipping = shipping ?? extractShippingFromSession(session)
+        amounts = amounts ?? extractAmountsFromSession(session, order)
       } catch {
-        // not critical — just won't show email yet
+        // not critical — fall back to item math below
       }
     }
+    if (!amounts) amounts = extractAmountsFromSession(null, order)
 
     const live = await withLiveTracking(order)
 
@@ -1473,6 +1515,10 @@ app.get('/api/orders/:sessionId', async (req, res) => {
       tracking: live.tracking,
       customerEmail,
       items: order.items,
+      shipping,
+      amountSubtotal: amounts.amountSubtotal,
+      amountShipping: amounts.amountShipping,
+      amountTotal: amounts.amountTotal,
       printifyOrderId: order.printifyOrder?.id ?? null,
     })
   } catch {

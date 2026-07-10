@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import EmailSignup from '../components/EmailSignup.vue'
+import OrderSummary from '../components/OrderSummary.vue'
 
 const route = useRoute()
 const order = ref(null)
@@ -125,6 +126,8 @@ onMounted(async () => {
               <strong>{{ currency.format((item.unitAmount / 100) * item.quantity) }}</strong>
             </div>
           </div>
+
+          <OrderSummary :order="order" />
 
           <div class="order-lookup__actions">
             <RouterLink class="button" to="/collections">Keep shopping</RouterLink>

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
+import OrderSummary from '../components/OrderSummary.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
 
 setDocumentHead({
@@ -118,6 +119,8 @@ function reset() {
               <strong>{{ currency.format((item.unitAmount / 100) * item.quantity) }}</strong>
             </div>
           </div>
+
+          <OrderSummary :order="order" />
 
           <div class="order-lookup__actions">
             <button class="button button--outline" type="button" @click="reset">Look up another order</button>

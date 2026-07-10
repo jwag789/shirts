@@ -3510,3 +3510,52 @@ h3 {
   color: var(--muted);
   margin-bottom: 20px;
 }
+
+/* Order totals + ship-to (checkout success + order lookup) */
+.order-totals {
+  max-width: 520px;
+  margin: 4px auto 0;
+  text-align: left;
+}
+
+.order-totals > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.order-totals__total {
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+  padding-top: 12px !important;
+  font-size: 1.1rem !important;
+  font-weight: 800;
+  color: var(--text) !important;
+}
+
+.order-address {
+  max-width: 520px;
+  margin: 22px auto 0;
+  text-align: left;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.order-address__label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.order-address address {
+  font-style: normal;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text);
+}
