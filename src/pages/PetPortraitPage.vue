@@ -58,6 +58,7 @@ const generatedOptions = ref([])
 const selectedOptions = ref([])
 const designIdByUrl = ref({})
 const shareCopied = ref(false)
+const sharePreparing = ref(false)
 const generateError = ref('')
 const selectedSize = ref('M')
 const addedToBag = ref(false)
@@ -237,7 +238,23 @@ const shareableDesignId = computed(() => {
 
 async function shareDesign() {
   const id = shareableDesignId.value
-  if (!id) return
+  if (!id || sharePreparing.value) return
+  // Build a shirt-mockup preview in the chosen color for the link unfurl.
+  sharePreparing.value = true
+  try {
+    await fetch(`/api/designs/${id}/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        swatch: selectedColor.value?.swatch ?? '#ececec',
+        colorName: selectedColor.value?.name ?? 'White',
+      }),
+    })
+  } catch {
+    /* best-effort */
+  }
+  sharePreparing.value = false
+
   const url = `${window.location.origin}/d/${id}`
   if (navigator.share) {
     try {
@@ -505,9 +522,12 @@ async function shareDesign() {
                   v-if="shareableDesignId"
                   class="button button--outline ts-share"
                   type="button"
+                  :disabled="sharePreparing"
                   @click="shareDesign"
                 >
-                  {{ shareCopied ? '✓ Link copied' : 'Share this design' }}
+                  <template v-if="sharePreparing">Preparing preview…</template>
+                  <template v-else-if="shareCopied">✓ Link copied</template>
+                  <template v-else>Share this design</template>
                 </button>
 
                 <div class="pet-result__footlinks">

@@ -1279,6 +1279,97 @@ app.get('/api/orders/:sessionId', async (req, res) => {
   }
 })
 
+// Renders a branded shirt mockup (silhouette in the chosen color + the art on
+// the chest) as a raster image for link previews — social scrapers can't run
+// the client-side mockup. Geometry mirrors ShirtMockup's SVG fallback.
+const SHIRT_PATH =
+  'M 52 260 L 52 112 L 16 90 L 6 50 L 52 32 L 80 24 Q 96 52 120 54 Q 144 52 160 24 L 188 32 L 234 50 L 224 90 L 188 112 L 188 260 Z'
+
+function mockupSwatch(swatch) {
+  const s = String(swatch ?? '').toLowerCase()
+  return s === '#ffffff' || s === '#fff' || s === 'white' ? '#ececec' : swatch || '#ececec'
+}
+
+async function renderShirtMockupPng(artBuffer, swatch) {
+  const W = 1200
+  const H = 630
+  const shirtH = 566
+  const shirtW = Math.round((shirtH * 240) / 270)
+  const shirtX = Math.round((W - shirtW) / 2)
+  const shirtY = Math.round((H - shirtH) / 2)
+  const fill = mockupSwatch(swatch)
+
+  const bg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#faf9ff"/><stop offset="1" stop-color="#eceff9"/>
+    </linearGradient></defs>
+    <rect width="${W}" height="${H}" fill="url(#g)"/>
+  </svg>`
+
+  const shirtSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${shirtW}" height="${shirtH}" viewBox="0 0 240 270">
+    <defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="rgba(20,15,40,0.22)"/>
+    </filter></defs>
+    <path d="${SHIRT_PATH}" fill="${fill}" stroke="rgba(0,0,0,0.14)" stroke-width="1.5" stroke-linejoin="round" filter="url(#sh)"/>
+  </svg>`
+
+  // Art: left 29%, top 30%, width 42% of the shirt region (matches the CSS).
+  const artW = Math.round(shirtW * 0.42)
+  const artResized = await sharp(artBuffer).resize({ width: artW }).png().toBuffer()
+  const artLeft = shirtX + Math.round(shirtW * 0.29)
+  const artTop = shirtY + Math.round(shirtH * 0.3)
+
+  return await sharp(Buffer.from(bg))
+    .composite([
+      { input: Buffer.from(shirtSvg), left: shirtX, top: shirtY },
+      { input: artResized, left: artLeft, top: artTop },
+    ])
+    .png()
+    .toBuffer()
+}
+
+// Builds (and caches) a shirt-mockup preview image for a design in a chosen
+// color, used for share-link previews. Also records the chosen color so the
+// share page can default to it.
+const designPreviewRateLimit = new Map()
+
+app.post('/api/designs/:id/preview', express.json(), async (req, res) => {
+  try {
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(designPreviewRateLimit, ip, 80)) {
+      return res.status(429).json({ error: 'Too many requests. Please try again later.' })
+    }
+
+    const design = await readDesign(req.params.id)
+    if (!design) return res.status(404).json({ error: 'Design not found.' })
+
+    const swatch = String(req.body?.swatch ?? '').trim() || '#ececec'
+    const colorName = String(req.body?.colorName ?? '').trim() || 'White'
+
+    // Reuse the cached preview when the color hasn't changed.
+    if (design.meta?.previewImageUrl && design.meta?.color?.swatch === swatch) {
+      return res.json({ previewUrl: design.meta.previewImageUrl, color: design.meta.color })
+    }
+
+    if (!process.env.FAL_KEY) return res.status(503).json({ error: 'Preview unavailable.' })
+
+    const upstream = await fetch(design.imageUrl)
+    if (!upstream.ok) throw new Error('Could not load the design art.')
+    const artBuffer = Buffer.from(await upstream.arrayBuffer())
+
+    const png = await renderShirtMockupPng(artBuffer, swatch)
+    const previewImageUrl = await fal.storage.upload(new Blob([png], { type: 'image/png' }))
+
+    const nextMeta = { ...(design.meta ?? {}), previewImageUrl, color: { name: colorName, swatch } }
+    await pool.query('UPDATE designs SET data = $2 WHERE id = $1', [design.id, JSON.stringify(nextMeta)])
+
+    res.json({ previewUrl: previewImageUrl, color: nextMeta.color })
+  } catch (err) {
+    console.error('Design preview error:', err)
+    res.status(500).json({ error: 'Could not build preview.' })
+  }
+})
+
 // Shareable designs — fetch one or a batch (batch powers the "My Designs" gallery).
 app.get('/api/designs', async (req, res) => {
   try {
@@ -1366,7 +1457,7 @@ app.get('/d/:id', async (req, res, next) => {
       replaceMeta(html, {
         title,
         description,
-        image: design.imageUrl,
+        image: design.meta?.previewImageUrl ?? design.imageUrl,
         url: `${siteUrl}/d/${design.id}`,
       }),
     )

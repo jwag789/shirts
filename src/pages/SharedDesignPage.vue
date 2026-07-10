@@ -21,6 +21,7 @@ const selectedSize = ref('M')
 const mockupPhotoUrl = ref(null)
 const addedToBag = ref(false)
 const copied = ref(false)
+const sharePreparing = ref(false)
 
 const isTeam = computed(() => design.value?.kind === 'team')
 const price = computed(() => (isTeam.value ? 42 : 38))
@@ -59,7 +60,12 @@ async function loadVariants() {
     const data = await res.json()
     colors.value = data.colors ?? []
     sizes.value = data.sizes ?? ['S', 'M', 'L', 'XL', '2XL']
-    if (data.colors?.length) selectColor(data.colors[0])
+    if (data.colors?.length) {
+      // Default to the color this design was shared in, if any.
+      const savedName = design.value?.meta?.color?.name
+      const match = savedName ? data.colors.find((c) => c.name === savedName) : null
+      selectColor(match ?? data.colors[0])
+    }
   } catch {
     /* falls back to defaults */
   }
@@ -157,6 +163,23 @@ async function copyLink() {
 }
 
 async function shareLink() {
+  if (sharePreparing.value || !design.value) return
+  // Refresh the mockup preview to the currently selected color before sharing.
+  sharePreparing.value = true
+  try {
+    await fetch(`/api/designs/${design.value.id}/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        swatch: selectedColor.value?.swatch ?? '#ececec',
+        colorName: selectedColor.value?.name ?? 'White',
+      }),
+    })
+  } catch {
+    /* best-effort */
+  }
+  sharePreparing.value = false
+
   if (navigator.share) {
     try {
       await navigator.share({ title: title.value, url: window.location.href })
@@ -202,8 +225,10 @@ async function shareLink() {
               <ShirtMockup :color="previewSwatch" :art-url="design.imageUrl" :photo-url="mockupPhotoUrl" />
             </div>
             <div class="shared-design__share">
-              <button class="button button--outline" type="button" @click="shareLink">
-                {{ copied ? '✓ Link copied' : 'Share this design' }}
+              <button class="button button--outline" type="button" :disabled="sharePreparing" @click="shareLink">
+                <template v-if="sharePreparing">Preparing preview…</template>
+                <template v-else-if="copied">✓ Link copied</template>
+                <template v-else>Share this design</template>
               </button>
             </div>
           </div>

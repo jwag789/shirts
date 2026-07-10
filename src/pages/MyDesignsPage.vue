@@ -28,6 +28,12 @@ function kindLabel(d) {
   return d.kind === 'team' ? 'Team shirt' : 'Pet portrait'
 }
 
+function mockupColor(d) {
+  const s = d.meta?.color?.swatch
+  if (!s) return '#ececec'
+  return s === '#ffffff' || s === '#fff' ? '#ececec' : s
+}
+
 onMounted(async () => {
   const ids = getDesignIds()
   if (!ids.length) {
@@ -78,7 +84,7 @@ onMounted(async () => {
           :to="`/d/${d.id}`"
         >
           <div class="design-card__art">
-            <ShirtMockup color="#ececec" :art-url="d.imageUrl" />
+            <ShirtMockup :color="mockupColor(d)" :art-url="d.imageUrl" />
           </div>
           <div class="design-card__copy">
             <strong>{{ titleFor(d) }}</strong>

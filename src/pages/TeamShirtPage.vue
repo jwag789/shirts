@@ -56,6 +56,7 @@ const isGenerating = ref(false)
 const generatedUrl = ref(null)
 const generatedDesignId = ref(null)
 const shareCopied = ref(false)
+const sharePreparing = ref(false)
 const generateError = ref('')
 
 // ── Shirt options ────────────────────────────────────────────────────────────
@@ -194,7 +195,24 @@ async function generate() {
 }
 
 async function shareDesign() {
-  if (!generatedDesignId.value) return
+  if (!generatedDesignId.value || sharePreparing.value) return
+  // Build a shirt-mockup preview in the chosen color so the shared link unfurls
+  // with the actual shirt, not the bare artwork.
+  sharePreparing.value = true
+  try {
+    await fetch(`/api/designs/${generatedDesignId.value}/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        swatch: selectedColor.value?.swatch ?? '#ececec',
+        colorName: selectedColor.value?.name ?? 'White',
+      }),
+    })
+  } catch {
+    /* preview is best-effort — still share the link */
+  }
+  sharePreparing.value = false
+
   const url = `${window.location.origin}/d/${generatedDesignId.value}`
   if (navigator.share) {
     try {
@@ -545,9 +563,12 @@ function startOver() {
                   v-if="generatedDesignId"
                   class="button button--outline ts-share"
                   type="button"
+                  :disabled="sharePreparing"
                   @click="shareDesign"
                 >
-                  {{ shareCopied ? '✓ Link copied' : 'Share this design' }}
+                  <template v-if="sharePreparing">Preparing preview…</template>
+                  <template v-else-if="shareCopied">✓ Link copied</template>
+                  <template v-else>Share this design</template>
                 </button>
 
                 <div class="ts-footlinks">
