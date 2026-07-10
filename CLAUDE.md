@@ -72,9 +72,12 @@ All in `.env.local`:
 | `STRIPE_WEBHOOK_SECRET` | From `stripe listen` (dev) or Stripe Dashboard (prod) |
 | `PRINTIFY_API_TOKEN` | Printify personal access token |
 | `PRINTIFY_SHOP_ID` | Printify shop ID |
+| `PRINTIFY_WEBHOOK_SECRET` | Optional. HMAC secret for verifying `/api/webhooks/printify` (order:shipment events → shipping email). Skips verification if unset. |
 | `DATABASE_URL` | Postgres connection string (order storage). SSL enabled when `NODE_ENV=production`. |
 | `OPENAI_API_KEY` | For AI pet portrait + team shirt generation (gpt-image-1) |
 | `FAL_KEY` | fal.ai storage — hosts generated images for Printify |
+| `RESEND_API_KEY` | Transactional email (shipping notifications). Emails no-op until this is set. |
+| `EMAIL_FROM` | From address for transactional email, e.g. `InkSpirit <orders@yourdomain.com>`. Defaults to `onboarding@resend.dev`. |
 | `SITE_URL` | Full URL of the site (used for Stripe redirect URLs and image URLs) |
 | `PORT` | Defaults to 4242 |
 
@@ -95,6 +98,14 @@ Orders live in a Postgres `orders` table (via `pg`, connection from `DATABASE_UR
 - `printify_created` — payment confirmed, Printify order created
 
 Customers can retrieve an order at `/orders` (`POST /api/orders/lookup` with order number + email; the email must match the order's Stripe customer email). The post-checkout success page reads a single order via `GET /api/orders/:sessionId`.
+
+## Transactional Email (shipping notifications)
+
+The branded "your order shipped" email lives in `server/emails.js` (pure HTML/text builders). Sending is provider-agnostic via `sendEmail()` in `server/index.js`, currently wired to **Resend** — it no-ops (logs only) until `RESEND_API_KEY` is set, so nothing sends by accident.
+
+Trigger: Printify's `order:shipment:created` webhook → `POST /api/webhooks/printify`. It matches the order by its stored Printify id, refreshes tracking, and sends once (idempotent via `shippingEmailSentAt`). As a fallback, viewing an order after it ships also fires the email. To go live:
+1. Create a Resend account, verify your sending domain, set `RESEND_API_KEY` + `EMAIL_FROM`.
+2. In Printify → Settings → Webhooks, add `https://yourdomain.com/api/webhooks/printify` for the `order:shipment:created` event; put its secret in `PRINTIFY_WEBHOOK_SECRET`.
 
 ## Wiring Up New Products
 

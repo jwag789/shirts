@@ -1,7 +1,7 @@
 import express from 'express'
 import path from 'node:path'
 import { readFile } from 'node:fs/promises'
-import { randomBytes } from 'node:crypto'
+import { randomBytes, createHmac, timingSafeEqual } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { config } from 'dotenv'
@@ -10,6 +10,7 @@ import OpenAI, { toFile } from 'openai'
 import { fal } from '@fal-ai/client'
 import sharp from 'sharp'
 import { products } from '../src/data/products.js'
+import { renderShippingEmailHtml, renderShippingEmailText } from './emails.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -531,10 +532,62 @@ async function withLiveTracking(order) {
           // persistence is a nice-to-have; the response is still correct
         }
       }
+
+      // Fallback trigger for the "shipped" email in case the Printify webhook
+      // isn't configured — idempotent via shippingEmailSentAt. Fire and forget.
+      if (tracking.length && (fulfillmentStatus === 'shipped' || fulfillmentStatus === 'delivered')) {
+        maybeSendShippingEmail({ ...order, tracking, fulfillmentStatus }).catch(() => {})
+      }
     }
   }
 
   return { tracking, fulfillmentStatus }
+}
+
+async function findOrderByPrintifyId(printifyOrderId) {
+  const { rows } = await pool.query(
+    "SELECT data FROM orders WHERE data->'printifyOrder'->>'id' = $1 LIMIT 1",
+    [String(printifyOrderId)],
+  )
+  return rows.length ? rows[0].data : null
+}
+
+// Provider-agnostic send. Currently wired to Resend; swapping providers is just
+// this function. No-op (logs) until RESEND_API_KEY is configured.
+async function sendEmail({ to, subject, html, text }) {
+  const apiKey = process.env.RESEND_API_KEY
+  const from = process.env.EMAIL_FROM || 'InkSpirit <onboarding@resend.dev>'
+  if (!apiKey) {
+    console.log(`[email] RESEND_API_KEY not set — skipping "${subject}" to ${to}`)
+    return { skipped: true }
+  }
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to, subject, html, text }),
+  })
+  const body = await res.text()
+  if (!res.ok) throw new Error(`Email send failed (${res.status}): ${body}`)
+  return JSON.parse(body || '{}')
+}
+
+// Sends the branded "your order shipped" email once per order.
+async function maybeSendShippingEmail(order) {
+  try {
+    if (!order?.customerEmail || !order.tracking?.length || order.shippingEmailSentAt) return
+    if (!process.env.RESEND_API_KEY) return
+
+    const result = await sendEmail({
+      to: order.customerEmail,
+      subject: `Your InkSpirit order ${order.orderNumber ?? ''} shipped`,
+      html: renderShippingEmailHtml(order, order.tracking, siteUrl),
+      text: renderShippingEmailText(order, order.tracking, siteUrl),
+    })
+    if (result?.skipped) return
+    if (order.id) await saveOrder(order.id, { ...order, shippingEmailSentAt: new Date().toISOString() })
+  } catch (err) {
+    console.error('Shipping email failed:', err.message)
+  }
 }
 
 // Themed lettering styles — how gpt-image-1 should render the pet's name in-artwork.
@@ -1135,6 +1188,52 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
   }
 
   res.json({ received: true })
+})
+
+// Printify fires this when an order ships (register the URL in Printify →
+// Settings → Webhooks for the order:shipment:* events). We look the order up by
+// its Printify id, refresh tracking, and send the branded shipping email.
+app.post('/api/webhooks/printify', express.raw({ type: '*/*' }), async (req, res) => {
+  try {
+    const secret = process.env.PRINTIFY_WEBHOOK_SECRET
+    const raw = req.body // Buffer (express.raw)
+    if (secret) {
+      const provided = String(req.get('x-pfy-signature') ?? '')
+      const expected = 'sha256=' + createHmac('sha256', secret).update(raw).digest('hex')
+      const ok =
+        provided.length === expected.length &&
+        timingSafeEqual(Buffer.from(provided), Buffer.from(expected))
+      if (!ok) return res.status(401).json({ error: 'Invalid signature' })
+    }
+
+    const event = JSON.parse(raw.toString('utf8'))
+    if (event?.type === 'order:shipment:created' || event?.type === 'order:shipment:delivered') {
+      const printifyOrderId = event.resource?.id
+      const order = printifyOrderId ? await findOrderByPrintifyId(printifyOrderId) : null
+      if (order) {
+        // Pull authoritative tracking from the API rather than trusting the
+        // webhook payload shape.
+        const live = await fetchPrintifyTracking(printifyOrderId)
+        const tracking = live?.tracking ?? order.tracking ?? []
+        const fulfillmentStatus = deriveFulfillmentStatus(order, live)
+        const merged = { ...order, tracking, fulfillmentStatus }
+        if (order.id) {
+          try {
+            await saveOrder(order.id, merged)
+          } catch {
+            /* non-fatal */
+          }
+        }
+        await maybeSendShippingEmail(merged)
+      }
+    }
+
+    res.json({ received: true })
+  } catch (err) {
+    console.error('Printify webhook error:', err.message)
+    // Ack so Printify doesn't retry-storm on our parse errors.
+    res.status(200).json({ received: true })
+  }
 })
 
 app.use(express.json())
