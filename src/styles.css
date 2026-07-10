@@ -3397,3 +3397,96 @@ h3 {
   letter-spacing: 0.08em;
   font-weight: 700;
 }
+
+/* ── Newsletter / email signup ───────────────────────────────────────────────── */
+.newsletter {
+  padding: clamp(48px, 7vw, 88px) var(--pad);
+  border-top: 1px solid var(--line);
+  background:
+    radial-gradient(120% 130% at 0% 0%, rgba(118, 70, 226, 0.10), transparent 55%),
+    radial-gradient(120% 130% at 100% 100%, rgba(30, 193, 250, 0.10), transparent 52%),
+    linear-gradient(180deg, #ffffff, #f7f5ff);
+}
+
+.newsletter__inner {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.newsletter__title {
+  font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 8px 0 12px;
+}
+
+.newsletter__title span {
+  background: linear-gradient(120deg, var(--accent), var(--accent-2) 52%, var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.newsletter__sub {
+  color: var(--muted);
+  max-width: 460px;
+  margin: 0 auto 24px;
+  line-height: 1.6;
+}
+
+.email-signup {
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.email-signup__form {
+  display: flex;
+  gap: 10px;
+}
+
+.email-signup__input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 1rem;
+  background: #fff;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.email-signup__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.14);
+}
+
+.email-signup__btn {
+  flex-shrink: 0;
+  padding-left: 26px;
+  padding-right: 26px;
+}
+
+.email-signup__error {
+  color: #c0342b;
+  font-size: 0.86rem;
+  margin-top: 10px;
+  text-align: left;
+}
+
+.email-signup__done {
+  font-weight: 700;
+  color: #1a7f37;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 520px) {
+  .email-signup__form {
+    flex-direction: column;
+  }
+  .email-signup__btn {
+    width: 100%;
+  }
+}

@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import CollectionCard from '../components/CollectionCard.vue'
 import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
+import EmailSignup from '../components/EmailSignup.vue'
 import { collections, getProductsByCollection } from '../data/products'
 import { setDocumentHead } from '../composables/useDocumentHead'
 import banner1 from '../../images/banner-1.png'
@@ -307,6 +308,18 @@ onBeforeUnmount(() => {
             v-reveal="i * 80"
             :shirt="shirt"
           />
+        </div>
+      </section>
+
+      <section class="newsletter" v-reveal>
+        <div class="newsletter__inner">
+          <p class="eyebrow">Stay in the loop</p>
+          <h2 class="newsletter__title">New designs, <span>weekly.</span></h2>
+          <p class="newsletter__sub">
+            Get first look at fresh drops, custom AI tools, and the occasional discount.
+            No spam — unsubscribe anytime.
+          </p>
+          <EmailSignup source="home-footer" />
         </div>
       </section>
 

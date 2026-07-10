@@ -230,6 +230,16 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `)
+
+  // Marketing email signups. We own the list here; syncing to an ESP later
+  // (Mailchimp/Klaviyo/etc.) just reads from this table.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS subscribers (
+      email      TEXT        PRIMARY KEY,
+      source     TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `)
 }
 
 // Short, URL-safe, hard-to-guess design id (no ambiguous chars).
@@ -1187,6 +1197,35 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.json({ url: session.url })
   } catch (error) {
     res.status(400).json({ error: error.message })
+  }
+})
+
+// Marketing email capture. Stores to our own `subscribers` table (idempotent);
+// an ESP sync can later read from it.
+const subscribeRateLimit = new Map()
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+app.post('/api/subscribe', express.json(), async (req, res) => {
+  try {
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(subscribeRateLimit, ip, 30)) {
+      return res.status(429).json({ error: 'Too many attempts. Please try again later.' })
+    }
+
+    const email = String(req.body?.email ?? '').trim().toLowerCase()
+    const source = String(req.body?.source ?? 'site').trim().slice(0, 40) || 'site'
+    if (!EMAIL_RE.test(email) || email.length > 254) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' })
+    }
+
+    await pool.query(
+      'INSERT INTO subscribers (email, source) VALUES ($1, $2) ON CONFLICT (email) DO NOTHING',
+      [email, source],
+    )
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('Subscribe error:', err)
+    res.status(500).json({ error: 'Could not sign you up. Please try again.' })
   }
 })
 
