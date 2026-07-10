@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
+import { recordDesign } from '../composables/useDesigns'
 
 const { addTeamShirtItem } = useCart()
 
@@ -53,6 +54,8 @@ const accent = ref('')
 // ── Generation / result state ────────────────────────────────────────────────
 const isGenerating = ref(false)
 const generatedUrl = ref(null)
+const generatedDesignId = ref(null)
+const shareCopied = ref(false)
 const generateError = ref('')
 
 // ── Shirt options ────────────────────────────────────────────────────────────
@@ -178,12 +181,35 @@ async function generate() {
     if (!res.ok) throw new Error(data.error ?? 'Generation failed.')
 
     generatedUrl.value = data.imageUrl
+    generatedDesignId.value = data.designId ?? null
+    shareCopied.value = false
+    if (data.designId) recordDesign(data.designId)
     if (selectedColor.value) fetchMockupPhoto(selectedColor.value)
   } catch (err) {
     generateError.value = err.message
     step.value = 4
   } finally {
     isGenerating.value = false
+  }
+}
+
+async function shareDesign() {
+  if (!generatedDesignId.value) return
+  const url = `${window.location.origin}/d/${generatedDesignId.value}`
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: `${teamName.value.trim()} — Custom Team Shirt`, url })
+      return
+    } catch {
+      /* cancelled — fall through to copy */
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url)
+    shareCopied.value = true
+    setTimeout(() => { shareCopied.value = false }, 2000)
+  } catch {
+    /* clipboard blocked */
   }
 }
 
@@ -514,6 +540,15 @@ function startOver() {
                 <p v-if="addedCount > 0" class="ts-added">
                   ✓ Added to bag.
                 </p>
+
+                <button
+                  v-if="generatedDesignId"
+                  class="button button--outline ts-share"
+                  type="button"
+                  @click="shareDesign"
+                >
+                  {{ shareCopied ? '✓ Link copied' : 'Share this design' }}
+                </button>
 
                 <div class="ts-footlinks">
                   <button class="pet-regen-btn" type="button" @click="generate">↻ Regenerate design</button>

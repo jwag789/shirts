@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
+import { recordDesign } from '../composables/useDesigns'
 
 const { addPetPortraitItem } = useCart()
 
@@ -55,6 +56,8 @@ const uploadedPreview = ref(null)
 const isGenerating = ref(false)
 const generatedOptions = ref([])
 const selectedOptions = ref([])
+const designIdByUrl = ref({})
+const shareCopied = ref(false)
 const generateError = ref('')
 const selectedSize = ref('M')
 const addedToBag = ref(false)
@@ -163,6 +166,19 @@ async function generate() {
     if (!response.ok) throw new Error(data.error ?? 'Generation failed.')
 
     generatedOptions.value = data.imageUrls ?? (data.imageUrl ? [data.imageUrl] : [])
+    // Map each generated option to its shareable design id, and remember them
+    // so they show up under "My Designs".
+    designIdByUrl.value = {}
+    if (Array.isArray(data.designIds)) {
+      data.imageUrls?.forEach((url, i) => {
+        const id = data.designIds[i]
+        if (id) {
+          designIdByUrl.value[url] = id
+          recordDesign(id)
+        }
+      })
+    }
+    shareCopied.value = false
     // Pre-select the first option so the buy panel is ready to go
     selectedOptions.value = generatedOptions.value.slice(0, 1)
     if (selectedColor.value) fetchMockupPhoto(selectedColor.value)
@@ -213,6 +229,32 @@ function startOver() {
 const activeStyle = computed(() => STYLES.find(s => s.key === selectedStyle.value))
 const selectedCount = computed(() => selectedOptions.value.length)
 const selectedTotal = computed(() => selectedCount.value * 38)
+
+const shareableDesignId = computed(() => {
+  const url = selectedOptions.value[0] ?? generatedOptions.value[0]
+  return url ? designIdByUrl.value[url] ?? null : null
+})
+
+async function shareDesign() {
+  const id = shareableDesignId.value
+  if (!id) return
+  const url = `${window.location.origin}/d/${id}`
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: `${activeStyle.value?.label ?? 'Custom'} Pet Portrait`, url })
+      return
+    } catch {
+      /* cancelled — fall through to copy */
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url)
+    shareCopied.value = true
+    setTimeout(() => { shareCopied.value = false }, 2000)
+  } catch {
+    /* clipboard blocked */
+  }
+}
 </script>
 
 <template>
@@ -458,6 +500,15 @@ const selectedTotal = computed(() => selectedCount.value * 38)
                     <template v-else>Add {{ selectedCount }} {{ selectedCount === 1 ? 'shirt' : 'shirts' }} to bag — ${{ selectedTotal }}</template>
                   </button>
                 </div>
+
+                <button
+                  v-if="shareableDesignId"
+                  class="button button--outline ts-share"
+                  type="button"
+                  @click="shareDesign"
+                >
+                  {{ shareCopied ? '✓ Link copied' : 'Share this design' }}
+                </button>
 
                 <div class="pet-result__footlinks">
                   <button class="pet-regen-btn" type="button" @click="step = 2">← Try a different photo</button>

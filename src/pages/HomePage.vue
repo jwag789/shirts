@@ -322,6 +322,7 @@ onBeforeUnmount(() => {
           <RouterLink to="/collections/ink-art">Fine Lines</RouterLink>
           <RouterLink to="/pet-portrait">Custom Pet Portraits</RouterLink>
           <RouterLink to="/team-shirt">AI Team Shirts</RouterLink>
+          <RouterLink to="/my-designs">My Designs</RouterLink>
           <RouterLink to="/orders">Track Your Order</RouterLink>
         </nav>
       </section>

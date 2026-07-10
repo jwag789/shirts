@@ -1,5 +1,7 @@
 import express from 'express'
 import path from 'node:path'
+import { readFile } from 'node:fs/promises'
+import { randomBytes } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { config } from 'dotenv'
@@ -217,6 +219,55 @@ async function initDb() {
   `)
   // Customers look orders up by order number, so index it.
   await pool.query('CREATE INDEX IF NOT EXISTS orders_order_number_idx ON orders (order_number)')
+
+  // Shareable AI designs (pet portraits + team shirts).
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS designs (
+      id         TEXT        PRIMARY KEY,
+      kind       TEXT        NOT NULL,
+      image_url  TEXT        NOT NULL,
+      data       JSONB       NOT NULL DEFAULT '{}',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `)
+}
+
+// Short, URL-safe, hard-to-guess design id (no ambiguous chars).
+function generateDesignId() {
+  const alphabet = 'abcdefghijkmnpqrstuvwxyz23456789'
+  const bytes = randomBytes(11)
+  let out = ''
+  for (let i = 0; i < bytes.length; i++) out += alphabet[bytes[i] % alphabet.length]
+  return out
+}
+
+async function saveDesign({ kind, imageUrl, meta }) {
+  const id = generateDesignId()
+  await pool.query(
+    'INSERT INTO designs (id, kind, image_url, data) VALUES ($1, $2, $3, $4)',
+    [id, kind, imageUrl, JSON.stringify(meta ?? {})],
+  )
+  return id
+}
+
+async function readDesign(id) {
+  const { rows } = await pool.query(
+    'SELECT id, kind, image_url, data, created_at FROM designs WHERE id = $1',
+    [id],
+  )
+  if (!rows.length) return null
+  const r = rows[0]
+  return { id: r.id, kind: r.kind, imageUrl: r.image_url, meta: r.data ?? {}, createdAt: r.created_at }
+}
+
+// Best-effort — a design-save failure must never break generation itself.
+async function saveDesignSafe(payload) {
+  try {
+    return await saveDesign(payload)
+  } catch (err) {
+    console.error('Failed to save shareable design:', err.message)
+    return null
+  }
 }
 
 async function saveOrder(sessionId, order) {
@@ -624,7 +675,13 @@ ${textDirective}`
       ),
     )
 
-    res.json({ imageUrls, petDescription })
+    const designIds = await Promise.all(
+      imageUrls.map((url) =>
+        saveDesignSafe({ kind: 'pet', imageUrl: url, meta: { style, petName: safePetName } }),
+      ),
+    )
+
+    res.json({ imageUrls, petDescription, designIds })
   } catch (error) {
     console.error('Pet portrait generation error:', error)
     res.status(500).json({ error: error.message ?? 'Generation failed.' })
@@ -910,7 +967,13 @@ app.post('/api/team-shirt/generate', express.json({ limit: '1mb' }), async (req,
       new Blob([Buffer.from(b64, 'base64')], { type: 'image/png' }),
     )
 
-    res.json({ imageUrl })
+    const designId = await saveDesignSafe({
+      kind: 'team',
+      imageUrl,
+      meta: { teamName: safeTeamName, subtitle: safeSubtitle, style, logoConcept: safeLogoConcept },
+    })
+
+    res.json({ imageUrl, designId })
   } catch (error) {
     console.error('Team shirt generation error:', error)
     res.status(500).json({ error: error.message ?? 'Generation failed.' })
@@ -1213,6 +1276,102 @@ app.get('/api/orders/:sessionId', async (req, res) => {
     })
   } catch {
     res.status(404).json({ error: 'Order not found.' })
+  }
+})
+
+// Shareable designs — fetch one or a batch (batch powers the "My Designs" gallery).
+app.get('/api/designs', async (req, res) => {
+  try {
+    const ids = String(req.query.ids ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 60)
+    if (!ids.length) return res.json({ designs: [] })
+
+    const { rows } = await pool.query(
+      'SELECT id, kind, image_url, data, created_at FROM designs WHERE id = ANY($1)',
+      [ids],
+    )
+    const byId = new Map(rows.map((r) => [r.id, r]))
+    // Preserve the caller's order (newest-first from the client).
+    const designs = ids
+      .map((id) => byId.get(id))
+      .filter(Boolean)
+      .map((r) => ({ id: r.id, kind: r.kind, imageUrl: r.image_url, meta: r.data ?? {}, createdAt: r.created_at }))
+    res.json({ designs })
+  } catch {
+    res.status(500).json({ error: 'Could not load designs.' })
+  }
+})
+
+app.get('/api/designs/:id', async (req, res) => {
+  try {
+    const design = await readDesign(req.params.id)
+    if (!design) return res.status(404).json({ error: 'Design not found.' })
+    res.json(design)
+  } catch {
+    res.status(500).json({ error: 'Could not load design.' })
+  }
+})
+
+// Title for a design's share preview / page.
+function designTitle(design) {
+  if (design.kind === 'team') {
+    const name = design.meta?.teamName?.trim()
+    return name ? `${name} — Custom Team Shirt` : 'Custom Team Shirt'
+  }
+  const style = design.meta?.style
+  const styleLabel = style ? style.charAt(0).toUpperCase() + style.slice(1) : ''
+  const petName = design.meta?.petName?.trim()
+  if (petName) return `${petName} the ${styleLabel} — Custom Pet Portrait`
+  return styleLabel ? `${styleLabel} Custom Pet Portrait` : 'Custom AI Design'
+}
+
+let indexHtmlCache = null
+async function getIndexHtml() {
+  if (!indexHtmlCache) indexHtmlCache = await readFile(path.join(distDir, 'index.html'), 'utf8')
+  return indexHtmlCache
+}
+
+function replaceMeta(html, { title, description, image, url }) {
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  return html
+    .replace(/<title>.*?<\/title>/, `<title>${esc(title)}</title>`)
+    .replace(/(<meta\s+name="description"\s+content=").*?("\s*\/>)/, `$1${esc(description)}$2`)
+    .replace(/(<meta\s+property="og:title"\s+content=").*?(")/, `$1${esc(title)}$2`)
+    .replace(/(<meta\s+property="og:description"\s+content=").*?(")/, `$1${esc(description)}$2`)
+    .replace(/(<meta\s+property="og:image"\s+content=").*?(")/, `$1${esc(image)}$2`)
+    .replace(/(<meta\s+property="og:url"\s+content=").*?(")/, `$1${esc(url)}$2`)
+    .replace(/(<meta\s+name="twitter:title"\s+content=").*?(")/, `$1${esc(title)}$2`)
+    .replace(/(<meta\s+name="twitter:description"\s+content=").*?(")/, `$1${esc(description)}$2`)
+    .replace(/(<meta\s+name="twitter:image"\s+content=").*?(")/, `$1${esc(image)}$2`)
+    .replace(/(<link\s+rel="canonical"\s+href=").*?(")/, `$1${esc(url)}$2`)
+}
+
+// Share page — serve the SPA shell but rewrite social meta so a pasted link
+// previews the actual design image and its title.
+app.get('/d/:id', async (req, res, next) => {
+  try {
+    const design = await readDesign(req.params.id)
+    const html = await getIndexHtml()
+    if (!design) return res.send(html)
+
+    const title = designTitle(design)
+    const description =
+      design.kind === 'team'
+        ? 'Design custom AI team shirts at InkSpirit — see this one and make your own.'
+        : 'Custom AI pet portrait tee from InkSpirit — see this one and make your own.'
+    res.send(
+      replaceMeta(html, {
+        title,
+        description,
+        image: design.imageUrl,
+        url: `${siteUrl}/d/${design.id}`,
+      }),
+    )
+  } catch (err) {
+    next(err)
   }
 })
 

@@ -300,6 +300,23 @@ async function main() {
   )
   count++
 
+  // My Designs (utility page — not in sitemap)
+  await writePage(
+    path.join(distDir, 'my-designs.html'),
+    renderPage(template, {
+      title: `My Designs | ${siteName}`,
+      description: 'Every custom AI design you have created on InkSpirit, ready to share or order.',
+      canonicalPath: '/my-designs',
+      jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'My Designs', url: '/my-designs' }])],
+      bodyHtml: `
+      <h1>My Designs</h1>
+      <p>Every custom AI team shirt and pet portrait you've created on InkSpirit, ready to share or order.</p>
+      <p><a href="/team-shirt">Design a team shirt</a> · <a href="/pet-portrait">Create a pet portrait</a></p>
+  `,
+    }),
+  )
+  count++
+
   // Collections list
   await writePage(
     path.join(distDir, 'collections.html'),
