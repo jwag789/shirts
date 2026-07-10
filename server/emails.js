@@ -70,7 +70,7 @@ export function renderShippingEmailHtml(order, tracking, siteUrl) {
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(120deg,${BRAND.accent},${BRAND.accentDark});padding:22px 32px;" align="left">
-              <img src="${site}/images/is-logo-white.png" height="30" alt="InkSpirit" style="height:30px;display:block;" />
+              <img src="${site}/images/is-logo-white-text.png" height="34" alt="InkSpirit" style="height:34px;display:block;" />
             </td>
           </tr>
           <!-- Hero -->
