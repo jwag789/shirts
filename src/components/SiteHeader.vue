@@ -17,9 +17,6 @@ const { itemCount, toggleCart } = useCart()
     </RouterLink>
 
     <nav class="site-nav" aria-label="Primary">
-      <RouterLink to="/collections/japanese-style">Torii</RouterLink>
-      <RouterLink to="/collections/pun-shirts">Funny Business</RouterLink>
-      <RouterLink to="/collections/ink-art">Fine Lines</RouterLink>
       <RouterLink class="nav-collections" to="/collections">Collections</RouterLink>
       <RouterLink class="nav-pet-portraits" to="/pet-portrait">Pet Portraits</RouterLink>
       <RouterLink class="nav-pet-portraits" to="/team-shirt">Team Shirts</RouterLink>

@@ -317,9 +317,6 @@ onBeforeUnmount(() => {
         </div>
         <nav aria-label="Footer">
           <RouterLink to="/collections">Collections</RouterLink>
-          <RouterLink to="/collections/japanese-style">Torii</RouterLink>
-          <RouterLink to="/collections/pun-shirts">Funny Business</RouterLink>
-          <RouterLink to="/collections/ink-art">Fine Lines</RouterLink>
           <RouterLink to="/pet-portrait">Custom Pet Portraits</RouterLink>
           <RouterLink to="/team-shirt">AI Team Shirts</RouterLink>
           <RouterLink to="/my-designs">My Designs</RouterLink>
