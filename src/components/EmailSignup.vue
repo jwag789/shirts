@@ -1,13 +1,24 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   source: { type: String, default: 'site' },
+  initialEmail: { type: String, default: '' },
 })
 
-const email = ref('')
+const email = ref(props.initialEmail)
+const touched = ref(false)
 const status = ref('idle') // idle | loading | done | error
 const message = ref('')
+
+// Prefill from a late-arriving value (e.g. order email loaded async), unless
+// the visitor has already started editing.
+watch(
+  () => props.initialEmail,
+  (value) => {
+    if (value && !touched.value) email.value = value
+  },
+)
 
 async function subscribe() {
   if (status.value === 'loading') return
@@ -50,6 +61,7 @@ async function subscribe() {
           autocomplete="email"
           placeholder="you@example.com"
           aria-label="Email address"
+          @input="touched = true"
         />
         <button class="button email-signup__btn" type="submit" :disabled="status === 'loading'">
           {{ status === 'loading' ? 'Joining…' : 'Sign up' }}

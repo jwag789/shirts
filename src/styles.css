@@ -3490,3 +3490,23 @@ h3 {
     width: 100%;
   }
 }
+
+/* Email signup on the checkout success page */
+.checkout-signup {
+  margin: 40px auto 0;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  max-width: 460px;
+  text-align: center;
+}
+
+.checkout-signup h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 6px 0 8px;
+}
+
+.checkout-signup > p {
+  color: var(--muted);
+  margin-bottom: 20px;
+}

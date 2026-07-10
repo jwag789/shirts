@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
+import EmailSignup from '../components/EmailSignup.vue'
 
 const route = useRoute()
 const order = ref(null)
@@ -128,6 +129,13 @@ onMounted(async () => {
           <div class="order-lookup__actions">
             <RouterLink class="button" to="/collections">Keep shopping</RouterLink>
             <RouterLink class="button button--outline" to="/orders">Track your order</RouterLink>
+          </div>
+
+          <div class="checkout-signup">
+            <p class="eyebrow">Before you go</p>
+            <h2>Get first look at new drops</h2>
+            <p>New designs weekly, plus the occasional discount. No spam.</p>
+            <EmailSignup source="checkout-success" :initial-email="order.customerEmail ?? ''" />
           </div>
         </template>
       </section>
