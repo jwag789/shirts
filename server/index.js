@@ -10,7 +10,12 @@ import OpenAI, { toFile } from 'openai'
 import { fal } from '@fal-ai/client'
 import sharp from 'sharp'
 import { products } from '../src/data/products.js'
-import { renderShippingEmailHtml, renderShippingEmailText } from './emails.js'
+import {
+  renderShippingEmailHtml,
+  renderShippingEmailText,
+  renderOrderConfirmationHtml,
+  renderOrderConfirmationText,
+} from './emails.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -587,6 +592,53 @@ async function maybeSendShippingEmail(order) {
     if (order.id) await saveOrder(order.id, { ...order, shippingEmailSentAt: new Date().toISOString() })
   } catch (err) {
     console.error('Shipping email failed:', err.message)
+  }
+}
+
+// Sends the branded "order confirmed" email once, right after payment. Assembles
+// totals/address from the Stripe session (falling back to item amounts).
+async function maybeSendOrderConfirmationEmail(order, session) {
+  try {
+    const email = session?.customer_details?.email ?? order.customerEmail ?? null
+    if (!email || order.confirmationEmailSentAt) return
+    if (!process.env.RESEND_API_KEY) return
+
+    const items = order.items ?? []
+    const computedSubtotal = items.reduce((sum, it) => sum + (it.unitAmount ?? 0) * (it.quantity ?? 1), 0)
+    const shippingCents = session?.total_details?.amount_shipping ?? session?.shipping_cost?.amount_total ?? 499
+    const subtotalCents = session?.amount_subtotal ?? computedSubtotal
+    const totalCents = session?.amount_total ?? subtotalCents + shippingCents
+
+    const addr = session?.customer_details?.address ?? {}
+    const data = {
+      orderNumber: order.orderNumber,
+      items,
+      subtotalCents,
+      shippingCents,
+      totalCents,
+      customerName: session?.customer_details?.name ?? '',
+      address: {
+        line1: addr.line1 ?? '',
+        line2: addr.line2 ?? '',
+        city: addr.city ?? '',
+        state: addr.state ?? '',
+        postalCode: addr.postal_code ?? '',
+        country: addr.country ?? '',
+      },
+    }
+
+    const result = await sendEmail({
+      to: email,
+      subject: `Order confirmed — ${order.orderNumber ?? ''}`,
+      html: renderOrderConfirmationHtml(data, siteUrl),
+      text: renderOrderConfirmationText(data, siteUrl),
+    })
+    if (result?.skipped) return
+    if (order.id) {
+      await saveOrder(order.id, { ...order, customerEmail: email, confirmationEmailSentAt: new Date().toISOString() })
+    }
+  } catch (err) {
+    console.error('Order confirmation email failed:', err.message)
   }
 }
 
@@ -1178,8 +1230,19 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
   }
 
   if (event.type === 'checkout.session.completed') {
+    const session = event.data.object
+
+    // Send the order confirmation first, independent of Printify — the customer
+    // paid, so they should get confirmation even if fulfillment errors out.
     try {
-      await fulfillCheckoutSession(event.data.object)
+      const order = await readOrder(session.id)
+      await maybeSendOrderConfirmationEmail(order, session)
+    } catch (err) {
+      console.error('Confirmation email step failed:', err.message)
+    }
+
+    try {
+      await fulfillCheckoutSession(session)
     } catch (error) {
       console.error(error)
       res.status(500).send('Fulfillment failed')

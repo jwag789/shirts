@@ -101,9 +101,13 @@ Customers can retrieve an order at `/orders` (`POST /api/orders/lookup` with ord
 
 ## Transactional Email (shipping notifications)
 
-The branded "your order shipped" email lives in `server/emails.js` (pure HTML/text builders). Sending is provider-agnostic via `sendEmail()` in `server/index.js`, currently wired to **Resend** — it no-ops (logs only) until `RESEND_API_KEY` is set, so nothing sends by accident.
+The branded emails live in `server/emails.js` (pure HTML/text builders sharing one `emailShell`): **order confirmation** and **shipping notification**. Sending is provider-agnostic via `sendEmail()` in `server/index.js`, currently wired to **Resend** — it no-ops (logs only) until `RESEND_API_KEY` is set, so nothing sends by accident.
 
-Trigger: Printify's `order:shipment:created` webhook → `POST /api/webhooks/printify`. It matches the order by its stored Printify id, refreshes tracking, and sends once (idempotent via `shippingEmailSentAt`). As a fallback, viewing an order after it ships also fires the email. To go live:
+Triggers:
+- **Order confirmation** — Stripe `checkout.session.completed` webhook, sent before Printify fulfillment so the customer is confirmed even if fulfillment errors (idempotent via `confirmationEmailSentAt`).
+- **Shipping** — Printify's `order:shipment:created` webhook → `POST /api/webhooks/printify`. Matches the order by its stored Printify id, refreshes tracking, sends once (idempotent via `shippingEmailSentAt`). Fallback: viewing an order after it ships also fires it.
+
+To go live:
 1. Create a Resend account, verify your sending domain, set `RESEND_API_KEY` + `EMAIL_FROM`.
 2. In Printify → Settings → Webhooks, add `https://yourdomain.com/api/webhooks/printify` for the `order:shipment:created` event; put its secret in `PRINTIFY_WEBHOOK_SECRET`.
 
