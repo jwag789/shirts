@@ -149,7 +149,6 @@ const startCheckout = async () => {
             {{ isCheckingOut ? 'Opening checkout...' : 'Checkout' }}
           </button>
           <TrustBadge />
-          <p class="cart-helper">Ships in 3–6 business days.</p>
         </div>
       </aside>
     </transition>

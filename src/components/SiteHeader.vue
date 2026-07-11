@@ -6,7 +6,7 @@ const { itemCount, toggleCart } = useCart()
 
 <template>
   <div class="announcement-bar">
-    <span>Ships in 3–6 business days</span>
+    <span>Ships in 3–5 business days</span>
     <span>Made to order</span>
     <span>New designs weekly</span>
   </div>
