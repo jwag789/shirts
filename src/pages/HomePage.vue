@@ -276,27 +276,6 @@ onBeforeUnmount(() => {
       </section>
       -->
 
-      <section id="shop" class="content-section">
-        <div v-reveal class="section-heading section-heading--rail">
-          <div>
-            <p class="eyebrow">Shop collections</p>
-            <h2>Shop by category</h2>
-          </div>
-          <div class="rail-controls" aria-label="Category controls">
-            <button type="button" @click="scrollCategoryRail(-1)" aria-label="Scroll categories left">‹</button>
-            <button type="button" @click="scrollCategoryRail(1)" aria-label="Scroll categories right">›</button>
-          </div>
-        </div>
-        <div ref="categoryRail" class="product-rail category-rail" tabindex="0" aria-label="Categories carousel">
-          <CollectionCard
-            v-for="collection in collections"
-            :key="collection.slug"
-            :collection="collection"
-            :product-count="getProductsByCollection(collection.slug).length"
-          />
-        </div>
-      </section>
-
       <section
         v-for="collection in collections"
         :key="collection.slug"
