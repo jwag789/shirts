@@ -241,6 +241,7 @@ const shareableDesignId = computed(() => {
 async function shareDesign() {
   const id = shareableDesignId.value
   if (!id || sharePreparing.value) return
+  trackEvent('share_design', { kind: 'pet_portrait' })
   // Build a shirt-mockup preview in the chosen color for the link unfurl.
   sharePreparing.value = true
   try {

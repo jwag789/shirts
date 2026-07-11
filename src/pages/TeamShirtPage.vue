@@ -198,6 +198,7 @@ async function generate() {
 
 async function shareDesign() {
   if (!generatedDesignId.value || sharePreparing.value) return
+  trackEvent('share_design', { kind: 'team_shirt' })
   // Build a shirt-mockup preview in the chosen color so the shared link unfurls
   // with the actual shirt, not the bare artwork.
   sharePreparing.value = true

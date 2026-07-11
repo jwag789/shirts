@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
+import { trackEvent } from '../analytics'
 
 setDocumentHead({
   title: 'Leave a Review — InkSpirit Studio',
@@ -55,6 +56,7 @@ async function submit() {
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.error ?? 'Could not submit your review.')
+    trackEvent('submit_review', { rating: rating.value })
     status.value = 'done'
   } catch (err) {
     status.value = 'error'

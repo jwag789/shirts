@@ -1,4 +1,5 @@
 import { computed, reactive } from 'vue'
+import { trackEvent } from '../analytics'
 
 const state = reactive({
   isOpen: false,
@@ -59,6 +60,7 @@ function addItem(product, color, size) {
     state.items.push(createLineItem(product, resolvedColor, size))
   }
 
+  trackEvent('add_to_cart', { kind: 'catalog', item: product.slug, value: product.priceValue })
   openCart()
 }
 
@@ -88,6 +90,7 @@ function addPetPortraitItem(style, generatedImageUrl, size, color = 'White', pri
     })
   }
 
+  trackEvent('add_to_cart', { kind: 'pet_portrait', style, value: 38 })
   openCart()
 }
 
@@ -121,6 +124,7 @@ function addTeamShirtItem({ generatedImageUrl, teamName, playerName = '', player
     })
   }
 
+  trackEvent('add_to_cart', { kind: 'team_shirt', style, value: 42 })
   openCart()
 }
 

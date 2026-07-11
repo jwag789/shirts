@@ -6,6 +6,7 @@ import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
 import { recordDesign } from '../composables/useDesigns'
 import { setDocumentHead } from '../composables/useDocumentHead'
+import { trackEvent } from '../analytics'
 
 const route = useRoute()
 const { addTeamShirtItem, addPetPortraitItem } = useCart()
@@ -164,6 +165,7 @@ async function copyLink() {
 
 async function shareLink() {
   if (sharePreparing.value || !design.value) return
+  trackEvent('share_design', { kind: design.value.kind, source: 'share_page' })
   // Refresh the mockup preview to the currently selected color before sharing.
   sharePreparing.value = true
   try {
