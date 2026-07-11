@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
@@ -51,6 +51,13 @@ onMounted(async () => {
 })
 
 const step = ref(1)
+
+// Each slide reserves the tallest slide's height, so advancing while the
+// page is scrolled down would leave the viewer staring at empty space below
+// a short step. Snap back to the top whenever the step changes.
+watch(step, () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
 const selectedStyle = ref(null)
 const uploadedFile = ref(null)
 const uploadedPreview = ref(null)

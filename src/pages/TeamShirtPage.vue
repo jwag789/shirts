@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
@@ -42,6 +42,12 @@ const PALETTES = [
 
 // ── Wizard state ─────────────────────────────────────────────────────────────
 const step = ref(1)
+
+// Reset scroll to the top on each step change so a short step never opens
+// scrolled past its content into empty space.
+watch(step, () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
 const teamName = ref('')
 const subtitle = ref('')
 const selectedStyle = ref(null)
