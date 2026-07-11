@@ -121,6 +121,9 @@ async function fetchMockupPhoto(color) {
 
 function selectStyle(key) {
   selectedStyle.value = key
+  // Auto-advance after a beat so the selection check is visible, matching the
+  // pet wizard — no separate Continue click needed.
+  setTimeout(() => { if (step.value === 2) next() }, 320)
 }
 
 function selectPalette(p) {
@@ -390,8 +393,6 @@ function startOver() {
               </span>
             </button>
           </div>
-
-          <button class="button ts-next" type="button" :disabled="!selectedStyle" @click="next">Continue →</button>
         </div>
 
         <!-- Step 3 — Logo concept -->
