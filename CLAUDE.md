@@ -17,7 +17,12 @@ Graphic t-shirt e-commerce site. Vue 3 frontend, Express backend, Stripe for pay
 npm run dev      # Vite (port 5173) + nodemon Express (port 4242) — kills stale :4242 first
 npm run build    # Vite production build → dist/
 npm start        # build + serve via Express (production mode)
+npm test         # Vitest suite (unit + API + component)
 ```
+
+## Testing
+
+Vitest (`tests/*.test.js`). `server/index.js` exports `app` + pure helpers and only auto-starts when run directly, so tests import it without listening (dummy Stripe/OpenAI/FAL keys are set in `vitest.config.js`). Coverage: checkout validation, order/session extraction, fulfillment status, OG/meta rewrite, email builders (incl. XSS escaping), cart + designs composables, analytics no-op, and component render. API endpoint tests use supertest; the DB-backed integration block runs only when `TEST_DB=1` + `DATABASE_URL` are set (CI provides a Postgres service — see `.github/workflows/test.yml`). Locally: `TEST_DB=1 DATABASE_URL=postgres://... npm test`.
 
 `npm run dev` is the only command needed for local development. Vite proxies `/api/*` to Express at port 4242. Access the site at **http://localhost:5173**.
 

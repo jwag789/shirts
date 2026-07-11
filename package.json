@@ -9,7 +9,9 @@
     "build": "vite build && node scripts/prerender.js",
     "preview": "vite preview",
     "server": "nodemon --watch server --watch src/data/products.js --ext js,json server/index.js",
-    "start": "npm run build && node server/index.js"
+    "start": "npm run build && node server/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@fal-ai/client": "^1.10.1",
@@ -24,8 +26,12 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.4.11",
     "concurrently": "^10.0.1",
+    "happy-dom": "^20.10.6",
     "nodemon": "^3.1.14",
-    "vite": "^6.3.1"
+    "supertest": "^7.2.2",
+    "vite": "^6.3.1",
+    "vitest": "^2.1.9"
   }
 }

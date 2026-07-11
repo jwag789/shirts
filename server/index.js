@@ -2,7 +2,7 @@ import express from 'express'
 import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { randomBytes, createHmac, timingSafeEqual } from 'node:crypto'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import Stripe from 'stripe'
 import { config } from 'dotenv'
 import pg from 'pg'
@@ -1892,7 +1892,27 @@ async function start() {
   })
 }
 
-start().catch((err) => {
-  console.error('Failed to start server:', err)
-  process.exit(1)
-})
+// Only auto-start when run directly (node server/index.js) — not when imported
+// by tests. Tests import `app` + helpers and drive them without listening.
+const isEntryPoint = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+if (isEntryPoint) {
+  start().catch((err) => {
+    console.error('Failed to start server:', err)
+    process.exit(1)
+  })
+}
+
+export {
+  app,
+  pool,
+  initDb,
+  buildCheckoutItems,
+  normalizeQuantity,
+  generateOrderNumber,
+  extractShippingFromSession,
+  extractAmountsFromSession,
+  deriveFulfillmentStatus,
+  designTitle,
+  replaceMeta,
+  mockupSwatch,
+}
