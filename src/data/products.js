@@ -14,7 +14,7 @@ export const products = [
     headline: 'A lone samurai approaches an illuminated Inari gate at night.',
     longDescription:
       'Shrine Walk captures a cinematic moment — a samurai silhouette against the glow of a torii gate, rendered with deep color and clean graphic contrast.',
-    shipping: 'Limited batch, ships in 4-6 business days',
+    shipping: 'Limited batch, ships in 3-5 business days',
     note: 'High-contrast artwork with oversized chest placement.',
     gallery: [
       '/images/mockups/shrine-walk-2-front.jpg',
@@ -208,7 +208,7 @@ export const products = [
     headline: 'He crossed the finish line first. He is the weiner.',
     longDescription:
       'Weiner Takes All follows one determined hot dog from start to finish line — a clean racing graphic with a punchline that lands the moment you read it.',
-    shipping: 'Limited batch, ships in 4-6 business days',
+    shipping: 'Limited batch, ships in 3-5 business days',
     note: 'Strong choice for centered graphic layouts.',
     gallery: [
       '/images/mockups/weiner-takes-all-3-front.jpg',
@@ -430,7 +430,7 @@ export const products = [
     headline: 'The same landscape, pushed darker — deeper color, stronger contrast.',
     longDescription:
       'Night Bloom takes the cinematic Japanese landscape approach and pushes it into night — richer color, tighter composition, a more dramatic mood.',
-    shipping: 'Limited batch, ships in 4-6 business days',
+    shipping: 'Limited batch, ships in 3-5 business days',
     note: 'High-contrast artwork with oversized chest placement.',
     gallery: [
       '/images/mockups/night-bloom-1-front.jpg',

@@ -72,7 +72,7 @@ export const seoPages = [
     bullets: [
       'Samurai-and-torii-gate front artwork with deep blue and teal tones',
       'Available in Ink, Slate, and Mist colorways, sizes S–2XL',
-      'Limited batch — ships in 4–6 business days',
+      'Limited batch — ships in 3–5 business days',
     ],
     extra:
       'Pair it with dark jeans or all-black fits for the full nighttime aesthetic, or wear it solo as a statement piece.',
@@ -180,7 +180,7 @@ export const seoPages = [
     bullets: [
       'Nighttime Japanese landscape artwork in deep blue tones',
       'High-contrast, oversized chest placement on a White tee',
-      'Limited batch, sizes S–2XL, ships in 4–6 business days',
+      'Limited batch, sizes S–2XL, ships in 3–5 business days',
     ],
     extra:
       'A strong pick if you already love Cherry Horizon and want a darker, more dramatic version of the same scene.',
@@ -234,7 +234,7 @@ export const seoPages = [
     bullets: [
       'Fallen-angel illustration with a flaming sword, heavy ink contrast',
       'White tee, sizes S–2XL',
-      'Limited batch, ships in 4–6 business days',
+      'Limited batch, ships in 3–5 business days',
     ],
     extra:
       'A go-to pick for gothic, alternative, or dark-fantasy style — the most dramatic graphic in the entire catalog.',
