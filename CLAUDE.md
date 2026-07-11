@@ -80,6 +80,8 @@ All in `.env.local`:
 | `EMAIL_FROM` | From address for transactional email, e.g. `InkSpirit <orders@yourdomain.com>`. Defaults to `onboarding@resend.dev`. |
 | `SITE_URL` | Full URL of the site (used for Stripe redirect URLs and image URLs) |
 | `PORT` | Defaults to 4242 |
+| `VITE_GA_MEASUREMENT_ID` | Optional. GA4 id (`G-XXXX`). **Build-time** (Vite) — set before `npm run build`. Analytics no-op if unset. |
+| `VITE_PLAUSIBLE_DOMAIN` | Optional. Plausible domain, alternative to GA4. **Build-time**. Use one or the other. |
 
 ## Stripe Webhook (Local Dev)
 

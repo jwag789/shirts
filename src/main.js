@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import './styles.css'
+import { initAnalytics, trackPageview } from './analytics'
 
 const app = createApp(App)
 
@@ -21,5 +22,8 @@ app.directive('reveal', {
     observer.observe(el)
   },
 })
+
+initAnalytics()
+router.afterEach((to) => trackPageview(to.fullPath))
 
 app.use(router).mount('#app')

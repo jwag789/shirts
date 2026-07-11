@@ -4,6 +4,7 @@ import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
 import { recordDesign } from '../composables/useDesigns'
+import { trackEvent } from '../analytics'
 
 const { addTeamShirtItem } = useCart()
 
@@ -157,6 +158,7 @@ async function generate() {
   generatedUrl.value = null
   addedCount.value = 0
   step.value = TOTAL_STEPS
+  trackEvent('generate_team_shirt', { style: selectedStyle.value })
 
   try {
     const body = {

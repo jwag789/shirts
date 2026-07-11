@@ -4,6 +4,7 @@ import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
 import { recordDesign } from '../composables/useDesigns'
+import { trackEvent } from '../analytics'
 
 const { addPetPortraitItem } = useCart()
 
@@ -152,6 +153,7 @@ async function generate() {
   selectedOptions.value = []
   addedToBag.value = false
   step.value = 3
+  trackEvent('generate_pet_portrait', { style: selectedStyle.value })
 
   try {
     const imageBase64 = await toBase64(uploadedFile.value)

@@ -1,8 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useCart } from '../composables/useCart'
+import { trackEvent } from '../analytics'
 
-const { state, itemCount, subtotalLabel, closeCart, updateQuantity, removeItem } = useCart()
+const { state, itemCount, subtotal, subtotalLabel, closeCart, updateQuantity, removeItem } = useCart()
 
 const isCheckingOut = ref(false)
 const checkoutError = ref('')
@@ -17,6 +18,7 @@ const startCheckout = async () => {
 
   checkoutError.value = ''
   isCheckingOut.value = true
+  trackEvent('begin_checkout', { value: subtotal.value, items: state.items.length })
 
   try {
     const response = await fetch('/api/create-checkout-session', {
