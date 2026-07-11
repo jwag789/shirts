@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useCart } from '../composables/useCart'
 import { trackEvent } from '../analytics'
+import TrustBadge from './TrustBadge.vue'
 
 const { state, itemCount, subtotal, subtotalLabel, closeCart, updateQuantity, removeItem } = useCart()
 
@@ -147,7 +148,8 @@ const startCheckout = async () => {
           <button class="button" type="button" :disabled="!canCheckout || isCheckingOut" @click="startCheckout">
             {{ isCheckingOut ? 'Opening checkout...' : 'Checkout' }}
           </button>
-          <p class="cart-helper">Secure checkout. Ships in 3–6 business days.</p>
+          <TrustBadge />
+          <p class="cart-helper">Ships in 3–6 business days.</p>
         </div>
       </aside>
     </transition>

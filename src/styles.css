@@ -1269,8 +1269,38 @@ h3 {
 }
 
 .cart-helper {
-  margin-top: 12px;
+  margin-top: 8px;
   line-height: 1.5;
+}
+
+.trust-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.trust-badge__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trust-badge__lock {
+  width: 14px;
+  height: 14px;
+}
+
+.trust-badge__sep {
+  opacity: 0.5;
+}
+
+.trust-badge__stripe {
+  font-weight: 600;
+  color: #635bff;
 }
 
 .cart-warning,
