@@ -181,7 +181,7 @@ onBeforeUnmount(() => {
             <div class="personalize__steps">
               <span><b>1</b> Name your team</span>
               <span><b>2</b> Pick a style</span>
-              <span><b>3</b> Add names &amp; numbers</span>
+              <span><b>3</b> Wear it</span>
             </div>
             <div class="personalize__actions">
               <RouterLink class="button personalize__cta" to="/team-shirt">Design my team shirt →</RouterLink>
