@@ -162,53 +162,93 @@ main {
 }
 
 .button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: fit-content;
   min-height: 48px;
   padding: 14px 22px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background-image: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-dark));
+  background-size: 200% 200%;
+  background-position: 0% 50%;
   color: #ffffff;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  transition:
+    background-position 480ms ease,
+    box-shadow 320ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
 }
 
 .button:hover,
 .button:focus-visible {
-  background: linear-gradient(135deg, var(--accent-dark), #9f3ac7);
-  transform: translateY(-1px);
+  background-position: 100% 50%;
+  color: #ffffff;
+  box-shadow: 0 10px 26px rgba(118, 70, 226, 0.32);
 }
 
 .button:disabled {
   cursor: not-allowed;
   opacity: 0.52;
-  transform: none;
+  box-shadow: none;
 }
 
 .button:disabled:hover,
 .button:disabled:focus-visible {
-  background: var(--accent);
+  background-position: 0% 50%;
+  box-shadow: none;
 }
 
 .button--light {
-  background: #ffffff;
+  background-image: none;
+  background-color: #ffffff;
   color: #111111;
 }
 
 .button--light:hover,
 .button--light:focus-visible {
-  background: var(--accent);
+  background-color: var(--accent);
   color: #ffffff;
 }
 
 .button--outline {
+  overflow: hidden;
+  isolation: isolate;
   border: 1px solid #111111;
-  background: #ffffff;
+  background-image: none;
+  background-color: #ffffff;
   color: #111111;
+  transition:
+    color 220ms ease,
+    border-color 220ms ease;
+}
+
+/* gradient fill that sweeps in from the left on hover */
+.button--outline::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-dark));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.button--outline:hover,
+.button--outline:focus-visible {
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.button--outline:hover::before,
+.button--outline:focus-visible::before {
+  transform: scaleX(1);
 }
 
 .eyebrow {
@@ -472,6 +512,27 @@ h3 {
 .product-detail,
 .site-footer {
   margin-top: clamp(54px, 8vw, 110px);
+}
+
+.category-banner {
+  display: block;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  line-height: 0;
+}
+
+.category-banner img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transform: scale(1.001);
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.category-banner:hover img,
+.category-banner:focus-visible img {
+  transform: scale(1.045);
 }
 
 .section-heading {

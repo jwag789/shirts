@@ -2,7 +2,7 @@ export const products = [
   {
     slug: 'midnight-circuit',
     name: 'Shrine Walk',
-    collection: 'Torii',
+    collection: 'Zen Journey',
     collectionSlug: 'japanese-style',
     price: '$38',
     priceValue: 38,
@@ -50,7 +50,7 @@ export const products = [
       },
       {
         title: 'Why it stands out',
-        copy: 'The darker palette anchors the Torii collection without feeling heavy to wear.',
+        copy: 'The darker palette anchors the Zen Journey collection without feeling heavy to wear.',
       },
     ],
   },
@@ -374,7 +374,7 @@ export const products = [
   {
     slug: 'horizon-ink',
     name: 'Cherry Horizon',
-    collection: 'Torii',
+    collection: 'Zen Journey',
     collectionSlug: 'japanese-style',
     price: '$34',
     priceValue: 34,
@@ -418,7 +418,7 @@ export const products = [
   {
     slug: 'midnight-line',
     name: 'Night Bloom',
-    collection: 'Torii',
+    collection: 'Zen Journey',
     collectionSlug: 'japanese-style',
     price: '$38',
     priceValue: 38,
@@ -467,7 +467,7 @@ export const products = [
   {
     slug: 'signal-crest',
     name: 'Petal Storm',
-    collection: 'Torii',
+    collection: 'Zen Journey',
     collectionSlug: 'japanese-style',
     price: '$36',
     priceValue: 36,
@@ -498,7 +498,7 @@ export const products = [
     },
     details: [
       'Cherry blossom petal front artwork',
-      'Softer and more open than the other Torii pieces',
+      'Softer and more open than the other Zen Journey pieces',
       'Warm color, quiet mood',
     ],
     story: [
@@ -685,7 +685,7 @@ export const products = [
 export const collections = [
   {
     slug: 'japanese-style',
-    name: 'Torii',
+    name: 'Zen Journey',
     eyebrow: 'Collection 01',
     description:
       'Japanese-inspired graphic shirts with atmospheric artwork, strong contrast, and a clean everyday feel.',

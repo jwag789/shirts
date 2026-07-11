@@ -7,12 +7,12 @@ export const seoPages = [
     slug: 'japanese-style-graphic-tees',
     type: 'collection',
     refSlug: 'japanese-style',
-    metaTitle: 'Japanese-Style Graphic T-Shirts | Torii Collection — InkSpirit',
+    metaTitle: 'Japanese-Style Graphic T-Shirts | Zen Journey Collection — InkSpirit',
     metaDescription:
       'Shop Japanese-inspired graphic t-shirts featuring samurai, torii gates, Mt. Fuji, and cherry blossom artwork. Made-to-order tees with cinematic, high-contrast designs.',
     h1: 'Japanese-Style Graphic T-Shirts',
     intro:
-      "If you're searching for Japanese-inspired streetwear, the Torii collection brings together samurai silhouettes, torii gate scenes, Mt. Fuji landscapes, and cherry blossom artwork in a single lineup of graphic tees. Each design is built around one cinematic image — no clutter, no busy layouts — printed oversized on the chest for maximum visual impact.",
+      "If you're searching for Japanese-inspired streetwear, the Zen Journey collection brings together samurai silhouettes, torii gate scenes, Mt. Fuji landscapes, and cherry blossom artwork in a single lineup of graphic tees. Each design is built around one cinematic image — no clutter, no busy layouts — printed oversized on the chest for maximum visual impact.",
     bullets: [
       'Samurai, torii gate, and Mt. Fuji artwork across multiple colorways',
       'High-contrast night editions and warm cherry blossom editions',
@@ -68,7 +68,7 @@ export const seoPages = [
       'Shrine Walk is a limited-edition graphic tee featuring a samurai approaching a glowing torii gate at night. Deep blue and teal palette, oversized chest print.',
     h1: 'Shrine Walk: A Samurai Torii Gate T-Shirt',
     intro:
-      'Shrine Walk captures a single cinematic moment: a lone samurai silhouette stepping toward an illuminated torii gate at night. The deep blue-to-teal gradient and oversized chest placement give this shirt a moody, high-contrast look that anchors the Torii collection.',
+      'Shrine Walk captures a single cinematic moment: a lone samurai silhouette stepping toward an illuminated torii gate at night. The deep blue-to-teal gradient and oversized chest placement give this shirt a moody, high-contrast look that anchors the Zen Journey collection.',
     bullets: [
       'Samurai-and-torii-gate front artwork with deep blue and teal tones',
       'Available in Ink, Slate, and Mist colorways, sizes S–2XL',
@@ -158,14 +158,14 @@ export const seoPages = [
       'Cherry Horizon is a best-selling graphic tee featuring Mt. Fuji, winding rivers, and cherry blossom trees in a warm, layered illustration. Sizes XS–2XL.',
     h1: 'Cherry Horizon: A Mt. Fuji Cherry Blossom T-Shirt',
     intro:
-      "Cherry Horizon is the best-seller of the Torii collection for a reason — it brings together the most recognizable elements of a Japanese landscape (Mt. Fuji, a winding river, cherry blossom trees, and a quiet figure looking out over it all) in one warm, layered graphic that's easy to wear every day.",
+      "Cherry Horizon is the best-seller of the Zen Journey collection for a reason — it brings together the most recognizable elements of a Japanese landscape (Mt. Fuji, a winding river, cherry blossom trees, and a quiet figure looking out over it all) in one warm, layered graphic that's easy to wear every day.",
     bullets: [
       'Layered Mt. Fuji and cherry blossom landscape artwork',
       'Warm Sand and Bone colorways, sizes XS–2XL',
       'Oversized print placement on a softened, garment-washed tee',
     ],
     extra:
-      'The softest and most everyday-wearable design in the Torii lineup — a great starting point if you\'re new to the collection.',
+      'The softest and most everyday-wearable design in the Zen Journey lineup — a great starting point if you\'re new to the collection.',
   },
   {
     slug: 'night-bloom-dark-japanese-tee',
@@ -176,7 +176,7 @@ export const seoPages = [
       'Night Bloom is a limited-edition dark graphic tee, taking the Cherry Horizon Japanese landscape into a richer, high-contrast nighttime palette.',
     h1: 'Night Bloom: A Dark Japanese Landscape T-Shirt',
     intro:
-      'Night Bloom takes the same cinematic Japanese landscape as Cherry Horizon and pushes it after dark — deeper blues, sharper contrast, and a tighter, more dramatic composition. It\'s the moodier counterpart for shoppers who want the Torii aesthetic with more edge.',
+      'Night Bloom takes the same cinematic Japanese landscape as Cherry Horizon and pushes it after dark — deeper blues, sharper contrast, and a tighter, more dramatic composition. It\'s the moodier counterpart for shoppers who want the Zen Journey aesthetic with more edge.',
     bullets: [
       'Nighttime Japanese landscape artwork in deep blue tones',
       'High-contrast, oversized chest placement on a White tee',
@@ -194,14 +194,14 @@ export const seoPages = [
       'Petal Storm features cherry blossom petals scattered mid-flight in a soft, painterly graphic. Rose and Cream colorways, sizes XS–3XL.',
     h1: 'Petal Storm: A Cherry Blossom Petals T-Shirt',
     intro:
-      'Petal Storm strips the Japanese landscape theme down to its most essential element — cherry blossom petals caught mid-flight. The open composition and soft pastel colors make it the quietest, most minimal design in the Torii collection.',
+      'Petal Storm strips the Japanese landscape theme down to its most essential element — cherry blossom petals caught mid-flight. The open composition and soft pastel colors make it the quietest, most minimal design in the Zen Journey collection.',
     bullets: [
       'Cherry blossom petals in a soft, painterly graphic',
       'Rose and Cream colorways, sizes XS–3XL — widest size range in the collection',
       'Made to order, ships in 3–5 business days',
     ],
     extra:
-      'A gentler alternative to the bolder Torii pieces, ideal for shoppers who want a subtle nod to Japanese design.',
+      'A gentler alternative to the bolder Zen Journey pieces, ideal for shoppers who want a subtle nod to Japanese design.',
   },
   {
     slug: 'ink-samurai-kanji-brushwork-tee',
@@ -336,11 +336,11 @@ export const seoPages = [
       'Turn your dog or cat into a samurai on a custom t-shirt. Upload a photo and get a free preview with armor, a katana, and cherry blossoms.',
     h1: 'Samurai Pet Portrait T-Shirts',
     intro:
-      "Pairs perfectly with InkSpirit's Japanese-style Torii collection — the Samurai style for custom pet portraits transforms a photo of your dog or cat into an illustrated samurai with armor, a katana, and cherry blossoms, printed on a made-to-order t-shirt.",
+      "Pairs perfectly with InkSpirit's Japanese-style Zen Journey collection — the Samurai style for custom pet portraits transforms a photo of your dog or cat into an illustrated samurai with armor, a katana, and cherry blossoms, printed on a made-to-order t-shirt.",
     bullets: [
       'Armor, katana, and cherry blossom backdrop illustrated from your pet\'s photo',
       'Free preview before purchase, sizes S–2XL',
-      'A great match if you already love the Torii collection\'s Japanese aesthetic',
+      'A great match if you already love the Zen Journey collection\'s Japanese aesthetic',
     ],
     extra: 'Upload a clear, front-facing photo of your pet for the best results.',
   },

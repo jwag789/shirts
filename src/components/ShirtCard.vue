@@ -31,10 +31,6 @@ const badgeClass = computed(() => ({
       <span class="shirt-card__badge" :class="badgeClass">{{ shirt.tag }}</span>
     </div>
     <div class="shirt-card__copy">
-      <div class="shirt-card__meta">
-        <span>{{ shirt.price }}</span>
-        <span>{{ shirt.collection }}</span>
-      </div>
       <h3>{{ shirt.name }}</h3>
     </div>
   </RouterLink>

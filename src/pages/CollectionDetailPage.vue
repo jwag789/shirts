@@ -27,7 +27,6 @@ watchEffect(() => {
 
     <main>
       <section class="collection-title">
-        <p class="eyebrow">{{ collection.eyebrow }}</p>
         <h1>{{ collection.name }}</h1>
         <p>{{ collection.description }}</p>
       </section>

@@ -10,6 +10,15 @@ import { setDocumentHead } from '../composables/useDocumentHead'
 import banner1 from '../../images/banner-1.png'
 import banner2 from '../../images/banner-2.png'
 import banner3 from '../../images/banner-3.png'
+import bannerTorii from '../../images/banner-torii-category.jpg'
+import bannerFunnyBusiness from '../../images/banner-funny-business-category.jpg'
+import bannerFineLines from '../../images/banner-fine-lines-category.jpg'
+
+const CATEGORY_BANNERS = {
+  'japanese-style': { src: bannerTorii, alt: 'Zen Journey collection banner — Japanese-inspired graphic tees' },
+  'pun-shirts': { src: bannerFunnyBusiness, alt: 'Funny Business collection banner — illustrated pun tees' },
+  'ink-art': { src: bannerFineLines, alt: 'Fine Lines collection banner — raw ink illustration tees' },
+}
 
 setDocumentHead({
   title: 'InkSpirit Studio — Original Graphic T-Shirts & Custom Pet Portraits',
@@ -293,9 +302,22 @@ onBeforeUnmount(() => {
         :key="collection.slug"
         class="content-section"
       >
-        <div v-reveal class="section-heading">
+        <RouterLink
+          v-if="CATEGORY_BANNERS[collection.slug]"
+          v-reveal
+          :to="`/collections/${collection.slug}`"
+          class="category-banner"
+          :aria-label="`Shop the ${collection.name} collection`"
+        >
+          <img
+            :src="CATEGORY_BANNERS[collection.slug].src"
+            :alt="CATEGORY_BANNERS[collection.slug].alt"
+            loading="lazy"
+          />
+        </RouterLink>
+
+        <div v-if="!CATEGORY_BANNERS[collection.slug]" v-reveal class="section-heading">
           <div>
-            <p class="eyebrow">{{ collection.eyebrow }}</p>
             <h2>{{ collection.name }}</h2>
           </div>
           <RouterLink class="button button--outline" :to="`/collections/${collection.slug}`">
