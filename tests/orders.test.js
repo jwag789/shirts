@@ -38,7 +38,12 @@ describe('extractAmountsFromSession', () => {
 
   it('prefers Stripe figures', () => {
     const s = { amount_subtotal: 12200, amount_total: 12699, total_details: { amount_shipping: 499 } }
-    expect(extractAmountsFromSession(s, order)).toEqual({ amountSubtotal: 12200, amountShipping: 499, amountTotal: 12699 })
+    expect(extractAmountsFromSession(s, order)).toEqual({ amountSubtotal: 12200, amountShipping: 499, amountDiscount: 0, amountTotal: 12699 })
+  })
+
+  it('surfaces a promotion-code discount from Stripe', () => {
+    const s = { amount_subtotal: 12200, amount_total: 11699, total_details: { amount_shipping: 499, amount_discount: 1000 } }
+    expect(extractAmountsFromSession(s, order)).toEqual({ amountSubtotal: 12200, amountShipping: 499, amountDiscount: 1000, amountTotal: 11699 })
   })
 
   it('falls back to item math with default shipping', () => {

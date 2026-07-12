@@ -491,8 +491,9 @@ function extractAmountsFromSession(session, order) {
   )
   const amountSubtotal = session?.amount_subtotal ?? computedSubtotal
   const amountShipping = session?.total_details?.amount_shipping ?? session?.shipping_cost?.amount_total ?? 499
-  const amountTotal = session?.amount_total ?? amountSubtotal + amountShipping
-  return { amountSubtotal, amountShipping, amountTotal }
+  const amountDiscount = session?.total_details?.amount_discount ?? 0
+  const amountTotal = session?.amount_total ?? amountSubtotal + amountShipping - amountDiscount
+  return { amountSubtotal, amountShipping, amountDiscount, amountTotal }
 }
 
 async function fulfillCheckoutSession(session) {
@@ -659,13 +660,14 @@ async function maybeSendOrderConfirmationEmail(order, session) {
     if (!email || order.confirmationEmailSentAt) return
     if (!process.env.RESEND_API_KEY) return
 
-    const { amountSubtotal, amountShipping, amountTotal } = extractAmountsFromSession(session, order)
+    const { amountSubtotal, amountShipping, amountDiscount, amountTotal } = extractAmountsFromSession(session, order)
     const shipping = extractShippingFromSession(session)
     const data = {
       orderNumber: order.orderNumber,
       items: order.items ?? [],
       subtotalCents: amountSubtotal,
       shippingCents: amountShipping,
+      discountCents: amountDiscount,
       totalCents: amountTotal,
       customerName: shipping?.name ?? session?.customer_details?.name ?? '',
       address: shipping?.address ?? {},
@@ -1432,6 +1434,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
           },
         },
       })),
+      // Show the "Add promotion code" field on the hosted checkout page.
+      // The actual codes/coupons are created and managed in the Stripe
+      // Dashboard (Products → Coupons → Promotion codes) — nothing to define
+      // here. Stripe validates them and applies the discount automatically.
+      allow_promotion_codes: true,
       shipping_address_collection: {
         allowed_countries: ['US'],
       },

@@ -16,6 +16,7 @@ function cityLine(a) {
   <div>
     <div v-if="order.amountTotal != null" class="order-totals">
       <div><span>Subtotal</span><span>{{ money(order.amountSubtotal) }}</span></div>
+      <div v-if="order.amountDiscount"><span>Discount</span><span>−{{ money(order.amountDiscount) }}</span></div>
       <div><span>Shipping</span><span>{{ money(order.amountShipping) }}</span></div>
       <div class="order-totals__total"><span>Total</span><span>{{ money(order.amountTotal) }}</span></div>
     </div>

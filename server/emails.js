@@ -130,7 +130,7 @@ export function renderShippingEmailHtml(order, tracking, siteUrl) {
 
 // "Order confirmed" email. `data` is a plain object assembled in index.js from
 // the order + Stripe session: { orderNumber, items, subtotalCents, shippingCents,
-// totalCents, address, customerName }.
+// discountCents, totalCents, address, customerName }.
 export function renderOrderConfirmationHtml(data, siteUrl) {
   const site = String(siteUrl ?? '').replace(/\/$/, '')
   const orderNumber = esc(data.orderNumber ?? '')
@@ -182,6 +182,7 @@ export function renderOrderConfirmationHtml(data, siteUrl) {
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table>
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
               ${totalRow('Subtotal', money(data.subtotalCents))}
+              ${data.discountCents ? totalRow('Discount', `−${money(data.discountCents)}`) : ''}
               ${totalRow('Shipping', money(data.shippingCents))}
               ${totalRow('Total', money(data.totalCents), true)}
             </table>
@@ -277,6 +278,7 @@ export function renderOrderConfirmationText(data, siteUrl) {
     ...(data.items ?? []).map((it) => `- ${it.name} (Size ${it.size}, Qty ${it.quantity}) — ${money((it.unitAmount ?? 0) * (it.quantity ?? 1))}`),
     '',
     `Subtotal: ${money(data.subtotalCents)}`,
+    ...(data.discountCents ? [`Discount: −${money(data.discountCents)}`] : []),
     `Shipping: ${money(data.shippingCents)}`,
     `Total: ${money(data.totalCents)}`,
     '',
