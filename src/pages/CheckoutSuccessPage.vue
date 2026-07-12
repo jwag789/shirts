@@ -4,6 +4,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import EmailSignup from '../components/EmailSignup.vue'
 import OrderSummary from '../components/OrderSummary.vue'
+import { markWelcomeOrdered } from '../composables/welcomePopup.js'
 
 const route = useRoute()
 const order = ref(null)
@@ -52,6 +53,8 @@ onMounted(async () => {
     }
 
     order.value = data
+    // They've placed an order — retire the welcome-discount popup for good.
+    markWelcomeOrdered()
   } catch (requestError) {
     error.value = requestError.message
   } finally {

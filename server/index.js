@@ -17,6 +17,8 @@ import {
   renderOrderConfirmationText,
   renderReviewRequestHtml,
   renderReviewRequestText,
+  renderWelcomeEmailHtml,
+  renderWelcomeEmailText,
 } from './emails.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -1487,6 +1489,26 @@ app.post('/api/create-checkout-session', async (req, res) => {
 const subscribeRateLimit = new Map()
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+// Shared first-order discount code. Create this as a Promotion Code in Stripe
+// (on a 20%-off coupon) with the "first-time customer" restriction enabled.
+const WELCOME_DISCOUNT_CODE = process.env.WELCOME_DISCOUNT_CODE || 'WELCOME20'
+
+// Sends the "here's your 20% off" email once, when a visitor signs up via the
+// welcome popup. No-ops (logs only) until RESEND_API_KEY is set.
+async function maybeSendWelcomeEmail(email) {
+  try {
+    if (!process.env.RESEND_API_KEY) return
+    await sendEmail({
+      to: email,
+      subject: `Here's your 20% off — welcome to InkSpirit`,
+      html: renderWelcomeEmailHtml(WELCOME_DISCOUNT_CODE, siteUrl),
+      text: renderWelcomeEmailText(WELCOME_DISCOUNT_CODE, siteUrl),
+    })
+  } catch (err) {
+    console.error('Welcome email failed:', err.message)
+  }
+}
+
 app.post('/api/subscribe', express.json(), async (req, res) => {
   try {
     const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
@@ -1500,10 +1522,17 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
       return res.status(400).json({ error: 'Please enter a valid email address.' })
     }
 
-    await pool.query(
+    const result = await pool.query(
       'INSERT INTO subscribers (email, source) VALUES ($1, $2) ON CONFLICT (email) DO NOTHING',
       [email, source],
     )
+
+    // Only email the code to genuinely new signups from the welcome popup, so a
+    // repeat submit (ON CONFLICT DO NOTHING → rowCount 0) doesn't re-send it.
+    if (source === 'welcome-popup' && result.rowCount > 0) {
+      await maybeSendWelcomeEmail(email)
+    }
+
     res.json({ ok: true })
   } catch (err) {
     console.error('Subscribe error:', err)

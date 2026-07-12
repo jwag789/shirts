@@ -4,6 +4,8 @@ import {
   renderShippingEmailText,
   renderOrderConfirmationHtml,
   renderReviewRequestHtml,
+  renderWelcomeEmailHtml,
+  renderWelcomeEmailText,
 } from '../server/emails.js'
 
 const site = 'https://inkspirit.studio'
@@ -69,6 +71,19 @@ describe('review request email', () => {
   it('links to a prefilled review form', () => {
     const html = renderReviewRequestHtml({ orderNumber: 'INK-AB12CD' }, site)
     expect(html).toContain(`${site}/review?order=INK-AB12CD`)
+  })
+})
+
+describe('welcome discount email', () => {
+  it('shows the discount code in the html and text versions', () => {
+    const html = renderWelcomeEmailHtml('WELCOME20', site)
+    expect(html).toContain('WELCOME20')
+    expect(html).toContain('20% off')
+    expect(html).toContain('/images/is-logo-white-text.png')
+
+    const text = renderWelcomeEmailText('WELCOME20', site)
+    expect(text).toContain('WELCOME20')
+    expect(text).toContain(site)
   })
 })
 

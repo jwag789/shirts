@@ -13,6 +13,7 @@ import ReviewsPage from './pages/ReviewsPage.vue'
 import PetPortraitPage from './pages/PetPortraitPage.vue'
 import TeamShirtPage from './pages/TeamShirtPage.vue'
 import SeoLandingPage from './pages/SeoLandingPage.vue'
+import HowItWorksPage from './pages/HowItWorksPage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -30,6 +31,11 @@ const router = createRouter({
       path: '/team-shirt',
       name: 'team-shirt',
       component: TeamShirtPage,
+    },
+    {
+      path: '/how-it-works',
+      name: 'how-it-works',
+      component: HowItWorksPage,
     },
     {
       path: '/collections',

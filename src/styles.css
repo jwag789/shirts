@@ -679,6 +679,7 @@ h3 {
   grid-auto-columns: minmax(290px, 22vw);
   gap: 18px;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 14px;
   scrollbar-width: thin;
   scrollbar-color: #111111 #ece8e3;
@@ -3889,6 +3890,327 @@ h3 {
 
 @media (max-width: 860px) {
   .review-strip__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Welcome / first-order discount popup ─────────────────────────── */
+.welcome-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.welcome-pop__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 12, 32, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.welcome-pop__card {
+  position: relative;
+  width: min(860px, 94vw);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px -20px rgba(20, 12, 40, 0.6);
+  animation: welcomePopIn 340ms cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+
+@keyframes welcomePopIn {
+  from { transform: translateY(18px) scale(0.95); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.welcome-pop__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  padding-bottom: 4px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.34);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 150ms ease;
+}
+.welcome-pop__close:hover { background: rgba(0, 0, 0, 0.55); }
+
+.welcome-pop__art { position: relative; }
+.welcome-pop__art > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The real form — a cream card overlaid to fully cover the placeholder input
+   baked into the art. Sits over the speech bubble on the right of the image. */
+.welcome-pop__panel {
+  position: absolute;
+  top: 45%; /* anchored to the bubble's vertical centre, so it stays put as the card scales */
+  left: 58.5%;
+  width: 28%;
+  box-sizing: border-box;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.welcome-pop__form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.welcome-pop__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 13px;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  background: #fff;
+  box-shadow: 0 6px 18px -8px rgba(20, 12, 40, 0.4);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.welcome-pop__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.22);
+}
+
+.welcome-pop__btn {
+  width: 100%;
+  padding: 11px 15px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 10px 22px -8px rgba(118, 70, 226, 0.7);
+  transition: transform 120ms ease, filter 150ms ease;
+}
+.welcome-pop__btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.welcome-pop__btn:disabled { opacity: 0.7; cursor: default; transform: none; }
+
+.welcome-pop__error {
+  margin: 0;
+  color: #b11e16;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 3px 6px;
+  border-radius: 6px;
+}
+
+.welcome-pop__fine {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: #6b6580;
+}
+
+.welcome-pop__done {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1b1630;
+}
+.welcome-pop__donesub {
+  margin: 4px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #4a4360;
+}
+
+.welcome-fade-enter-active,
+.welcome-fade-leave-active { transition: opacity 220ms ease; }
+.welcome-fade-enter-from,
+.welcome-fade-leave-to { opacity: 0; }
+
+/* Mid sizes: the card is 94vw and shrinking, so the fixed-size form gets tall
+   relative to the bubble and the button starts to wrap. Shrink the controls so
+   the centre-anchored form still fits inside the bubble. */
+@media (min-width: 601px) and (max-width: 800px) {
+  .welcome-pop__panel {
+    top: 44%;
+    left: 56%;
+    width: 32%;
+    gap: 7px;
+  }
+  .welcome-pop__form { gap: 7px; }
+  .welcome-pop__input { font-size: 0.8rem; padding: 8px 11px; }
+  .welcome-pop__btn { font-size: 0.8rem; padding: 8px 12px; }
+  .welcome-pop__fine { font-size: 0.64rem; }
+}
+
+/* On small screens the overlay is too cramped — crop the art to the left
+   graphic (hiding the baked-in placeholder input) and stack the form below. */
+@media (max-width: 600px) {
+  .welcome-pop__art {
+    display: flex;
+    flex-direction: column;
+    background: #f4ecd8;
+  }
+  .welcome-pop__art > img {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: 12% center;
+  }
+  .welcome-pop__panel {
+    position: static;
+    width: auto;
+    padding: 18px 20px 22px;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    transform: none;
+  }
+}
+
+/* How It Works page */
+.hiw-step-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.hiw-step {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #ffffff;
+  padding: 32px 30px 30px;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.hiw-step:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.hiw-step__num {
+  position: absolute;
+  top: 26px;
+  right: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.hiw-step__icon {
+  display: block;
+  width: 34px;
+  height: 34px;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+
+.hiw-step__title {
+  margin: 0 0 10px;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+}
+
+.hiw-step__body {
+  margin: 0;
+  color: var(--muted);
+  max-width: 46ch;
+}
+
+.hiw-promise__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+  background: var(--soft);
+  border-radius: 28px;
+  padding: clamp(32px, 5vw, 56px);
+}
+
+.hiw-promise__title {
+  margin: 8px 0 14px;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+}
+
+.hiw-promise__copy p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 48ch;
+}
+
+.hiw-promise__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.hiw-promise__item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 18px 20px;
+}
+
+.hiw-promise__label {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.hiw-promise__detail {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.hiw-cta {
+  text-align: center;
+}
+
+.hiw-cta__title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin: 0 0 22px;
+}
+
+.hiw-cta__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+@media (max-width: 760px) {
+  .hiw-step-grid,
+  .hiw-promise__inner,
+  .hiw-promise__grid {
     grid-template-columns: 1fr;
   }
 }

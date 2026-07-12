@@ -288,6 +288,67 @@ export function renderOrderConfirmationText(data, siteUrl) {
   ].join('\n')
 }
 
+// "Here's your 20% off" — sent once when a visitor signs up via the welcome popup.
+export function renderWelcomeEmailHtml(code, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  const promo = esc(code)
+
+  const bodyRows = `
+        <tr>
+          <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">Welcome to InkSpirit</div>
+            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Here's your 20% off 🎉</h1>
+            <p style="margin:0;font-size:15px;color:${BRAND.muted};">Thanks for joining! Use the code below at checkout to take 20% off your first order.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:22px 32px 6px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+              <tr>
+                <td style="border:2px dashed ${BRAND.accent};border-radius:14px;background:${BRAND.bg};padding:18px 40px;">
+                  <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:${BRAND.muted};font-weight:bold;padding-bottom:6px;">Your code</div>
+                  <div style="font-size:30px;letter-spacing:0.08em;font-weight:bold;color:${BRAND.text};">${promo}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:24px 32px 8px;" align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="border-radius:999px;background:${BRAND.accent};">
+                  <a href="${site}" target="_blank" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:999px;">Shop now &rarr;</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 32px 36px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <p style="margin:0;font-size:13px;color:${BRAND.muted};line-height:1.6;">Valid on your first order. One use per customer. Questions? Just reply to this email.</p>
+          </td>
+        </tr>`
+
+  return emailShell({ preheader: `Your 20% off code: ${code}`, bodyRows, siteUrl: site })
+}
+
+export function renderWelcomeEmailText(code, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  return [
+    'Welcome to InkSpirit!',
+    '',
+    `Here's your 20% off. Use this code at checkout for your first order:`,
+    '',
+    `  ${code}`,
+    '',
+    `Shop now: ${site}`,
+    '',
+    'Valid on your first order. One use per customer.',
+    'InkSpirit Studio',
+  ].join('\n')
+}
+
 // Plain-text fallback for clients that don't render HTML.
 export function renderShippingEmailText(order, tracking, siteUrl) {
   const site = String(siteUrl ?? '').replace(/\/$/, '')
