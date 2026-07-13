@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
@@ -43,10 +43,12 @@ const PALETTES = [
 // ── Wizard state ─────────────────────────────────────────────────────────────
 const step = ref(1)
 
-// Reset scroll to the top on each step change so a short step never opens
-// scrolled past its content into empty space.
-watch(step, () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+// Reset scroll to the top after the new step renders so a step never opens
+// mid-scroll. Instant (not smooth) — smooth scrolling is unreliable on mobile
+// during the step's layout swap and can land part-way down.
+watch(step, async () => {
+  await nextTick()
+  window.scrollTo(0, 0)
 })
 const teamName = ref('')
 const subtitle = ref('')
@@ -65,6 +67,48 @@ const generatedDesignId = ref(null)
 const shareCopied = ref(false)
 const sharePreparing = ref(false)
 const generateError = ref('')
+
+// Loading experience: status copy + a faux progress bar, both driven by elapsed
+// time and tuned for the real ~20-40s team-graphic generation (a bit faster than
+// pet portraits). Progress eases toward ~94% and fills to 100% when the result
+// lands; messages advance at set elapsed-time marks.
+const loadingSteps = [
+  { at: 0, msg: 'Warming up the studio…' },
+  { at: 4, msg: 'Sketching the logo…' },
+  { at: 10, msg: 'Choosing the perfect colors…' },
+  { at: 18, msg: 'Building your team graphic…' },
+  { at: 26, msg: 'Adding the finishing touches…' },
+  { at: 33, msg: 'Almost ready…' },
+]
+const loadingMsg = ref(loadingSteps[0].msg)
+const loadingProgress = ref(0)
+let loadingTimers = []
+
+function startLoadingAnimation() {
+  stopLoadingAnimation()
+  const start = Date.now()
+  loadingProgress.value = 0
+  loadingMsg.value = loadingSteps[0].msg
+  const tick = setInterval(() => {
+    const t = (Date.now() - start) / 1000
+    // ~32% at 5s, ~54% at 10s, ~79% at 20s, ~90% at 30s; capped 94.
+    loadingProgress.value = Math.min(94, 100 * (1 - Math.exp(-t / 13)))
+    for (let i = loadingSteps.length - 1; i >= 0; i--) {
+      if (t >= loadingSteps[i].at) {
+        loadingMsg.value = loadingSteps[i].msg
+        break
+      }
+    }
+  }, 250)
+  loadingTimers = [tick]
+}
+
+function stopLoadingAnimation() {
+  loadingTimers.forEach(clearInterval)
+  loadingTimers = []
+}
+
+onUnmounted(stopLoadingAnimation)
 
 // ── Shirt options ────────────────────────────────────────────────────────────
 const colors = ref([])
@@ -167,6 +211,7 @@ async function generate() {
   generatedUrl.value = null
   addedCount.value = 0
   step.value = TOTAL_STEPS
+  startLoadingAnimation()
   trackEvent('generate_team_shirt', { style: selectedStyle.value })
 
   try {
@@ -197,11 +242,18 @@ async function generate() {
     shareCopied.value = false
     if (data.designId) recordDesign(data.designId)
     if (selectedColor.value) fetchMockupPhoto(selectedColor.value)
+    // Fill the bar and let it read 100% for a beat before revealing the result.
+    loadingProgress.value = 100
+    await new Promise((resolve) => setTimeout(resolve, 450))
   } catch (err) {
     generateError.value = err.message
     step.value = 4
   } finally {
+    stopLoadingAnimation()
     isGenerating.value = false
+    // Result and loading share step 5, so the step watcher won't fire — reset
+    // scroll here so the finished design opens at the top.
+    if (generatedUrl.value) window.scrollTo(0, 0)
   }
 }
 
@@ -488,19 +540,24 @@ function startOver() {
         <!-- Step 5 — Generating / Result -->
         <template v-else-if="step === 5">
           <!-- Generating -->
-          <div v-if="isGenerating" class="pet-slide__inner pet-slide__inner--center ts-fade">
-            <div class="pet-generating">
-              <div class="pet-generating__orb">
+          <div v-if="isGenerating" class="pet-slide__inner pet-loading ts-fade">
+            <div class="pet-loading__stage">
+              <div class="pet-loading__orb pet-generating__orb">
                 <span class="pet-generating__spinner" aria-hidden="true"></span>
                 <span class="pet-generating__avatar ts-style-medallion">
                   <img :src="activeStyle?.img" :alt="`${activeStyle?.label} team logo style`" />
                 </span>
               </div>
-              <h2 class="pet-generating__title">Designing your team graphic<span class="pet-generating__dots"><i>.</i><i>.</i><i>.</i></span></h2>
-              <p class="pet-generating__sub">
-                Building an authentic {{ activeStyle?.label }} look for {{ teamName }}. This usually takes 20–40 seconds.
+              <transition name="pet-msg" mode="out-in">
+                <h2 class="pet-loading__title" :key="loadingMsg">{{ loadingMsg }}</h2>
+              </transition>
+              <p class="pet-loading__sub">
+                Building an authentic {{ activeStyle?.label }} look for {{ teamName }} — this usually takes 20–40 seconds.
               </p>
-              <div class="pet-generating__bar" aria-hidden="true"><span></span></div>
+              <div class="pet-loading__bar">
+                <span :style="{ width: loadingProgress + '%' }"></span>
+              </div>
+              <div class="pet-loading__pct">{{ Math.round(loadingProgress) }}%</div>
             </div>
           </div>
 
