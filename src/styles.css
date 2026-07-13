@@ -2644,6 +2644,35 @@ h3 {
 .pet-msg-enter-from { opacity: 0; transform: translateY(8px); }
 .pet-msg-leave-to { opacity: 0; transform: translateY(-8px); }
 
+/* Generation failure card */
+.ts-genfail {
+  max-width: 440px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 44px 34px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #ffffff, #faf8ff);
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 70px -34px rgba(80, 40, 160, 0.35);
+}
+
+.ts-genfail__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #e05353, #b23b6b);
+}
+
+.ts-genfail .ts-generate { margin-top: 6px; }
+
 @media (prefers-reduced-motion: reduce) {
   .pet-generating__avatar,
   .pet-generating__orb::before,

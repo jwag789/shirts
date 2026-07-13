@@ -246,14 +246,15 @@ async function generate() {
     loadingProgress.value = 100
     await new Promise((resolve) => setTimeout(resolve, 450))
   } catch (err) {
+    // Stay on step 5 so the error state is visible with a Try again button,
+    // instead of silently bouncing back to the colors step.
     generateError.value = err.message
-    step.value = 4
   } finally {
     stopLoadingAnimation()
     isGenerating.value = false
-    // Result and loading share step 5, so the step watcher won't fire — reset
-    // scroll here so the finished design opens at the top.
-    if (generatedUrl.value) window.scrollTo(0, 0)
+    // Result/error and loading share step 5, so the step watcher won't fire —
+    // reset scroll here so the result or error opens at the top.
+    window.scrollTo(0, 0)
   }
 }
 
@@ -643,6 +644,17 @@ function startOver() {
                   <button class="pet-start-over" type="button" @click="startOver">Start over</button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Error (first generation failed) -->
+          <div v-else class="pet-slide__inner pet-slide__inner--center ts-fade">
+            <div class="ts-genfail">
+              <div class="ts-genfail__icon" aria-hidden="true">!</div>
+              <h2 class="pet-loading__title">That didn't work</h2>
+              <p class="pet-loading__sub">{{ generateError || 'Something went wrong generating your design. Please try again.' }}</p>
+              <button class="button ts-generate" type="button" @click="generate">↻ Try again</button>
+              <button class="pet-start-over" type="button" @click="step = 4">← Back to colors</button>
             </div>
           </div>
         </template>
