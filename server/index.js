@@ -621,6 +621,8 @@ async function findOrderByPrintifyId(printifyOrderId) {
 async function sendEmail({ to, subject, html, text }) {
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.EMAIL_FROM || 'InkSpirit <onboarding@resend.dev>'
+  // Our sending domain has no inbox, so point customer replies at a real one.
+  const replyTo = process.env.REPLY_TO || 'admin@kingdomwebbuilders.com'
   if (!apiKey) {
     console.log(`[email] RESEND_API_KEY not set — skipping "${subject}" to ${to}`)
     return { skipped: true }
@@ -628,7 +630,7 @@ async function sendEmail({ to, subject, html, text }) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to, subject, html, text }),
+    body: JSON.stringify({ from, to, subject, html, text, reply_to: replyTo }),
   })
   const body = await res.text()
   if (!res.ok) throw new Error(`Email send failed (${res.status}): ${body}`)
