@@ -770,6 +770,19 @@ async function normalizePetImage(buffer) {
     .toBuffer()
 }
 
+// Map raw AI-generation errors to a customer-safe message. The real error is
+// still logged server-side by the caller. OpenAI billing/quota and rate-limit
+// failures (429) should never surface their "check your plan and billing"
+// wording to a shopper — that's the store's problem, not theirs.
+function friendlyGenerationError(error) {
+  const status = error?.status ?? error?.statusCode
+  const code = error?.code ?? error?.error?.code
+  if (status === 429 || code === 'insufficient_quota' || code === 'rate_limit_exceeded') {
+    return { status: 503, message: 'Our design studio is briefly at capacity — please try again in a moment.' }
+  }
+  return { status: 500, message: "We couldn't generate your design just now. Please try again." }
+}
+
 app.post('/api/pet-portrait/generate', express.json({ limit: '15mb' }), async (req, res) => {
   try {
     const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
@@ -894,7 +907,8 @@ ${textDirective}`
     res.json({ imageUrls, petDescription, designIds })
   } catch (error) {
     console.error('Pet portrait generation error:', error)
-    res.status(500).json({ error: error.message ?? 'Generation failed.' })
+    const { status, message } = friendlyGenerationError(error)
+    res.status(status).json({ error: message })
   }
 })
 
@@ -1186,7 +1200,8 @@ app.post('/api/team-shirt/generate', express.json({ limit: '1mb' }), async (req,
     res.json({ imageUrl, designId })
   } catch (error) {
     console.error('Team shirt generation error:', error)
-    res.status(500).json({ error: error.message ?? 'Generation failed.' })
+    const { status, message } = friendlyGenerationError(error)
+    res.status(status).json({ error: message })
   }
 })
 
@@ -1954,4 +1969,5 @@ export {
   designTitle,
   replaceMeta,
   mockupSwatch,
+  friendlyGenerationError,
 }

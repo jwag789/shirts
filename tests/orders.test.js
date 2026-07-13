@@ -3,7 +3,22 @@ import {
   extractShippingFromSession,
   extractAmountsFromSession,
   deriveFulfillmentStatus,
+  friendlyGenerationError,
 } from '../server/index.js'
+
+describe('friendlyGenerationError', () => {
+  it('maps OpenAI quota/rate-limit (429) to a capacity message, not billing text', () => {
+    expect(friendlyGenerationError({ status: 429, message: 'You exceeded your current quota, check billing' }))
+      .toEqual({ status: 503, message: 'Our design studio is briefly at capacity — please try again in a moment.' })
+    expect(friendlyGenerationError({ code: 'insufficient_quota' }).status).toBe(503)
+  })
+
+  it('maps other failures to a generic retry message without leaking internals', () => {
+    const out = friendlyGenerationError(new Error('Missing required environment variable: FAL_KEY'))
+    expect(out.status).toBe(500)
+    expect(out.message).not.toMatch(/FAL_KEY/)
+  })
+})
 
 describe('extractShippingFromSession', () => {
   it('prefers shipping_details over billing', () => {
