@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
@@ -53,39 +53,47 @@ onMounted(async () => {
 const step = ref(1)
 
 // Only the active step is rendered, so the page is exactly as tall as the
-// current step. Snap to the top whenever the step changes so a step never
-// opens mid-scroll.
-watch(step, () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+// current step. Snap to the top after the new step renders so it never opens
+// mid-scroll. Instant (not smooth) — smooth scrolling is unreliable on mobile
+// during the step's layout swap and can land part-way down.
+watch(step, async () => {
+  await nextTick()
+  window.scrollTo(0, 0)
 })
 
-// Loading experience: rotating status copy + a faux progress bar that eases
-// toward ~92% and fills to 100% the moment the real result lands.
-const loadingMessages = [
-  'Warming up the studio…',
-  'Sketching the outline…',
-  'Mixing the perfect palette…',
-  'Painting your pet masterpiece…',
-  'Adding the finishing touches…',
-  'Almost ready…',
+// Loading experience: status copy and a faux progress bar, both driven by
+// elapsed time and tuned for the real ~45s generation. Progress eases toward
+// ~94% on a slow curve and only fills to 100% when the real result lands.
+// Messages change at set elapsed-time marks (0s, 5s, 12s, 22s, 33s, 45s).
+const loadingSteps = [
+  { at: 0, msg: 'Warming up the studio…' },
+  { at: 5, msg: 'Sketching the outline…' },
+  { at: 12, msg: 'Mixing the perfect palette…' },
+  { at: 22, msg: 'Painting your pet masterpiece…' },
+  { at: 33, msg: 'Adding the finishing touches…' },
+  { at: 45, msg: 'Almost ready…' },
 ]
-const loadingMsg = ref(loadingMessages[0])
+const loadingMsg = ref(loadingSteps[0].msg)
 const loadingProgress = ref(0)
 let loadingTimers = []
 
 function startLoadingAnimation() {
   stopLoadingAnimation()
+  const start = Date.now()
   loadingProgress.value = 0
-  loadingMsg.value = loadingMessages[0]
-  let msgIndex = 0
-  const prog = setInterval(() => {
-    loadingProgress.value = Math.min(92, loadingProgress.value + (92 - loadingProgress.value) * 0.08 + 0.4)
-  }, 340)
-  const msg = setInterval(() => {
-    msgIndex = Math.min(loadingMessages.length - 1, msgIndex + 1)
-    loadingMsg.value = loadingMessages[msgIndex]
-  }, 2500)
-  loadingTimers = [prog, msg]
+  loadingMsg.value = loadingSteps[0].msg
+  const tick = setInterval(() => {
+    const t = (Date.now() - start) / 1000
+    // ~24% at 5s, 43% at 10s, 67% at 20s, 81% at 30s, 92% at 45s; capped 94.
+    loadingProgress.value = Math.min(94, 100 * (1 - Math.exp(-t / 18)))
+    for (let i = loadingSteps.length - 1; i >= 0; i--) {
+      if (t >= loadingSteps[i].at) {
+        loadingMsg.value = loadingSteps[i].msg
+        break
+      }
+    }
+  }, 250)
+  loadingTimers = [tick]
 }
 
 function stopLoadingAnimation() {
