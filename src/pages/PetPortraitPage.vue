@@ -52,12 +52,46 @@ onMounted(async () => {
 
 const step = ref(1)
 
-// Each slide reserves the tallest slide's height, so advancing while the
-// page is scrolled down would leave the viewer staring at empty space below
-// a short step. Snap back to the top whenever the step changes.
+// Only the active step is rendered, so the page is exactly as tall as the
+// current step. Snap to the top whenever the step changes so a step never
+// opens mid-scroll.
 watch(step, () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 })
+
+// Loading experience: rotating status copy + a faux progress bar that eases
+// toward ~92% and fills to 100% the moment the real result lands.
+const loadingMessages = [
+  'Warming up the studio…',
+  'Sketching the outline…',
+  'Mixing the perfect palette…',
+  'Painting your pet masterpiece…',
+  'Adding the finishing touches…',
+  'Almost ready…',
+]
+const loadingMsg = ref(loadingMessages[0])
+const loadingProgress = ref(0)
+let loadingTimers = []
+
+function startLoadingAnimation() {
+  stopLoadingAnimation()
+  loadingProgress.value = 0
+  loadingMsg.value = loadingMessages[0]
+  let msgIndex = 0
+  const prog = setInterval(() => {
+    loadingProgress.value = Math.min(92, loadingProgress.value + (92 - loadingProgress.value) * 0.08 + 0.4)
+  }, 340)
+  const msg = setInterval(() => {
+    msgIndex = Math.min(loadingMessages.length - 1, msgIndex + 1)
+    loadingMsg.value = loadingMessages[msgIndex]
+  }, 2500)
+  loadingTimers = [prog, msg]
+}
+
+function stopLoadingAnimation() {
+  loadingTimers.forEach(clearInterval)
+  loadingTimers = []
+}
 const selectedStyle = ref(null)
 const uploadedFile = ref(null)
 const uploadedPreview = ref(null)
@@ -77,7 +111,10 @@ const petName = ref('')
 function onKeydown(e) {
   if (e.key === 'Escape') lightboxUrl.value = null
 }
-onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+  stopLoadingAnimation()
+})
 
 async function fetchMockupPhoto(color) {
   const variantId = color?.variantsBySize?.[selectedSize.value]
@@ -160,6 +197,7 @@ async function generate() {
   selectedOptions.value = []
   addedToBag.value = false
   step.value = 3
+  startLoadingAnimation()
   trackEvent('generate_pet_portrait', { style: selectedStyle.value })
 
   try {
@@ -192,11 +230,18 @@ async function generate() {
     // Pre-select the first option so the buy panel is ready to go
     selectedOptions.value = generatedOptions.value.slice(0, 1)
     if (selectedColor.value) fetchMockupPhoto(selectedColor.value)
+    // Fill the bar and let it read 100% for a beat before revealing the result.
+    loadingProgress.value = 100
+    await new Promise((resolve) => setTimeout(resolve, 450))
   } catch (err) {
     generateError.value = err.message
     step.value = 2
   } finally {
+    stopLoadingAnimation()
     isGenerating.value = false
+    // Result and loading share step 3, so the step watcher won't fire — reset
+    // scroll here so the finished portrait opens at the top.
+    if (generatedOptions.value.length) window.scrollTo({ top: 0 })
   }
 }
 
@@ -319,11 +364,9 @@ async function shareDesign() {
 
       <!-- Slides -->
       <div class="pet-slides-viewport">
-        <div class="pet-slides-track" :style="{ transform: `translateX(${-(step - 1) * (100 / 3)}%)` }">
 
-          <!-- Slide 1: Choose style -->
-          <div class="pet-slide">
-            <div class="pet-slide__inner">
+          <!-- Step 1: Choose style -->
+          <div v-if="step === 1" class="pet-slide__inner ts-fade">
               <div class="pet-slide__heading">
                 <p class="eyebrow">Step 1 of 3</p>
                 <h1 class="pet-slide__title">Choose your <span>style</span></h1>
@@ -353,11 +396,9 @@ async function shareDesign() {
                 </button>
               </div>
             </div>
-          </div>
 
-          <!-- Slide 2: Upload photo -->
-          <div class="pet-slide">
-            <div class="pet-slide__inner pet-slide__inner--narrow">
+          <!-- Step 2: Upload photo -->
+          <div v-else-if="step === 2" class="pet-slide__inner pet-slide__inner--narrow ts-fade">
               <div class="pet-slide__heading">
                 <p class="eyebrow">Step 2 of 3</p>
                 <h1 class="pet-slide__title">Upload your pet's photo</h1>
@@ -418,31 +459,32 @@ async function shareDesign() {
               <p class="pet-generate-hint" style="margin-top: 12px">
                 Takes about 30–60 seconds. Your photo is never stored.
               </p>
+          </div>
+
+          <!-- Step 3: Generating -->
+          <div v-else-if="step === 3 && isGenerating" class="pet-slide__inner pet-loading ts-fade">
+            <div class="pet-loading__stage">
+              <div class="pet-loading__orb pet-generating__orb">
+                <span class="pet-generating__spinner" aria-hidden="true"></span>
+                <span class="pet-generating__avatar">
+                  <img :src="activeStyle?.img" :alt="`${activeStyle?.label} style`" />
+                </span>
+              </div>
+              <transition name="pet-msg" mode="out-in">
+                <h2 class="pet-loading__title" :key="loadingMsg">{{ loadingMsg }}</h2>
+              </transition>
+              <p class="pet-loading__sub">
+                Turning {{ petName.trim() || 'your pet' }} into a {{ activeStyle?.label }} — this usually takes 30–60 seconds.
+              </p>
+              <div class="pet-loading__bar">
+                <span :style="{ width: loadingProgress + '%' }"></span>
+              </div>
+              <div class="pet-loading__pct">{{ Math.round(loadingProgress) }}%</div>
             </div>
           </div>
 
-          <!-- Slide 3: Generating / Result -->
-          <div class="pet-slide">
-
-            <!-- Generating state -->
-            <div v-if="isGenerating" class="pet-slide__inner pet-slide__inner--center">
-              <div class="pet-generating">
-                <div class="pet-generating__orb">
-                  <span class="pet-generating__spinner" aria-hidden="true"></span>
-                  <span class="pet-generating__avatar">
-                    <img :src="activeStyle?.img" :alt="`${activeStyle?.label} style`" />
-                  </span>
-                </div>
-                <h2 class="pet-generating__title">Painting your portrait<span class="pet-generating__dots"><i>.</i><i>.</i><i>.</i></span></h2>
-                <p class="pet-generating__sub">
-                  Turning your pet into a {{ activeStyle?.label }}. This usually takes 30–60 seconds.
-                </p>
-                <div class="pet-generating__bar" aria-hidden="true"><span></span></div>
-              </div>
-            </div>
-
-            <!-- Result state -->
-            <div v-else-if="generatedOptions.length" class="pet-slide__inner pet-slide__inner--result">
+          <!-- Step 3: Result -->
+          <div v-else-if="step === 3 && generatedOptions.length" class="pet-slide__inner pet-slide__inner--result">
               <div class="pet-slide__heading">
                 <p class="eyebrow">Your portrait is ready</p>
                 <h1 class="pet-slide__title">Here's your <span>portrait</span></h1>
@@ -547,9 +589,6 @@ async function shareDesign() {
               </div>
             </div>
 
-          </div>
-
-        </div>
       </div>
     </div>
 

@@ -2367,22 +2367,12 @@ h3 {
 .pet-slides-viewport {
   overflow: hidden;
   flex: 1;
-}
-
-.pet-slides-track {
-  display: flex;
-  width: 300%;
-  height: 100%;
-  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.pet-slide {
-  width: calc(100% / 3);
-  min-height: calc(100svh - 120px);
   display: flex;
   flex-direction: column;
 }
 
+/* One step renders at a time, so each step is exactly as tall as its own
+   content — no phantom height from the other steps. */
 .pet-slide__inner {
   flex: 1;
   display: flex;
@@ -2556,9 +2546,108 @@ h3 {
   100% { margin-left: 100%; }
 }
 
+/* Beautified loading step: centered gradient stage, rotating status copy and a
+   determinate progress bar driven by loadingProgress. */
+.pet-loading {
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100svh - 190px);
+}
+
+.pet-loading__stage {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 46px 34px 40px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #ffffff, #faf8ff);
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 70px -34px rgba(80, 40, 160, 0.5);
+  overflow: hidden;
+}
+
+.pet-loading__stage::before {
+  content: '';
+  position: absolute;
+  inset: -40% -10% auto -10%;
+  height: 70%;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(118, 70, 226, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.pet-loading__stage > * {
+  position: relative;
+}
+
+.pet-loading__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+  min-height: 1.9rem;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pet-loading__sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 340px;
+}
+
+.pet-loading__bar {
+  width: 100%;
+  max-width: 320px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.pet-loading__bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+  background-size: 200% 100%;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: pet-bar-shimmer 1.6s linear infinite;
+}
+
+@keyframes pet-bar-shimmer {
+  to { background-position: -200% 0; }
+}
+
+.pet-loading__pct {
+  margin-top: -8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+/* Rotating status message crossfade */
+.pet-msg-enter-active,
+.pet-msg-leave-active {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.pet-msg-enter-from { opacity: 0; transform: translateY(8px); }
+.pet-msg-leave-to { opacity: 0; transform: translateY(-8px); }
+
 @media (prefers-reduced-motion: reduce) {
   .pet-generating__avatar,
-  .pet-generating__orb::before {
+  .pet-generating__orb::before,
+  .pet-loading__bar span {
     animation: none;
   }
 }
