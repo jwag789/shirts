@@ -1363,9 +1363,10 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
   res.json({ received: true })
 })
 
-// Printify fires this when an order ships (register the URL in Printify →
-// Settings → Webhooks for the order:shipment:* events). We look the order up by
-// its Printify id, refresh tracking, and send the branded shipping email.
+// Printify fires this when an order ships. Printify has no webhook UI — register
+// the order:shipment:* webhooks via the API with scripts/register-printify-webhooks.mjs.
+// We look the order up by its Printify id, refresh tracking, and send the branded
+// shipping email.
 app.post('/api/webhooks/printify', express.raw({ type: '*/*' }), async (req, res) => {
   try {
     const secret = process.env.PRINTIFY_WEBHOOK_SECRET
