@@ -158,13 +158,13 @@ onBeforeUnmount(() => {
               <span><b>3</b> Wear it</span>
             </div>
             <div class="personalize__actions">
-              <RouterLink class="button personalize__cta" to="/pet-portrait">Create my portrait →</RouterLink>
+              <RouterLink class="button personalize__cta" to="/pet-portrait/create">Create my portrait →</RouterLink>
               <span class="personalize__note">Free preview · No signup needed</span>
             </div>
           </div>
 
           <div class="personalize__showcase">
-            <RouterLink to="/pet-portrait" class="personalize__frame" aria-label="Create a custom pet portrait">
+            <RouterLink to="/pet-portrait/create" class="personalize__frame" aria-label="Create a custom pet portrait">
               <img
                 src="/images/dog-ai.png"
                 alt="A dog's photo transformed into superhero, viking, pirate, astronaut and samurai portraits, printed on a t-shirt"
@@ -193,13 +193,13 @@ onBeforeUnmount(() => {
               <span><b>3</b> Wear it</span>
             </div>
             <div class="personalize__actions">
-              <RouterLink class="button personalize__cta" to="/team-shirt">Design my team shirt →</RouterLink>
+              <RouterLink class="button personalize__cta" to="/team-shirt/create">Design my team shirt →</RouterLink>
               <span class="personalize__note">Free preview · No signup needed</span>
             </div>
           </div>
 
           <div class="personalize__showcase">
-            <RouterLink to="/team-shirt" class="personalize__frame" aria-label="Design a custom team shirt">
+            <RouterLink to="/team-shirt/create" class="personalize__frame" aria-label="Design a custom team shirt">
               <img
                 src="/images/team-banner.png"
                 alt="A team name and logo concept typed into the generator, turned into an Ironhawks sports crest and printed on a navy t-shirt"

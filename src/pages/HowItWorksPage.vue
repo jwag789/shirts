@@ -105,7 +105,7 @@ const promises = [
         <h2 class="hiw-cta__title">Ready when you are.</h2>
         <div class="hiw-cta__actions">
           <RouterLink class="button" to="/collections">Shop all collections</RouterLink>
-          <RouterLink class="button button--outline" to="/pet-portrait">Make it custom →</RouterLink>
+          <RouterLink class="button button--outline" to="/pet-portrait/create">Make it custom →</RouterLink>
         </div>
       </section>
     </main>

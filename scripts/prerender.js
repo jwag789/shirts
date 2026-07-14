@@ -163,6 +163,24 @@ function homeBody() {
   `
 }
 
+function petPortraitBody() {
+  return `
+      <h1>Custom Pet Portrait Shirts — Turn Your Pet Into a Legend</h1>
+      <p>Upload one photo of your dog or cat and our AI transforms them into a superhero, samurai, astronaut, pirate and more — hand-finished and printed on a premium made-to-order tee. Free preview, no signup, ready in about 30 seconds.</p>
+      <h2>Pet portrait styles</h2>
+      <ul>
+        <li>Superhero — cape, mask, heroic pose</li>
+        <li>Wizard — robes, staff, magic spells</li>
+        <li>Astronaut — spacesuit, deep space</li>
+        <li>Samurai — katana, armor, cherry blossoms</li>
+        <li>Pirate — tricorn hat, cutlass, sea</li>
+        <li>Viking — horned helmet, battle axe</li>
+        <li>Mermaid, Princess, Fairy, Angel, Geisha and Pop Star</li>
+      </ul>
+      <p>A perfect gift for pet parents. Preview it free, then <a href="/pet-portrait/create">create your pet portrait</a>.</p>
+  `
+}
+
 function teamShirtBody() {
   return `
       <h1>AI Team Shirt Generator — Custom Team Shirts</h1>
@@ -269,15 +287,29 @@ async function main() {
   )
   count++
 
-  // Team shirt generator
+  // Pet portrait landing
+  await writePage(
+    path.join(distDir, 'pet-portrait.html'),
+    renderPage(template, {
+      title: `Custom Pet Portrait Shirts — Turn Your Pet Into a Legend | ${siteName}`,
+      description:
+        'Upload one photo and our AI turns your pet into a superhero, samurai, astronaut and more — printed on a premium tee. Free preview, no signup, ready in ~30 seconds.',
+      canonicalPath: '/pet-portrait',
+      jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'Custom Pet Portraits', url: '/pet-portrait' }])],
+      bodyHtml: petPortraitBody(),
+    }),
+  )
+  count++
+
+  // Team shirt landing
   await writePage(
     path.join(distDir, 'team-shirt.html'),
     renderPage(template, {
-      title: `AI Team Shirt Generator — Custom Team Shirts | ${siteName}`,
+      title: `Custom Team Shirts — Design Your Team's Look in Seconds | ${siteName}`,
       description:
-        'Design custom team shirts with AI: enter your team name, pick a style, and get authentic sports merchandise for beer leagues, reunions, softball, and fantasy football.',
+        'Enter your team name, pick a style, and our AI designs authentic team merchandise for beer leagues, reunions, softball and fantasy football. Free preview, no signup.',
       canonicalPath: '/team-shirt',
-      jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'AI Team Shirt Generator', url: '/team-shirt' }])],
+      jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'Custom Team Shirts', url: '/team-shirt' }])],
       bodyHtml: teamShirtBody(),
     }),
   )

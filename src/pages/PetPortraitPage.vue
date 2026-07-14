@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
@@ -7,6 +8,7 @@ import { recordDesign } from '../composables/useDesigns'
 import { trackEvent } from '../analytics'
 
 const { addPetPortraitItem } = useCart()
+const route = useRoute()
 
 const STYLES = [
   { key: 'superhero', label: 'Superhero', desc: 'Cape, mask, heroic pose', icon: '⚡', img: '/images/pet-styles/superhero.png' },
@@ -41,6 +43,11 @@ const previewSwatch = computed(() => {
 
 onMounted(async () => {
   window.addEventListener('keydown', onKeydown)
+  // Deep-link from the landing page's style gallery: preselect it and advance.
+  const preStyle = route.query.style
+  if (typeof preStyle === 'string' && STYLES.some((s) => s.key === preStyle)) {
+    selectStyle(preStyle)
+  }
   try {
     const res = await fetch('/api/pet-portrait/variants')
     const data = await res.json()

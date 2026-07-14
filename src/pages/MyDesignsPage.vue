@@ -71,8 +71,8 @@ onMounted(async () => {
         <h2>No designs yet.</h2>
         <p>Generate a team shirt or a pet portrait and it'll show up here automatically.</p>
         <div class="my-designs__cta">
-          <RouterLink class="button" to="/team-shirt">Design a team shirt</RouterLink>
-          <RouterLink class="button button--outline" to="/pet-portrait">Create a pet portrait</RouterLink>
+          <RouterLink class="button" to="/team-shirt/create">Design a team shirt</RouterLink>
+          <RouterLink class="button button--outline" to="/pet-portrait/create">Create a pet portrait</RouterLink>
         </div>
       </div>
 

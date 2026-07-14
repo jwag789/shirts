@@ -66,7 +66,7 @@ watchEffect(() => {
           <RouterLink v-else-if="page.type === 'product'" :to="`/products/${page.refSlug}`" class="button">
             View this shirt
           </RouterLink>
-          <RouterLink v-else to="/pet-portrait" class="button">
+          <RouterLink v-else to="/pet-portrait/create" class="button">
             Create your pet portrait
           </RouterLink>
         </div>

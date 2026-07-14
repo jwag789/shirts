@@ -209,8 +209,8 @@ async function shareLink() {
         <h1>This design isn't available.</h1>
         <p>{{ error }}</p>
         <div class="shared-design__cta">
-          <RouterLink class="button" to="/team-shirt">Design a team shirt</RouterLink>
-          <RouterLink class="button button--outline" to="/pet-portrait">Create a pet portrait</RouterLink>
+          <RouterLink class="button" to="/team-shirt/create">Design a team shirt</RouterLink>
+          <RouterLink class="button button--outline" to="/pet-portrait/create">Create a pet portrait</RouterLink>
         </div>
       </div>
 
@@ -279,7 +279,7 @@ async function shareLink() {
 
             <div class="shared-design__make">
               <span>Want your own?</span>
-              <RouterLink :to="isTeam ? '/team-shirt' : '/pet-portrait'">
+              <RouterLink :to="isTeam ? '/team-shirt/create' : '/pet-portrait/create'">
                 {{ isTeam ? 'Design a team shirt →' : 'Create a pet portrait →' }}
               </RouterLink>
             </div>

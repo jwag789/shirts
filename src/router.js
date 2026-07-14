@@ -12,6 +12,8 @@ import ReviewPage from './pages/ReviewPage.vue'
 import ReviewsPage from './pages/ReviewsPage.vue'
 import PetPortraitPage from './pages/PetPortraitPage.vue'
 import TeamShirtPage from './pages/TeamShirtPage.vue'
+import PetLandingPage from './pages/PetLandingPage.vue'
+import TeamLandingPage from './pages/TeamLandingPage.vue'
 import SeoLandingPage from './pages/SeoLandingPage.vue'
 import HowItWorksPage from './pages/HowItWorksPage.vue'
 import ContactPage from './pages/ContactPage.vue'
@@ -29,11 +31,21 @@ const router = createRouter({
     {
       path: '/pet-portrait',
       name: 'pet-portrait',
+      component: PetLandingPage,
+    },
+    {
+      path: '/pet-portrait/create',
+      name: 'pet-portrait-create',
       component: PetPortraitPage,
     },
     {
       path: '/team-shirt',
       name: 'team-shirt',
+      component: TeamLandingPage,
+    },
+    {
+      path: '/team-shirt/create',
+      name: 'team-shirt-create',
       component: TeamShirtPage,
     },
     {

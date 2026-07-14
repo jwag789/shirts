@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import { useCart } from '../composables/useCart'
@@ -7,6 +8,7 @@ import { recordDesign } from '../composables/useDesigns'
 import { trackEvent } from '../analytics'
 
 const { addTeamShirtItem } = useCart()
+const route = useRoute()
 
 const TOTAL_STEPS = 5
 
@@ -137,6 +139,12 @@ const previewSwatch = computed(() => {
 const canGenerate = computed(() => teamName.value.trim().length > 0 && selectedStyle.value)
 
 onMounted(async () => {
+  // Deep-link from the landing page's style gallery: preselect it so it's
+  // already chosen when they reach the style step (step 1 is the team name).
+  const preStyle = route.query.style
+  if (typeof preStyle === 'string' && STYLES.some((s) => s.key === preStyle)) {
+    selectedStyle.value = preStyle
+  }
   try {
     const res = await fetch('/api/team-shirt/variants')
     const data = await res.json()
