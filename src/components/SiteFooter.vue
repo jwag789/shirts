@@ -44,6 +44,12 @@ onMounted(async () => {
         <RouterLink to="/contact">Contact Us</RouterLink>
         <RouterLink v-if="hasReviews" to="/reviews">Reviews</RouterLink>
       </div>
+      <div class="footer-col">
+        <span class="footer-col__title">Legal</span>
+        <RouterLink to="/terms">Terms &amp; Conditions</RouterLink>
+        <RouterLink to="/privacy">Privacy Policy</RouterLink>
+        <RouterLink to="/returns">Returns &amp; Refunds</RouterLink>
+      </div>
     </nav>
   </footer>
 

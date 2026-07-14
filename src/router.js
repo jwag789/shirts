@@ -16,6 +16,8 @@ import SeoLandingPage from './pages/SeoLandingPage.vue'
 import HowItWorksPage from './pages/HowItWorksPage.vue'
 import ContactPage from './pages/ContactPage.vue'
 import ReturnsPage from './pages/ReturnsPage.vue'
+import TermsPage from './pages/TermsPage.vue'
+import PrivacyPage from './pages/PrivacyPage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -48,6 +50,16 @@ const router = createRouter({
       path: '/returns',
       name: 'returns',
       component: ReturnsPage,
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: TermsPage,
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: PrivacyPage,
     },
     {
       path: '/collections',
