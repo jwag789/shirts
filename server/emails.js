@@ -349,6 +349,69 @@ export function renderWelcomeEmailText(code, siteUrl) {
   ].join('\n')
 }
 
+// "New message from the contact form" — sent to the shop inbox. `msg` is
+// { name, email, subject, message }. Reply-to is set to the sender in index.js
+// so hitting reply goes straight back to the customer.
+export function renderContactNotificationHtml(msg, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  const name = esc(msg.name ?? '')
+  const email = esc(msg.email ?? '')
+  const subject = esc(msg.subject ?? 'No subject')
+  const message = esc(msg.message ?? '').replace(/\n/g, '<br />')
+
+  const bodyRows = `
+        <tr>
+          <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;">
+            <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">Contact form</div>
+            <h1 style="margin:10px 0 6px;font-size:26px;line-height:1.2;color:${BRAND.text};">New message from your site</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:12px 32px 6px;font-family:Arial,Helvetica,sans-serif;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BRAND.line};border-radius:12px;">
+              <tr>
+                <td style="padding:14px 18px;border-bottom:1px solid ${BRAND.line};">
+                  <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND.muted};font-weight:bold;">From</div>
+                  <div style="font-size:15px;color:${BRAND.text};padding-top:3px;">${name} &lt;<a href="mailto:${email}" style="color:${BRAND.accent};text-decoration:none;">${email}</a>&gt;</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 18px;border-bottom:1px solid ${BRAND.line};">
+                  <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND.muted};font-weight:bold;">Subject</div>
+                  <div style="font-size:15px;color:${BRAND.text};padding-top:3px;">${subject}</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 18px;">
+                  <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND.muted};font-weight:bold;">Message</div>
+                  <div style="font-size:15px;color:${BRAND.text};line-height:1.6;padding-top:6px;">${message}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:18px 32px 36px;font-family:Arial,Helvetica,sans-serif;">
+            <p style="margin:0;font-size:13px;color:${BRAND.muted};line-height:1.6;">Reply to this email to respond directly to ${name}.</p>
+          </td>
+        </tr>`
+
+  return emailShell({ preheader: `${name}: ${subject}`, bodyRows, siteUrl: site })
+}
+
+export function renderContactNotificationText(msg) {
+  return [
+    'New message from your contact form',
+    '',
+    `From: ${msg.name ?? ''} <${msg.email ?? ''}>`,
+    `Subject: ${msg.subject ?? 'No subject'}`,
+    '',
+    String(msg.message ?? ''),
+    '',
+    `Reply to this email to respond directly to ${msg.name ?? 'the sender'}.`,
+  ].join('\n')
+}
+
 // Plain-text fallback for clients that don't render HTML.
 export function renderShippingEmailText(order, tracking, siteUrl) {
   const site = String(siteUrl ?? '').replace(/\/$/, '')

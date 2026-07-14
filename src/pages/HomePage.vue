@@ -339,6 +339,7 @@ onBeforeUnmount(() => {
           <RouterLink to="/my-designs">My Designs</RouterLink>
           <RouterLink to="/reviews">Reviews</RouterLink>
           <RouterLink to="/orders">Track Your Order</RouterLink>
+          <RouterLink to="/contact">Contact Us</RouterLink>
         </nav>
       </section>
       <div class="site-credit">

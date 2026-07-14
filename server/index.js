@@ -19,6 +19,8 @@ import {
   renderReviewRequestText,
   renderWelcomeEmailHtml,
   renderWelcomeEmailText,
+  renderContactNotificationHtml,
+  renderContactNotificationText,
 } from './emails.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -618,11 +620,12 @@ async function findOrderByPrintifyId(printifyOrderId) {
 
 // Provider-agnostic send. Currently wired to Resend; swapping providers is just
 // this function. No-op (logs) until RESEND_API_KEY is configured.
-async function sendEmail({ to, subject, html, text }) {
+async function sendEmail({ to, subject, html, text, replyTo }) {
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.EMAIL_FROM || 'InkSpirit <onboarding@resend.dev>'
   // Our sending domain has no inbox, so point customer replies at a real one.
-  const replyTo = process.env.REPLY_TO || 'admin@kingdomwebbuilders.com'
+  // Callers can override (e.g. the contact form points replies at the sender).
+  const replyToAddress = replyTo || process.env.REPLY_TO || 'admin@kingdomwebbuilders.com'
   if (!apiKey) {
     console.log(`[email] RESEND_API_KEY not set — skipping "${subject}" to ${to}`)
     return { skipped: true }
@@ -630,7 +633,7 @@ async function sendEmail({ to, subject, html, text }) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to, subject, html, text, reply_to: replyTo }),
+    body: JSON.stringify({ from, to, subject, html, text, reply_to: replyToAddress }),
   })
   const body = await res.text()
   if (!res.ok) throw new Error(`Email send failed (${res.status}): ${body}`)
@@ -1555,6 +1558,53 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
   } catch (err) {
     console.error('Subscribe error:', err)
     res.status(500).json({ error: 'Could not sign you up. Please try again.' })
+  }
+})
+
+// Contact form → emails the shop inbox. No DB row; just a notification with
+// reply-to set to the sender so a reply goes straight back to the customer.
+const contactRateLimit = new Map()
+
+app.post('/api/contact', express.json(), async (req, res) => {
+  try {
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(contactRateLimit, ip, 10)) {
+      return res.status(429).json({ error: 'Too many messages. Please try again later.' })
+    }
+
+    const name = String(req.body?.name ?? '').trim().slice(0, 80)
+    const email = String(req.body?.email ?? '').trim().toLowerCase()
+    const subject = String(req.body?.subject ?? '').trim().slice(0, 120)
+    const message = String(req.body?.message ?? '').trim().slice(0, 4000)
+    // Honeypot — bots fill hidden fields, humans don't. Pretend success.
+    if (String(req.body?.company ?? '').trim()) return res.json({ ok: true })
+
+    if (!name) return res.status(400).json({ error: 'Please tell us your name.' })
+    if (!EMAIL_RE.test(email) || email.length > 254) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' })
+    }
+    if (!message) return res.status(400).json({ error: 'Please write a message.' })
+
+    const to = process.env.CONTACT_TO || 'admin@kingdomwebbuilders.com'
+    const msg = { name, email, subject: subject || 'No subject', message }
+
+    if (!process.env.RESEND_API_KEY) {
+      console.log(`[contact] RESEND_API_KEY not set — would email ${to} from ${email}: ${subject}`)
+      return res.json({ ok: true })
+    }
+
+    await sendEmail({
+      to,
+      replyTo: email,
+      subject: `[Contact] ${msg.subject} — from ${name}`,
+      html: renderContactNotificationHtml(msg, siteUrl),
+      text: renderContactNotificationText(msg),
+    })
+
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('Contact form error:', err)
+    res.status(500).json({ error: 'Could not send your message. Please try again.' })
   }
 })
 

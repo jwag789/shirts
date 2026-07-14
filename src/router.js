@@ -14,6 +14,7 @@ import PetPortraitPage from './pages/PetPortraitPage.vue'
 import TeamShirtPage from './pages/TeamShirtPage.vue'
 import SeoLandingPage from './pages/SeoLandingPage.vue'
 import HowItWorksPage from './pages/HowItWorksPage.vue'
+import ContactPage from './pages/ContactPage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -36,6 +37,11 @@ const router = createRouter({
       path: '/how-it-works',
       name: 'how-it-works',
       component: HowItWorksPage,
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: ContactPage,
     },
     {
       path: '/collections',

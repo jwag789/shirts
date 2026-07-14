@@ -3849,6 +3849,15 @@ h3 {
   font-family: inherit;
 }
 
+/* Contact form honeypot — visually hidden, off-screen, skipped by keyboard. */
+.ct-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 /* Reviews list page */
 .reviews-page {
   max-width: 1100px;

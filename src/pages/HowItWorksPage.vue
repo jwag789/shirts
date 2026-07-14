@@ -121,6 +121,7 @@ const promises = [
           <RouterLink to="/team-shirt">AI Team Shirts</RouterLink>
           <RouterLink to="/reviews">Reviews</RouterLink>
           <RouterLink to="/orders">Track Your Order</RouterLink>
+          <RouterLink to="/contact">Contact Us</RouterLink>
         </nav>
       </section>
     </main>
