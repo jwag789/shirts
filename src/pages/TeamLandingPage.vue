@@ -26,20 +26,13 @@ const STYLES = [
 
 const USE_CASES = [
   'Beer league', 'Family reunion', 'Company softball', 'Fantasy football',
-  'Summer league', 'Charity run', 'Bachelor party', 'Startup crew',
-]
-
-const FEATURES = [
-  { icon: 'trophy', title: 'Authentic team look', desc: 'Pro-grade crests, wordmarks and mascots — the kind of design you’d pay an agency for.' },
-  { icon: 'palette', title: 'Your name & colors', desc: 'Your team name, subtitle and color palette baked into every design. Or let the AI choose.' },
-  { icon: 'zap', title: 'Ready in ~30 seconds', desc: 'Go from an idea to a shirt-ready graphic instantly — no designer, no revisions queue.' },
-  { icon: 'shirt', title: 'Made-to-order tees', desc: 'Printed on premium shirts and shipped with tracking. Order one or outfit the whole squad.' },
+  'Intramurals', 'Charity run', 'Bachelor party', 'Startup crew',
 ]
 
 const FAQS = [
   { q: 'Do I need a logo already?', a: 'Nope. Just enter your team name and, optionally, a logo idea (like “bobcat” or “crossed bats”). The AI builds the graphic for you — or leave it blank for a clean typographic design.' },
   { q: 'Can I match our team colors?', a: 'Yes. Pick a color palette or fine-tune your own primary and secondary colors. Prefer a surprise? Let the AI choose a palette that fits your style.' },
-  { q: 'Can I order for a whole team?', a: 'Absolutely. Preview your design, then order as many shirts as you need in the sizes and colors you want — each one printed to order.' },
+  { q: 'Can I order for a whole team?', a: 'Absolutely. Preview your design, then order as many shirts as you need in the sizes and colors you want — each one printed to order, no minimums.' },
   { q: 'How long until it ships?', a: 'Every shirt is made to order and ships in about 3–5 business days, with tracking emailed to you when it’s on the way.' },
 ]
 </script>
@@ -50,40 +43,40 @@ const FAQS = [
 
     <main>
       <!-- Hero -->
-      <section class="lp-hero">
-        <div class="lp-hero__inner">
-          <div class="lp-hero__copy">
-            <p class="eyebrow">Custom team shirts · AI-powered</p>
-            <h1 class="lp-hero__title">Design custom<br /><span>team shirts.</span></h1>
-            <p class="lp-hero__sub">
-              Beer league, family reunion, company softball or fantasy football — enter your team
-              name, pick a style, and get merch you’d be proud to wear.
-            </p>
-            <div class="lp-hero__actions">
-              <RouterLink class="button" to="/team-shirt/create">Design my team shirt →</RouterLink>
-              <span class="lp-hero__note">Free preview · No signup needed</span>
-            </div>
+      <section class="lp-phero">
+        <div class="lp-phero__copy">
+          <p class="eyebrow">Custom team shirts</p>
+          <h1 class="lp-phero__title">Design custom <span>team shirts.</span></h1>
+          <p class="lp-phero__sub">
+            Enter your team name, pick a style, and our AI designs authentic team merch — beer
+            league, family reunion, company softball and more.
+          </p>
+          <div class="lp-phero__actions">
+            <RouterLink class="button" to="/team-shirt/create">Design my team shirt →</RouterLink>
           </div>
-
-          <div class="lp-hero__media">
-            <RouterLink to="/team-shirt/create" class="lp-hero__frame" aria-label="Design a custom team shirt">
-              <img
-                src="/images/team-banner.png"
-                alt="A team name and logo concept turned into a sports crest and printed on a navy t-shirt"
-              />
-            </RouterLink>
-            <div class="lp-badge lp-badge--tl"><Icon name="trophy" /> 8 pro styles</div>
-            <div class="lp-badge lp-badge--br"><Icon name="zap" /> Ready in ~30s</div>
-          </div>
+          <p class="lp-phero__trust">Free preview · No signup · Ships in 3–5 days</p>
+        </div>
+        <div class="lp-phero__photo">
+          <img
+            src="/images/team-lifestyle/volleyball.jpg"
+            alt="An intramural volleyball team walking on the beach at sunset in matching custom team shirts"
+          />
         </div>
       </section>
+
+      <!-- Trust strip -->
+      <div class="lp-trust">
+        <span class="lp-trust__item"><Icon name="trophy" /> Authentic team look</span>
+        <span class="lp-trust__item"><Icon name="palette" /> Your name &amp; colors</span>
+        <span class="lp-trust__item"><Icon name="zap" /> Ready in ~30 seconds</span>
+        <span class="lp-trust__item"><Icon name="shirt" /> Made-to-order tees</span>
+      </div>
 
       <!-- How it works -->
       <section class="lp-section">
         <div class="lp-section__head">
           <p class="eyebrow">How it works</p>
           <h2>From team name to team merch</h2>
-          <p>No designer, no order minimums, no account required.</p>
         </div>
         <div class="lp-steps">
           <div class="lp-step">
@@ -130,6 +123,32 @@ const FAQS = [
         </div>
       </section>
 
+      <!-- Lifestyle stories -->
+      <section class="lp-story">
+        <div class="lp-story__row">
+          <div class="lp-story__photo">
+            <img src="/images/team-lifestyle/family.jpg" alt="A large multigenerational family at a reunion, all wearing matching custom Pinecrest team shirts" loading="lazy" />
+          </div>
+          <div class="lp-story__text">
+            <p class="eyebrow">Reunions &amp; groups</p>
+            <h2>Everyone in matching merch</h2>
+            <p>From family reunions to company retreats, outfit the whole crew in a design that looks pro — no order minimums, no setup fees.</p>
+            <RouterLink class="button button--outline" to="/team-shirt/create">Design for a group →</RouterLink>
+          </div>
+        </div>
+        <div class="lp-story__row lp-story__row--reverse">
+          <div class="lp-story__photo">
+            <img src="/images/team-lifestyle/mascot.jpg" alt="A rec-league team celebrating with their mascot, wearing matching Apex team shirts" loading="lazy" />
+          </div>
+          <div class="lp-story__text">
+            <p class="eyebrow">Rec leagues &amp; clubs</p>
+            <h2>Bring your team to life</h2>
+            <p>Beer league, intramurals, esports — give your squad an authentic crest, mascot and colors worth showing off, ready in seconds.</p>
+            <RouterLink class="button button--outline" to="/team-shirt/create">Name my team →</RouterLink>
+          </div>
+        </div>
+      </section>
+
       <!-- Use cases -->
       <section class="lp-section">
         <div class="lp-section__head">
@@ -141,36 +160,21 @@ const FAQS = [
         </div>
       </section>
 
-      <!-- Why -->
-      <section class="lp-section lp-section--tint">
-        <div class="lp-section__body">
-          <div class="lp-section__head">
-            <p class="eyebrow">Why InkSpirit</p>
-            <h2>Agency-quality, in seconds</h2>
-          </div>
-          <div class="lp-features">
-            <div v-for="f in FEATURES" :key="f.title" class="lp-feature">
-              <div class="lp-feature__icon"><Icon :name="f.icon" /></div>
-              <h3>{{ f.title }}</h3>
-              <p>{{ f.desc }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <ReviewStrip />
 
       <!-- FAQ -->
-      <section class="lp-section">
-        <div class="lp-section__head">
-          <p class="eyebrow">Good to know</p>
-          <h2>Questions, answered</h2>
-        </div>
-        <div class="lp-faq">
-          <details v-for="(f, i) in FAQS" :key="i" class="lp-faq__item">
-            <summary>{{ f.q }}</summary>
-            <p>{{ f.a }}</p>
-          </details>
+      <section class="lp-section lp-section--tint">
+        <div class="lp-section__body">
+          <div class="lp-section__head">
+            <p class="eyebrow">Good to know</p>
+            <h2>Questions, answered</h2>
+          </div>
+          <div class="lp-faq">
+            <details v-for="(f, i) in FAQS" :key="i" class="lp-faq__item">
+              <summary>{{ f.q }}</summary>
+              <p>{{ f.a }}</p>
+            </details>
+          </div>
         </div>
       </section>
 

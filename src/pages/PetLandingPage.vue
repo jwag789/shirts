@@ -42,20 +42,20 @@ const FAQS = [
 
     <main>
       <!-- Hero -->
-      <section class="plp-hero">
-        <div class="plp-hero__copy">
+      <section class="lp-phero">
+        <div class="lp-phero__copy">
           <p class="eyebrow">Custom pet portraits</p>
-          <h1 class="plp-hero__title">Turn your pet into a <span>legend.</span></h1>
-          <p class="plp-hero__sub">
+          <h1 class="lp-phero__title">Turn your pet into a <span>legend.</span></h1>
+          <p class="lp-phero__sub">
             Upload one photo and watch your best friend become a superhero, samurai, pirate or
             astronaut — hand-finished and printed on a premium tee.
           </p>
-          <div class="plp-hero__actions">
+          <div class="lp-phero__actions">
             <RouterLink class="button" to="/pet-portrait/create">Create my portrait →</RouterLink>
           </div>
-          <p class="plp-hero__trust">Free preview · No signup · Ships in 3–5 days</p>
+          <p class="lp-phero__trust">Free preview · No signup · Ships in 3–5 days</p>
         </div>
-        <div class="plp-hero__photo">
+        <div class="lp-phero__photo">
           <img
             src="/images/pet-lifestyle/kitchen.jpg"
             alt="A couple cooking together, both wearing custom pet portrait shirts of their golden retriever named Charlie"
@@ -64,11 +64,11 @@ const FAQS = [
       </section>
 
       <!-- Trust strip -->
-      <div class="plp-trust">
-        <span class="plp-trust__item"><Icon name="sparkles" /> Hand-finished quality</span>
-        <span class="plp-trust__item"><Icon name="shirt" /> Premium made-to-order tees</span>
-        <span class="plp-trust__item"><Icon name="zap" /> Ready in ~30 seconds</span>
-        <span class="plp-trust__item"><Icon name="heart" /> Free preview, no signup</span>
+      <div class="lp-trust">
+        <span class="lp-trust__item"><Icon name="sparkles" /> Hand-finished quality</span>
+        <span class="lp-trust__item"><Icon name="shirt" /> Premium made-to-order tees</span>
+        <span class="lp-trust__item"><Icon name="zap" /> Ready in ~30 seconds</span>
+        <span class="lp-trust__item"><Icon name="heart" /> Free preview, no signup</span>
       </div>
 
       <!-- How it works -->
@@ -123,23 +123,23 @@ const FAQS = [
       </section>
 
       <!-- Lifestyle stories -->
-      <section class="plp-story">
-        <div class="plp-story__row">
-          <div class="plp-story__photo">
+      <section class="lp-story">
+        <div class="lp-story__row">
+          <div class="lp-story__photo">
             <img src="/images/pet-lifestyle/park.jpg" alt="Four friends walking their dogs in the park, each wearing a different custom pet portrait shirt" loading="lazy" />
           </div>
-          <div class="plp-story__text">
+          <div class="lp-story__text">
             <p class="eyebrow">Real people, real pets</p>
             <h2>A shirt the whole crew wants</h2>
             <p>From dog-park meetups to family game night, InkSpirit shirts are made to actually be worn — soft, premium, and unmistakably yours.</p>
             <RouterLink class="button button--outline" to="/pet-portrait/create">Make yours →</RouterLink>
           </div>
         </div>
-        <div class="plp-story__row plp-story__row--reverse">
-          <div class="plp-story__photo">
+        <div class="lp-story__row lp-story__row--reverse">
+          <div class="lp-story__photo">
             <img src="/images/pet-lifestyle/cozy.jpg" alt="A woman relaxing on the couch with her dog, wearing a pirate pet portrait shirt" loading="lazy" />
           </div>
-          <div class="plp-story__text">
+          <div class="lp-story__text">
             <p class="eyebrow">The perfect gift</p>
             <h2>It hits home</h2>
             <p>There’s nothing like seeing your best friend turned into a legend on a shirt. It’s the gift people actually keep — and wear.</p>

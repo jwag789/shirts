@@ -310,6 +310,7 @@ async function main() {
       description:
         'Enter your team name, pick a style, and our AI designs authentic team merchandise for beer leagues, reunions, softball and fantasy football. Free preview, no signup.',
       canonicalPath: '/team-shirt',
+      image: '/images/team-lifestyle/volleyball.jpg',
       jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'Custom Team Shirts', url: '/team-shirt' }])],
       bodyHtml: teamShirtBody(),
     }),
