@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
+import Icon from '../components/Icon.vue'
 import { useCart } from '../composables/useCart'
 import { recordDesign } from '../composables/useDesigns'
 import { trackEvent } from '../analytics'
@@ -518,7 +519,7 @@ function startOver() {
               type="button"
               @click="chooseAiColors"
             >
-              <span class="ts-palette__swatches ts-palette__swatches--ai">✨</span>
+              <span class="ts-palette__swatches ts-palette__swatches--ai"><Icon name="sparkles" /></span>
               <span>AI Choose</span>
             </button>
           </div>

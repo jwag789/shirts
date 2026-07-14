@@ -2,6 +2,7 @@
 import { RouterLink } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import ReviewStrip from '../components/ReviewStrip.vue'
+import Icon from '../components/Icon.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
 
 setDocumentHead({
@@ -29,10 +30,10 @@ const USE_CASES = [
 ]
 
 const FEATURES = [
-  { icon: '🏆', title: 'Authentic team look', desc: 'Pro-grade crests, wordmarks and mascots — the kind of design you’d pay an agency for.' },
-  { icon: '🎨', title: 'Your name & colors', desc: 'Your team name, subtitle and color palette baked into every design. Or let the AI choose.' },
-  { icon: '⚡', title: 'Ready in ~30 seconds', desc: 'Go from an idea to a shirt-ready graphic instantly — no designer, no revisions queue.' },
-  { icon: '👕', title: 'Made-to-order tees', desc: 'Printed on premium shirts and shipped with tracking. Order one or outfit the whole squad.' },
+  { icon: 'trophy', title: 'Authentic team look', desc: 'Pro-grade crests, wordmarks and mascots — the kind of design you’d pay an agency for.' },
+  { icon: 'palette', title: 'Your name & colors', desc: 'Your team name, subtitle and color palette baked into every design. Or let the AI choose.' },
+  { icon: 'zap', title: 'Ready in ~30 seconds', desc: 'Go from an idea to a shirt-ready graphic instantly — no designer, no revisions queue.' },
+  { icon: 'shirt', title: 'Made-to-order tees', desc: 'Printed on premium shirts and shipped with tracking. Order one or outfit the whole squad.' },
 ]
 
 const FAQS = [
@@ -71,8 +72,8 @@ const FAQS = [
                 alt="A team name and logo concept turned into a sports crest and printed on a navy t-shirt"
               />
             </RouterLink>
-            <div class="lp-badge lp-badge--tl">🏆 8 pro styles</div>
-            <div class="lp-badge lp-badge--br">⚡ Ready in ~30s</div>
+            <div class="lp-badge lp-badge--tl"><Icon name="trophy" /> 8 pro styles</div>
+            <div class="lp-badge lp-badge--br"><Icon name="zap" /> Ready in ~30s</div>
           </div>
         </div>
       </section>
@@ -149,7 +150,7 @@ const FAQS = [
           </div>
           <div class="lp-features">
             <div v-for="f in FEATURES" :key="f.title" class="lp-feature">
-              <div class="lp-feature__icon">{{ f.icon }}</div>
+              <div class="lp-feature__icon"><Icon :name="f.icon" /></div>
               <h3>{{ f.title }}</h3>
               <p>{{ f.desc }}</p>
             </div>

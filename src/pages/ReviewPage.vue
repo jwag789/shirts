@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
+import Icon from '../components/Icon.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
 import { trackEvent } from '../analytics'
 
@@ -73,7 +74,7 @@ async function submit() {
       <section class="checkout-status">
         <template v-if="status === 'done'">
           <p class="eyebrow">Thank you</p>
-          <h1>Review submitted 🎉</h1>
+          <h1><Icon name="check-circle" /> Review submitted</h1>
           <p>We really appreciate you taking the time — it helps other customers a lot.</p>
           <div class="order-lookup__actions">
             <RouterLink class="button" to="/reviews">Read all reviews</RouterLink>

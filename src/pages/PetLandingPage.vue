@@ -2,6 +2,7 @@
 import { RouterLink } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import ReviewStrip from '../components/ReviewStrip.vue'
+import Icon from '../components/Icon.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
 
 setDocumentHead({
@@ -29,10 +30,10 @@ const STYLES = [
 ]
 
 const FEATURES = [
-  { icon: '🎨', title: 'Hand-finished quality', desc: 'Every portrait is AI-generated then reviewed so your pet looks unmistakably like themselves.' },
-  { icon: '👕', title: 'Premium tees', desc: 'Printed to order on soft, durable shirts — built to survive the wash and look great for years.' },
-  { icon: '⚡', title: 'Ready in ~30 seconds', desc: 'See your portrait on the shirt instantly. No waiting, no back-and-forth with a designer.' },
-  { icon: '💛', title: 'Free preview, no signup', desc: 'Generate and preview your design before you pay a cent. Only buy it if you love it.' },
+  { icon: 'sparkles', title: 'Hand-finished quality', desc: 'Every portrait is AI-generated then reviewed so your pet looks unmistakably like themselves.' },
+  { icon: 'shirt', title: 'Premium tees', desc: 'Printed to order on soft, durable shirts — built to survive the wash and look great for years.' },
+  { icon: 'zap', title: 'Ready in ~30 seconds', desc: 'See your portrait on the shirt instantly. No waiting, no back-and-forth with a designer.' },
+  { icon: 'heart', title: 'Free preview, no signup', desc: 'Generate and preview your design before you pay a cent. Only buy it if you love it.' },
 ]
 
 const FAQS = [
@@ -71,8 +72,8 @@ const FAQS = [
                 alt="A dog's photo transformed into superhero, viking, pirate, astronaut and samurai portraits printed on a t-shirt"
               />
             </RouterLink>
-            <div class="lp-badge lp-badge--tl">✨ 12 legendary styles</div>
-            <div class="lp-badge lp-badge--br">⚡ Ready in ~30s</div>
+            <div class="lp-badge lp-badge--tl"><Icon name="sparkles" /> 12 legendary styles</div>
+            <div class="lp-badge lp-badge--br"><Icon name="zap" /> Ready in ~30s</div>
           </div>
         </div>
       </section>
@@ -137,7 +138,7 @@ const FAQS = [
         </div>
         <div class="lp-features">
           <div v-for="f in FEATURES" :key="f.title" class="lp-feature">
-            <div class="lp-feature__icon">{{ f.icon }}</div>
+            <div class="lp-feature__icon"><Icon :name="f.icon" /></div>
             <h3>{{ f.title }}</h3>
             <p>{{ f.desc }}</p>
           </div>

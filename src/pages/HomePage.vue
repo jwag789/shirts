@@ -5,6 +5,7 @@ import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import EmailSignup from '../components/EmailSignup.vue'
 import ReviewStrip from '../components/ReviewStrip.vue'
+import Icon from '../components/Icon.vue'
 import { collections, getProductsByCollection } from '../data/products'
 import { setDocumentHead } from '../composables/useDocumentHead'
 import banner1 from '../../images/banner-1.png'
@@ -170,8 +171,8 @@ onBeforeUnmount(() => {
                 alt="A dog's photo transformed into superhero, viking, pirate, astronaut and samurai portraits, printed on a t-shirt"
               />
             </RouterLink>
-            <div class="personalize__badge personalize__badge--tl">✨ 12 legendary styles</div>
-            <div class="personalize__badge personalize__badge--br">⚡ Ready in ~30s</div>
+            <div class="personalize__badge personalize__badge--tl"><Icon name="sparkles" /> 12 legendary styles</div>
+            <div class="personalize__badge personalize__badge--br"><Icon name="zap" /> Ready in ~30s</div>
           </div>
         </div>
       </section>
@@ -205,8 +206,8 @@ onBeforeUnmount(() => {
                 alt="A team name and logo concept typed into the generator, turned into an Ironhawks sports crest and printed on a navy t-shirt"
               />
             </RouterLink>
-            <div class="personalize__badge personalize__badge--tl">🏆 8 pro styles</div>
-            <div class="personalize__badge personalize__badge--br">⚡ Ready in ~30s</div>
+            <div class="personalize__badge personalize__badge--tl"><Icon name="trophy" /> 8 pro styles</div>
+            <div class="personalize__badge personalize__badge--br"><Icon name="zap" /> Ready in ~30s</div>
           </div>
         </div>
       </section>

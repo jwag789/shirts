@@ -2346,6 +2346,11 @@ h3 {
   box-shadow: 0 12px 32px rgba(30, 20, 60, 0.18);
 }
 
+.personalize__badge .icon {
+  color: var(--accent);
+  font-size: 1.05em;
+}
+
 .personalize__badge--tl {
   top: -14px;
   left: -12px;
@@ -4526,6 +4531,9 @@ h3 {
 
 .lp-badge {
   position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   background: #fff;
   border-radius: 999px;
   padding: 10px 16px;
@@ -4533,6 +4541,11 @@ h3 {
   font-weight: 700;
   box-shadow: 0 16px 34px -14px rgba(40, 20, 90, 0.4);
   white-space: nowrap;
+}
+
+.lp-badge .icon {
+  color: var(--accent);
+  font-size: 1.05em;
 }
 
 .lp-badge--tl { top: 16px; left: -10px; }
@@ -4672,6 +4685,7 @@ h3 {
   font-size: 1.7rem;
   line-height: 1;
   margin-bottom: 14px;
+  color: var(--accent);
 }
 
 .lp-feature h3 {

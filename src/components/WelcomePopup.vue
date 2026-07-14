@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { isWelcomeSuppressed, writeWelcomeState } from '../composables/welcomePopup.js'
+import Icon from './Icon.vue'
 
 const SHOW_DELAY_MS = 3500
 
@@ -85,7 +86,7 @@ onBeforeUnmount(() => {
           <!-- Custom form, overlaid to cover the image's placeholder input area -->
           <div class="welcome-pop__panel">
             <template v-if="status === 'done'">
-              <p class="welcome-pop__done">🎉 You're in!</p>
+              <p class="welcome-pop__done"><Icon name="check-circle" /> You're in!</p>
               <p class="welcome-pop__donesub">Check your inbox — your 20% off code is on its way.</p>
             </template>
             <form v-else class="welcome-pop__form" @submit.prevent="submit">

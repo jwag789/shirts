@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
+import Icon from '../components/Icon.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
 import { trackEvent } from '../analytics'
 
@@ -59,7 +60,7 @@ async function submit() {
       <section class="checkout-status">
         <template v-if="status === 'done'">
           <p class="eyebrow">Message sent</p>
-          <h1>Thanks for reaching out 🎉</h1>
+          <h1><Icon name="check-circle" /> Thanks for reaching out</h1>
           <p>We got your message and will reply to your email as soon as we can — usually within a day or two.</p>
           <div class="order-lookup__actions">
             <RouterLink class="button" to="/collections">Keep shopping</RouterLink>

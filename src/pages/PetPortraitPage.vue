@@ -11,18 +11,18 @@ const { addPetPortraitItem } = useCart()
 const route = useRoute()
 
 const STYLES = [
-  { key: 'superhero', label: 'Superhero', desc: 'Cape, mask, heroic pose', icon: '⚡', img: '/images/pet-styles/superhero.png' },
-  { key: 'viking', label: 'Viking', desc: 'Horned helmet, battle axe', icon: '🪓', img: '/images/pet-styles/viking.png' },
-  { key: 'pirate', label: 'Pirate', desc: 'Tricorn hat, cutlass, sea', icon: '☠️', img: '/images/pet-styles/pirate.png' },
-  { key: 'astronaut', label: 'Astronaut', desc: 'Spacesuit, deep space', icon: '🚀', img: '/images/pet-styles/astronaut.png' },
-  { key: 'samurai', label: 'Samurai', desc: 'Katana, armor, cherry blossoms', icon: '⛩️', img: '/images/pet-styles/samurai.png' },
-  { key: 'wizard', label: 'Wizard', desc: 'Robes, staff, magic spells', icon: '🔮', img: '/images/pet-styles/wizard.png' },
-  { key: 'princess', label: 'Princess', desc: 'Tiara, gown, royal sparkle', icon: '👑', img: '/images/pet-styles/princess.png' },
-  { key: 'fairy', label: 'Fairy', desc: 'Wings, flowers, pixie dust', icon: '🧚', img: '/images/pet-styles/fairy.png' },
-  { key: 'mermaid', label: 'Mermaid', desc: 'Shimmering tail, under the sea', icon: '🧜‍♀️', img: '/images/pet-styles/mermaid.png' },
-  { key: 'angel', label: 'Angel', desc: 'Halo, wings, heavenly glow', icon: '😇', img: '/images/pet-styles/angel.png' },
-  { key: 'popstar', label: 'Pop Star', desc: 'Stage lights, mic, glam', icon: '🎤', img: '/images/pet-styles/popstar.png' },
-  { key: 'geisha', label: 'Geisha', desc: 'Kimono, fan, cherry blossoms', icon: '🎎', img: '/images/pet-styles/geisha.png' },
+  { key: 'superhero', label: 'Superhero', desc: 'Cape, mask, heroic pose', img: '/images/pet-styles/superhero.png' },
+  { key: 'viking', label: 'Viking', desc: 'Horned helmet, battle axe', img: '/images/pet-styles/viking.png' },
+  { key: 'pirate', label: 'Pirate', desc: 'Tricorn hat, cutlass, sea', img: '/images/pet-styles/pirate.png' },
+  { key: 'astronaut', label: 'Astronaut', desc: 'Spacesuit, deep space', img: '/images/pet-styles/astronaut.png' },
+  { key: 'samurai', label: 'Samurai', desc: 'Katana, armor, cherry blossoms', img: '/images/pet-styles/samurai.png' },
+  { key: 'wizard', label: 'Wizard', desc: 'Robes, staff, magic spells', img: '/images/pet-styles/wizard.png' },
+  { key: 'princess', label: 'Princess', desc: 'Tiara, gown, royal sparkle', img: '/images/pet-styles/princess.png' },
+  { key: 'fairy', label: 'Fairy', desc: 'Wings, flowers, pixie dust', img: '/images/pet-styles/fairy.png' },
+  { key: 'mermaid', label: 'Mermaid', desc: 'Shimmering tail, under the sea', img: '/images/pet-styles/mermaid.png' },
+  { key: 'angel', label: 'Angel', desc: 'Halo, wings, heavenly glow', img: '/images/pet-styles/angel.png' },
+  { key: 'popstar', label: 'Pop Star', desc: 'Stage lights, mic, glam', img: '/images/pet-styles/popstar.png' },
+  { key: 'geisha', label: 'Geisha', desc: 'Kimono, fan, cherry blossoms', img: '/images/pet-styles/geisha.png' },
 ]
 
 const colors = ref([])

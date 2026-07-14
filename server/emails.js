@@ -94,7 +94,7 @@ export function renderShippingEmailHtml(order, tracking, siteUrl) {
         <tr>
           <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;" align="center">
             <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">On its way</div>
-            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Your order shipped 🎉</h1>
+            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Your order shipped</h1>
             <p style="margin:0;font-size:15px;color:${BRAND.muted};">Order ${orderNumber} is on the way. Track it below.</p>
           </td>
         </tr>
@@ -172,7 +172,7 @@ export function renderOrderConfirmationHtml(data, siteUrl) {
         <tr>
           <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;" align="center">
             <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">Order confirmed</div>
-            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Thanks for your order! 🎉</h1>
+            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Thanks for your order!</h1>
             <p style="margin:0;font-size:15px;color:${BRAND.muted};">Order ${orderNumber} is confirmed and going into production. We'll email you tracking when it ships.</p>
           </td>
         </tr>
@@ -225,7 +225,7 @@ export function renderReviewRequestHtml(order, siteUrl) {
         <tr>
           <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;" align="center">
             <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">Your order landed</div>
-            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">How did we do? ⭐</h1>
+            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">How did we do?</h1>
             <p style="margin:0;font-size:15px;color:${BRAND.muted};">Your honest review helps other customers — and it only takes a minute.</p>
           </td>
         </tr>
@@ -297,7 +297,7 @@ export function renderWelcomeEmailHtml(code, siteUrl) {
         <tr>
           <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;" align="center">
             <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">Welcome to InkSpirit</div>
-            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Here's your 20% off 🎉</h1>
+            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Here's your 20% off</h1>
             <p style="margin:0;font-size:15px;color:${BRAND.muted};">Thanks for joining! Use the code below at checkout to take 20% off your first order.</p>
           </td>
         </tr>

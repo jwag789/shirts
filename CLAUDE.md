@@ -187,6 +187,11 @@ Because **Printify has no test mode**, a completed payment creates a *real* Prin
 
 (No-real-money alternative: switch Railway to Stripe **test** keys + a test-mode webhook secret, use card `4242 4242 4242 4242`, then switch back. Still creates a real Printify order, so keep the approval safety net.)
 
+## UI Conventions
+
+- **Never use emojis** anywhere in the UI, content, or copy (pages, components, badges, buttons, headings, emails). They look unprofessional. Use inline SVG icons instead — `src/components/Icon.vue` holds a named, `currentColor` stroke-icon set; add to it rather than reaching for an emoji. In transactional emails (no reliable SVG support), just use clean text — no emoji.
+- Plain typographic glyphs are fine and are **not** emojis: arrows (`→ ← ↗ ↻`), check (`✓`), star (`★`), close (`✕`).
+
 ## Claude Code Notes
 
 - **Do not start background server processes** (`node server/index.js &`) — they outlive the session and cause stale-process issues where the new server can't bind port 4242. Use `npm run dev` instead, which includes a `predev` hook that kills any existing :4242 process.
