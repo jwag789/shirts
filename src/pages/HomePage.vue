@@ -5,7 +5,6 @@ import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import EmailSignup from '../components/EmailSignup.vue'
 import ReviewStrip from '../components/ReviewStrip.vue'
-import SiteFooter from '../components/SiteFooter.vue'
 import { collections, getProductsByCollection } from '../data/products'
 import { setDocumentHead } from '../composables/useDocumentHead'
 import banner1 from '../../images/banner-1.png'
@@ -327,8 +326,6 @@ onBeforeUnmount(() => {
           <EmailSignup source="home-footer" />
         </div>
       </section>
-
-      <SiteFooter />
     </main>
   </div>
 </template>

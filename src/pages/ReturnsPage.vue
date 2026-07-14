@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
-import SiteFooter from '../components/SiteFooter.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
 
 setDocumentHead({
@@ -100,8 +99,6 @@ setDocumentHead({
           a small studio and we actually read every message.
         </p>
       </section>
-
-      <SiteFooter />
     </main>
   </div>
 </template>

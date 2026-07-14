@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
-import SiteFooter from '../components/SiteFooter.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
 
 setDocumentHead({
@@ -109,8 +108,6 @@ const promises = [
           <RouterLink class="button button--outline" to="/pet-portrait">Make it custom →</RouterLink>
         </div>
       </section>
-
-      <SiteFooter />
     </main>
   </div>
 </template>
