@@ -12,8 +12,7 @@ setDocumentHead({
   path: '/pet-portrait',
 })
 
-// Swap these example images for your own hero/portrait photos anytime — the
-// filenames in /public/images/pet-styles/ drive this gallery.
+// Example images live in /public/images/pet-styles/ — swap freely.
 const STYLES = [
   { key: 'superhero', label: 'Superhero' },
   { key: 'wizard', label: 'Wizard' },
@@ -27,13 +26,6 @@ const STYLES = [
   { key: 'angel', label: 'Angel' },
   { key: 'geisha', label: 'Geisha' },
   { key: 'popstar', label: 'Pop Star' },
-]
-
-const FEATURES = [
-  { icon: 'sparkles', title: 'Hand-finished quality', desc: 'Every portrait is AI-generated then reviewed so your pet looks unmistakably like themselves.' },
-  { icon: 'shirt', title: 'Premium tees', desc: 'Printed to order on soft, durable shirts — built to survive the wash and look great for years.' },
-  { icon: 'zap', title: 'Ready in ~30 seconds', desc: 'See your portrait on the shirt instantly. No waiting, no back-and-forth with a designer.' },
-  { icon: 'heart', title: 'Free preview, no signup', desc: 'Generate and preview your design before you pay a cent. Only buy it if you love it.' },
 ]
 
 const FAQS = [
@@ -50,40 +42,40 @@ const FAQS = [
 
     <main>
       <!-- Hero -->
-      <section class="lp-hero">
-        <div class="lp-hero__inner">
-          <div class="lp-hero__copy">
-            <p class="eyebrow">Custom pet portraits · AI-powered</p>
-            <h1 class="lp-hero__title">Turn your pet<br />into a <span>legend.</span></h1>
-            <p class="lp-hero__sub">
-              Upload one photo and watch your best friend become a superhero, samurai, pirate or
-              astronaut — hand-finished and printed on a premium tee.
-            </p>
-            <div class="lp-hero__actions">
-              <RouterLink class="button" to="/pet-portrait/create">Create my portrait →</RouterLink>
-              <span class="lp-hero__note">Free preview · No signup needed</span>
-            </div>
+      <section class="plp-hero">
+        <div class="plp-hero__copy">
+          <p class="eyebrow">Custom pet portraits</p>
+          <h1 class="plp-hero__title">Turn your pet into a <span>legend.</span></h1>
+          <p class="plp-hero__sub">
+            Upload one photo and watch your best friend become a superhero, samurai, pirate or
+            astronaut — hand-finished and printed on a premium tee.
+          </p>
+          <div class="plp-hero__actions">
+            <RouterLink class="button" to="/pet-portrait/create">Create my portrait →</RouterLink>
           </div>
-
-          <div class="lp-hero__media">
-            <RouterLink to="/pet-portrait/create" class="lp-hero__frame" aria-label="Create a custom pet portrait">
-              <img
-                src="/images/pet-lifestyle/kitchen.jpg"
-                alt="A couple cooking together, both wearing custom pet portrait shirts of their golden retriever named Charlie"
-              />
-            </RouterLink>
-            <div class="lp-badge lp-badge--tl"><Icon name="sparkles" /> 12 legendary styles</div>
-            <div class="lp-badge lp-badge--br"><Icon name="zap" /> Ready in ~30s</div>
-          </div>
+          <p class="plp-hero__trust">Free preview · No signup · Ships in 3–5 days</p>
+        </div>
+        <div class="plp-hero__photo">
+          <img
+            src="/images/pet-lifestyle/kitchen.jpg"
+            alt="A couple cooking together, both wearing custom pet portrait shirts of their golden retriever named Charlie"
+          />
         </div>
       </section>
+
+      <!-- Trust strip -->
+      <div class="plp-trust">
+        <span class="plp-trust__item"><Icon name="sparkles" /> Hand-finished quality</span>
+        <span class="plp-trust__item"><Icon name="shirt" /> Premium made-to-order tees</span>
+        <span class="plp-trust__item"><Icon name="zap" /> Ready in ~30 seconds</span>
+        <span class="plp-trust__item"><Icon name="heart" /> Free preview, no signup</span>
+      </div>
 
       <!-- How it works -->
       <section class="lp-section">
         <div class="lp-section__head">
           <p class="eyebrow">How it works</p>
           <h2>Three steps to a one-of-a-kind shirt</h2>
-          <p>No design skills, no account, no waiting on a human artist.</p>
         </div>
         <div class="lp-steps">
           <div class="lp-step">
@@ -130,55 +122,47 @@ const FAQS = [
         </div>
       </section>
 
-      <!-- Real people -->
-      <section class="lp-section">
-        <div class="lp-section__head">
-          <p class="eyebrow">Real people, real pets</p>
-          <h2>A shirt you'll actually wear</h2>
-          <p>From first apartments to family rooms — made to be worn, gifted, and loved.</p>
-        </div>
-        <div class="lp-lifestyle">
-          <figure class="lp-lifestyle__item">
+      <!-- Lifestyle stories -->
+      <section class="plp-story">
+        <div class="plp-story__row">
+          <div class="plp-story__photo">
             <img src="/images/pet-lifestyle/park.jpg" alt="Four friends walking their dogs in the park, each wearing a different custom pet portrait shirt" loading="lazy" />
-            <figcaption>Great for the whole crew</figcaption>
-          </figure>
-          <figure class="lp-lifestyle__item">
-            <img src="/images/pet-lifestyle/cozy.jpg" alt="A woman relaxing on the couch with her dog, wearing a pirate pet portrait shirt" loading="lazy" />
-            <figcaption>The gift that hits home</figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <!-- Why -->
-      <section class="lp-section lp-section--tint">
-        <div class="lp-section__body">
-        <div class="lp-section__head">
-          <p class="eyebrow">Why InkSpirit</p>
-          <h2>Made to be worn, not just admired</h2>
-        </div>
-        <div class="lp-features">
-          <div v-for="f in FEATURES" :key="f.title" class="lp-feature">
-            <div class="lp-feature__icon"><Icon :name="f.icon" /></div>
-            <h3>{{ f.title }}</h3>
-            <p>{{ f.desc }}</p>
+          </div>
+          <div class="plp-story__text">
+            <p class="eyebrow">Real people, real pets</p>
+            <h2>A shirt the whole crew wants</h2>
+            <p>From dog-park meetups to family game night, InkSpirit shirts are made to actually be worn — soft, premium, and unmistakably yours.</p>
+            <RouterLink class="button button--outline" to="/pet-portrait/create">Make yours →</RouterLink>
           </div>
         </div>
+        <div class="plp-story__row plp-story__row--reverse">
+          <div class="plp-story__photo">
+            <img src="/images/pet-lifestyle/cozy.jpg" alt="A woman relaxing on the couch with her dog, wearing a pirate pet portrait shirt" loading="lazy" />
+          </div>
+          <div class="plp-story__text">
+            <p class="eyebrow">The perfect gift</p>
+            <h2>It hits home</h2>
+            <p>There’s nothing like seeing your best friend turned into a legend on a shirt. It’s the gift people actually keep — and wear.</p>
+            <RouterLink class="button button--outline" to="/pet-portrait/create">Start a gift →</RouterLink>
+          </div>
         </div>
       </section>
 
       <ReviewStrip />
 
       <!-- FAQ -->
-      <section class="lp-section">
-        <div class="lp-section__head">
-          <p class="eyebrow">Good to know</p>
-          <h2>Questions, answered</h2>
-        </div>
-        <div class="lp-faq">
-          <details v-for="(f, i) in FAQS" :key="i" class="lp-faq__item">
-            <summary>{{ f.q }}</summary>
-            <p>{{ f.a }}</p>
-          </details>
+      <section class="lp-section lp-section--tint">
+        <div class="lp-section__body">
+          <div class="lp-section__head">
+            <p class="eyebrow">Good to know</p>
+            <h2>Questions, answered</h2>
+          </div>
+          <div class="lp-faq">
+            <details v-for="(f, i) in FAQS" :key="i" class="lp-faq__item">
+              <summary>{{ f.q }}</summary>
+              <p>{{ f.a }}</p>
+            </details>
+          </div>
         </div>
       </section>
 
