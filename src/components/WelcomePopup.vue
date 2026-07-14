@@ -90,6 +90,7 @@ onBeforeUnmount(() => {
               <p class="welcome-pop__donesub">Check your inbox — your 20% off code is on its way.</p>
             </template>
             <form v-else class="welcome-pop__form" @submit.prevent="submit">
+              <p class="welcome-pop__lead">Get your 20% off code</p>
               <input
                 v-model="email"
                 class="welcome-pop__input"

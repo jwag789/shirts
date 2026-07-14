@@ -4208,6 +4208,14 @@ h3 {
   gap: 9px;
 }
 
+.welcome-pop__lead {
+  margin: 0 0 2px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #1b1630;
+}
+
 .welcome-pop__input {
   width: 100%;
   box-sizing: border-box;
@@ -4298,12 +4306,16 @@ h3 {
   .welcome-pop__panel {
     position: absolute;
     top: 50%;
-    left: 58%;
-    width: 30%;
+    left: 57.5%;
+    width: 31%;
     padding: 0;
-    gap: 10px;
+    gap: 14px;
     transform: translateY(-50%);
   }
+  .welcome-pop__form { gap: 14px; }
+  .welcome-pop__lead { font-size: 1.2rem; margin-bottom: 2px; }
+  .welcome-pop__input { padding: 15px 15px; font-size: 0.95rem; }
+  .welcome-pop__btn { padding: 15px 16px; font-size: 1rem; }
 }
 
 /* How It Works page */
