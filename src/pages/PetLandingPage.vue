@@ -68,8 +68,8 @@ const FAQS = [
           <div class="lp-hero__media">
             <RouterLink to="/pet-portrait/create" class="lp-hero__frame" aria-label="Create a custom pet portrait">
               <img
-                src="/images/dog-ai.png"
-                alt="A dog's photo transformed into superhero, viking, pirate, astronaut and samurai portraits printed on a t-shirt"
+                src="/images/pet-lifestyle/kitchen.jpg"
+                alt="A couple cooking together, both wearing custom pet portrait shirts of their golden retriever named Charlie"
               />
             </RouterLink>
             <div class="lp-badge lp-badge--tl"><Icon name="sparkles" /> 12 legendary styles</div>
@@ -130,8 +130,28 @@ const FAQS = [
         </div>
       </section>
 
-      <!-- Why -->
+      <!-- Real people -->
       <section class="lp-section">
+        <div class="lp-section__head">
+          <p class="eyebrow">Real people, real pets</p>
+          <h2>A shirt you'll actually wear</h2>
+          <p>From first apartments to family rooms — made to be worn, gifted, and loved.</p>
+        </div>
+        <div class="lp-lifestyle">
+          <figure class="lp-lifestyle__item">
+            <img src="/images/pet-lifestyle/park.jpg" alt="Four friends walking their dogs in the park, each wearing a different custom pet portrait shirt" loading="lazy" />
+            <figcaption>Great for the whole crew</figcaption>
+          </figure>
+          <figure class="lp-lifestyle__item">
+            <img src="/images/pet-lifestyle/cozy.jpg" alt="A woman relaxing on the couch with her dog, wearing a pirate pet portrait shirt" loading="lazy" />
+            <figcaption>The gift that hits home</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Why -->
+      <section class="lp-section lp-section--tint">
+        <div class="lp-section__body">
         <div class="lp-section__head">
           <p class="eyebrow">Why InkSpirit</p>
           <h2>Made to be worn, not just admired</h2>
@@ -142,6 +162,7 @@ const FAQS = [
             <h3>{{ f.title }}</h3>
             <p>{{ f.desc }}</p>
           </div>
+        </div>
         </div>
       </section>
 

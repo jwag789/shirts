@@ -4667,6 +4667,39 @@ h3 {
   background: linear-gradient(to top, rgba(15, 10, 30, 0.8), transparent);
 }
 
+/* Lifestyle / social-proof photos */
+.lp-lifestyle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(16px, 2.4vw, 28px);
+}
+
+.lp-lifestyle__item {
+  margin: 0;
+}
+
+.lp-lifestyle__item img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 20px;
+  display: block;
+  box-shadow: 0 26px 60px -30px rgba(40, 20, 90, 0.55);
+}
+
+.lp-lifestyle__item figcaption {
+  margin-top: 14px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.02rem;
+}
+
+@media (max-width: 700px) {
+  .lp-lifestyle {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Feature grid */
 .lp-features {
   display: grid;

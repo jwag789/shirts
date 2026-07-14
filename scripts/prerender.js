@@ -295,6 +295,7 @@ async function main() {
       description:
         'Upload one photo and our AI turns your pet into a superhero, samurai, astronaut and more — printed on a premium tee. Free preview, no signup, ready in ~30 seconds.',
       canonicalPath: '/pet-portrait',
+      image: '/images/pet-lifestyle/park.jpg',
       jsonLd: [breadcrumbLd([{ name: 'Home', url: '/' }, { name: 'Custom Pet Portraits', url: '/pet-portrait' }])],
       bodyHtml: petPortraitBody(),
     }),
