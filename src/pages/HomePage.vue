@@ -14,14 +14,17 @@ import banner3 from '../../images/banner-3.png'
 import bannerTorii from '../../images/banner-torii-category.jpg'
 import bannerFunnyBusiness from '../../images/banner-funny-business-category.jpg'
 import bannerFineLines from '../../images/banner-fine-lines-category.jpg'
+import bannerToriiMobile from '../../images/banner-torii-category-mobile.jpg'
+import bannerFunnyBusinessMobile from '../../images/banner-funny-business-category-mobile.jpg'
+import bannerFineLinesMobile from '../../images/banner-fine-lines-category-mobile.jpg'
 
-// `focus` is the object-position used when the banner is cropped to a taller
-// frame on mobile, so it zooms into each banner's text (left-aligned on Zen /
-// Fine Lines, centered on Funny Business) instead of shrinking the whole width.
+// `mobileSrc` is a purpose-framed crop shown on phones (via <picture>), so each
+// banner's baked-in text stays readable instead of shrinking with the full
+// wide image. Desktop keeps the full-width banner.
 const CATEGORY_BANNERS = {
-  'japanese-style': { src: bannerTorii, alt: 'Zen Journey collection banner — Japanese-inspired graphic tees', focus: '0% 50%' },
-  'pun-shirts': { src: bannerFunnyBusiness, alt: 'Funny Business collection banner — illustrated pun tees', focus: '50% 50%' },
-  'ink-art': { src: bannerFineLines, alt: 'Fine Lines collection banner — raw ink illustration tees', focus: '0% 50%' },
+  'japanese-style': { src: bannerTorii, mobileSrc: bannerToriiMobile, alt: 'Zen Journey collection banner — Japanese-inspired graphic tees' },
+  'pun-shirts': { src: bannerFunnyBusiness, mobileSrc: bannerFunnyBusinessMobile, alt: 'Funny Business collection banner — illustrated pun tees' },
+  'ink-art': { src: bannerFineLines, mobileSrc: bannerFineLinesMobile, alt: 'Fine Lines collection banner — raw ink illustration tees' },
 }
 
 setDocumentHead({
@@ -292,12 +295,17 @@ onBeforeUnmount(() => {
           class="category-banner"
           :aria-label="`Shop the ${collection.name} collection`"
         >
-          <img
-            :src="CATEGORY_BANNERS[collection.slug].src"
-            :alt="CATEGORY_BANNERS[collection.slug].alt"
-            :style="{ objectPosition: CATEGORY_BANNERS[collection.slug].focus }"
-            loading="lazy"
-          />
+          <picture>
+            <source
+              media="(max-width: 640px)"
+              :srcset="CATEGORY_BANNERS[collection.slug].mobileSrc"
+            />
+            <img
+              :src="CATEGORY_BANNERS[collection.slug].src"
+              :alt="CATEGORY_BANNERS[collection.slug].alt"
+              loading="lazy"
+            />
+          </picture>
         </RouterLink>
 
         <div v-if="!CATEGORY_BANNERS[collection.slug]" v-reveal class="section-heading">

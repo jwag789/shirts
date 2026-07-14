@@ -590,16 +590,12 @@ h3 {
   transform: scale(1.045);
 }
 
-/* On phones the full-width banner shrinks so its baked-in text gets tiny.
-   Crop to a near-square frame focused (per banner) on the text, which zooms
-   in ~2x and keeps the headline + button readable. */
-@media (max-width: 640px) {
-  .category-banner img {
-    height: auto;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    /* object-position comes from each banner's `focus` (inline style) */
-  }
+/* On phones a purpose-framed crop is served via <picture> (see HomePage), so
+   the baked-in text stays readable. It just needs to fill the rounded frame. */
+.category-banner picture,
+.category-banner picture img {
+  display: block;
+  width: 100%;
 }
 
 .section-heading {
