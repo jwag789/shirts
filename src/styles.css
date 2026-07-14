@@ -514,6 +514,61 @@ h3 {
   margin-top: clamp(54px, 8vw, 110px);
 }
 
+/* Policy / long-form prose pages (returns, etc.) */
+.policy {
+  max-width: 760px;
+}
+
+.policy h2 {
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  margin: 40px 0 12px;
+}
+
+.policy p {
+  color: var(--muted);
+  font-size: 1.06rem;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+
+.policy p strong {
+  color: var(--text);
+}
+
+.policy a:not(.button) {
+  color: var(--accent, #7646e2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.policy__note {
+  border: 1px solid var(--line);
+  background: var(--soft);
+  border-radius: 16px;
+  padding: 20px 22px;
+  font-size: 1.06rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.policy__note strong {
+  color: var(--text);
+}
+
+.policy__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 18px 0 4px;
+}
+
+.policy__fineprint {
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  font-size: 0.98rem;
+}
+
 .category-banner {
   display: block;
   border-radius: 24px;
@@ -1133,15 +1188,38 @@ h3 {
   line-height: 1.6;
 }
 
-.site-footer nav {
-  display: flex;
-  flex-wrap: wrap;
+.footer-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(auto, max-content));
+  gap: 24px 52px;
   align-content: start;
-  justify-content: flex-end;
-  gap: 14px 22px;
+}
+
+.footer-col {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.footer-col__title {
+  font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--muted);
+}
+
+.footer-col a {
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+.footer-col a:hover {
+  color: var(--accent);
 }
 
 .cart-overlay {
@@ -1562,8 +1640,9 @@ h3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .site-footer nav {
-    justify-content: flex-start;
+  .footer-nav {
+    grid-template-columns: repeat(2, minmax(auto, max-content));
+    gap: 22px 40px;
   }
 }
 
@@ -2331,7 +2410,7 @@ h3 {
 }
 
 .pet-back-btn:hover {
-  color: var(--ink);
+  color: var(--text);
 }
 
 .pet-back-btn--ghost {
@@ -2708,7 +2787,7 @@ h3 {
 }
 
 .pet-regen-btn:hover {
-  color: var(--ink);
+  color: var(--text);
 }
 
 .pet-result__buy {
@@ -2826,7 +2905,7 @@ h3 {
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, 0.92);
-  color: var(--ink);
+  color: var(--text);
   display: grid;
   place-items: center;
   cursor: pointer;

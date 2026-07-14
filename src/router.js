@@ -15,6 +15,7 @@ import TeamShirtPage from './pages/TeamShirtPage.vue'
 import SeoLandingPage from './pages/SeoLandingPage.vue'
 import HowItWorksPage from './pages/HowItWorksPage.vue'
 import ContactPage from './pages/ContactPage.vue'
+import ReturnsPage from './pages/ReturnsPage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -42,6 +43,11 @@ const router = createRouter({
       path: '/contact',
       name: 'contact',
       component: ContactPage,
+    },
+    {
+      path: '/returns',
+      name: 'returns',
+      component: ReturnsPage,
     },
     {
       path: '/collections',

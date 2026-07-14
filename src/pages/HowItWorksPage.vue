@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
+import SiteFooter from '../components/SiteFooter.vue'
 import { setDocumentHead } from '../composables/useDocumentHead'
 
 setDocumentHead({
@@ -109,21 +110,7 @@ const promises = [
         </div>
       </section>
 
-      <section class="site-footer">
-        <div>
-          <img src="/images/is-logo-2.png" alt="InkSpirit" class="footer-logo" />
-          <p>Original graphic t-shirts, made to order and organized by artwork style.</p>
-        </div>
-        <nav aria-label="Footer">
-          <RouterLink to="/collections">Collections</RouterLink>
-          <RouterLink to="/how-it-works">How It Works</RouterLink>
-          <RouterLink to="/pet-portrait">Custom Pet Portraits</RouterLink>
-          <RouterLink to="/team-shirt">AI Team Shirts</RouterLink>
-          <RouterLink to="/reviews">Reviews</RouterLink>
-          <RouterLink to="/orders">Track Your Order</RouterLink>
-          <RouterLink to="/contact">Contact Us</RouterLink>
-        </nav>
-      </section>
+      <SiteFooter />
     </main>
   </div>
 </template>

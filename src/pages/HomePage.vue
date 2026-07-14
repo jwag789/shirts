@@ -5,6 +5,7 @@ import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import EmailSignup from '../components/EmailSignup.vue'
 import ReviewStrip from '../components/ReviewStrip.vue'
+import SiteFooter from '../components/SiteFooter.vue'
 import { collections, getProductsByCollection } from '../data/products'
 import { setDocumentHead } from '../composables/useDocumentHead'
 import banner1 from '../../images/banner-1.png'
@@ -327,27 +328,7 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section class="site-footer">
-        <div>
-          <img src="/images/is-logo-2.png" alt="InkSpirit" class="footer-logo" />
-          <p>Original graphic t-shirts, made to order and organized by artwork style.</p>
-        </div>
-        <nav aria-label="Footer">
-          <RouterLink to="/collections">Collections</RouterLink>
-          <RouterLink to="/pet-portrait">Custom Pet Portraits</RouterLink>
-          <RouterLink to="/team-shirt">AI Team Shirts</RouterLink>
-          <RouterLink to="/my-designs">My Designs</RouterLink>
-          <RouterLink to="/reviews">Reviews</RouterLink>
-          <RouterLink to="/orders">Track Your Order</RouterLink>
-          <RouterLink to="/contact">Contact Us</RouterLink>
-        </nav>
-      </section>
-      <div class="site-credit">
-        <a href="https://www.kingdomwebbuilders.com" target="_blank" rel="noopener">
-          <img src="/images/KW-logo.png" alt="Kingdom Web Builders" class="site-credit__logo" />
-          <span>A Kingdom Web Builders site</span>
-        </a>
-      </div>
+      <SiteFooter />
     </main>
   </div>
 </template>
