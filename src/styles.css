@@ -6,14 +6,11 @@
   --muted: #666666;
   --line: #e7e2dc;
   --soft: #f7f5f2;
-  /* EXPERIMENT: flame-forward palette pulled from the logo — purple anchor,
-     warming through pink to orange, with the gold pop. Revert this block +
-     the matching hex swaps to go back to the original purple/cyan scheme. */
-  --accent: #7c3aed;
-  --accent-dark: #6d28d9;
-  --accent-2: #e83a9a;
-  --accent-3: #fb6f2d;
-  --accent-pop: #ffbf1d;
+  --accent: #7646e2;
+  --accent-dark: #5c35c0;
+  --accent-2: #bb47e7;
+  --accent-3: #1ec1fa;
+  --accent-pop: #fec224;
   --max: 1400px;
   --pad: clamp(18px, 3vw, 44px);
 }
@@ -62,7 +59,7 @@ main {
   justify-content: center;
   gap: clamp(18px, 5vw, 72px);
   padding: 10px var(--pad);
-  background: linear-gradient(135deg, #7c3aed 0%, #e83a9a 25%, #fb6f2d 50%, #e83a9a 75%, #7c3aed 100%);
+  background: linear-gradient(135deg, #7646e2 0%, #bb47e7 25%, #1ec1fa 50%, #bb47e7 75%, #7646e2 100%);
   background-size: 200% auto;
   animation: bar-shimmer 8s linear infinite;
   color: #ffffff;
@@ -192,7 +189,7 @@ main {
 .button:focus-visible {
   background-position: 100% 50%;
   color: #ffffff;
-  box-shadow: 0 10px 26px rgba(124, 58, 237, 0.32);
+  box-shadow: 0 10px 26px rgba(118, 70, 226, 0.32);
 }
 
 .button:disabled {
@@ -539,7 +536,7 @@ h3 {
 }
 
 .policy a:not(.button) {
-  color: var(--accent, #7c3aed);
+  color: var(--accent, #7646e2);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -1046,7 +1043,7 @@ h3 {
   border-color: var(--accent);
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 4px rgba(118, 70, 226, 0.15);
 }
 
 .product-gallery__main {
@@ -1775,7 +1772,7 @@ h3 {
 
 .style-card.is-selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent), 0 24px 46px -22px rgba(124, 58, 237, 0.5);
+  box-shadow: 0 0 0 2px var(--accent), 0 24px 46px -22px rgba(118, 70, 226, 0.5);
 }
 
 .style-card__medallion {
@@ -1811,7 +1808,7 @@ h3 {
 }
 
 .style-card.is-selected .style-card__medallion {
-  box-shadow: 0 0 0 3px var(--accent), 0 14px 30px -8px rgba(124, 58, 237, 0.42);
+  box-shadow: 0 0 0 3px var(--accent), 0 14px 30px -8px rgba(118, 70, 226, 0.42);
 }
 
 .style-card__copy {
@@ -1846,7 +1843,7 @@ h3 {
   place-items: center;
   opacity: 0;
   transform: scale(0.6);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.45);
+  box-shadow: 0 4px 12px rgba(118, 70, 226, 0.45);
   transition: opacity 160ms ease, transform 160ms ease;
 }
 
@@ -2066,7 +2063,7 @@ h3 {
 
 .color-swatch.is-active {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.22);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.22);
   transform: scale(1.1);
 }
 
@@ -2213,7 +2210,7 @@ h3 {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   background:
-    radial-gradient(115% 120% at 12% 0%, rgba(124, 58, 237, 0.12), transparent 55%),
+    radial-gradient(115% 120% at 12% 0%, rgba(118, 70, 226, 0.12), transparent 55%),
     radial-gradient(120% 130% at 100% 100%, rgba(30, 193, 250, 0.14), transparent 52%),
     linear-gradient(180deg, #faf9ff 0%, #f3f0fb 100%);
 }
@@ -2292,7 +2289,7 @@ h3 {
   min-height: 54px;
   padding: 16px 30px;
   font-size: 0.92rem;
-  box-shadow: 0 16px 36px -8px rgba(124, 58, 237, 0.5);
+  box-shadow: 0 16px 36px -8px rgba(118, 70, 226, 0.5);
 }
 
 .personalize__note {
@@ -2411,7 +2408,7 @@ h3 {
   flex-direction: column;
   overflow: hidden;
   background:
-    radial-gradient(70% 55% at 8% 0%, rgba(124, 58, 237, 0.06), transparent 60%),
+    radial-gradient(70% 55% at 8% 0%, rgba(118, 70, 226, 0.06), transparent 60%),
     radial-gradient(60% 55% at 100% 12%, rgba(30, 193, 250, 0.06), transparent 55%);
 }
 
@@ -2560,7 +2557,7 @@ h3 {
   position: absolute;
   inset: -12%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(124, 58, 237, 0.28), transparent 72%);
+  background: radial-gradient(closest-side, rgba(118, 70, 226, 0.28), transparent 72%);
   animation: pet-glow 2.4s ease-in-out infinite;
 }
 
@@ -2688,7 +2685,7 @@ h3 {
   position: absolute;
   inset: -40% -10% auto -10%;
   height: 70%;
-  background: radial-gradient(60% 100% at 50% 0%, rgba(124, 58, 237, 0.18), transparent 70%);
+  background: radial-gradient(60% 100% at 50% 0%, rgba(118, 70, 226, 0.18), transparent 70%);
   pointer-events: none;
 }
 
@@ -2898,7 +2895,7 @@ h3 {
 
 .pet-option__card.is-selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18), 0 12px 30px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.18), 0 12px 30px rgba(118, 70, 226, 0.15);
 }
 
 .pet-option__check {
@@ -2914,7 +2911,7 @@ h3 {
   place-items: center;
   opacity: 0;
   transform: scale(0.6);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.45);
+  box-shadow: 0 4px 12px rgba(118, 70, 226, 0.45);
   transition: opacity 160ms ease, transform 160ms ease;
 }
 
@@ -3117,7 +3114,7 @@ h3 {
 .ts-input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.14);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.14);
 }
 
 .ts-chips {
@@ -3199,7 +3196,7 @@ h3 {
 
 .ts-palette.is-active {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent), 0 10px 24px -10px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 0 0 2px var(--accent), 0 10px 24px -10px rgba(118, 70, 226, 0.4);
 }
 
 .ts-palette__swatches {
@@ -3566,7 +3563,7 @@ h3 {
   padding: 9px 15px;
   border-radius: 999px;
   border: 1.5px solid var(--accent);
-  background: rgba(124, 58, 237, 0.06);
+  background: rgba(118, 70, 226, 0.06);
   color: var(--accent-dark);
   font-weight: 700;
   font-size: 0.9rem;
@@ -3575,7 +3572,7 @@ h3 {
 }
 
 .order-tracking__link:hover {
-  background: rgba(124, 58, 237, 0.13);
+  background: rgba(118, 70, 226, 0.13);
   transform: translateY(-1px);
 }
 
@@ -3741,7 +3738,7 @@ h3 {
   padding: clamp(48px, 7vw, 88px) var(--pad);
   border-top: 1px solid var(--line);
   background:
-    radial-gradient(120% 130% at 0% 0%, rgba(124, 58, 237, 0.10), transparent 55%),
+    radial-gradient(120% 130% at 0% 0%, rgba(118, 70, 226, 0.10), transparent 55%),
     radial-gradient(120% 130% at 100% 100%, rgba(30, 193, 250, 0.10), transparent 52%),
     linear-gradient(180deg, #ffffff, #f7f5ff);
 }
@@ -3798,7 +3795,7 @@ h3 {
 .email-signup__input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.14);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.14);
 }
 
 .email-signup__btn {
@@ -4243,7 +4240,7 @@ h3 {
 .welcome-pop__input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.22);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.22);
 }
 
 .welcome-pop__btn {
@@ -4258,7 +4255,7 @@ h3 {
   font-size: 0.92rem;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 10px 22px -8px rgba(124, 58, 237, 0.7);
+  box-shadow: 0 10px 22px -8px rgba(118, 70, 226, 0.7);
   transition: transform 120ms ease, filter 150ms ease;
 }
 .welcome-pop__btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
@@ -4471,7 +4468,7 @@ h3 {
   position: relative;
   padding: clamp(40px, 6vw, 88px) var(--pad) clamp(48px, 6vw, 80px);
   background:
-    radial-gradient(60% 70% at 12% 0%, rgba(124, 58, 237, 0.12), transparent 60%),
+    radial-gradient(60% 70% at 12% 0%, rgba(118, 70, 226, 0.12), transparent 60%),
     radial-gradient(55% 65% at 100% 20%, rgba(30, 193, 250, 0.12), transparent 55%);
 }
 
@@ -4887,7 +4884,7 @@ h3 {
   padding-left: var(--pad);
   overflow: clip;
   background:
-    radial-gradient(60% 70% at 10% 0%, rgba(124, 58, 237, 0.12), transparent 60%),
+    radial-gradient(60% 70% at 10% 0%, rgba(118, 70, 226, 0.12), transparent 60%),
     radial-gradient(55% 65% at 100% 30%, rgba(30, 193, 250, 0.10), transparent 55%);
 }
 
