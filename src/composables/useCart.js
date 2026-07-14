@@ -128,6 +128,36 @@ function addTeamShirtItem({ generatedImageUrl, teamName, playerName = '', player
   openCart()
 }
 
+function addCustomDesignItem({ generatedImageUrl, style = '', styleLabel = 'Custom', size, color = 'White', printifyVariantId = null }) {
+  const id = `custom::${style}::${color}::${size}::${generatedImageUrl.slice(-24)}`
+  const existing = state.items.find((item) => item.id === id)
+
+  if (existing) {
+    existing.quantity += 1
+  } else {
+    state.items.push({
+      id,
+      isCustom: true,
+      productSlug: 'custom-design',
+      name: `Custom Design Tee — ${styleLabel}`,
+      collection: 'Design Studio',
+      priceValue: 38,
+      price: currency.format(38),
+      style,
+      generatedImageUrl,
+      image: generatedImageUrl,
+      size,
+      color,
+      printifyVariantId,
+      quantity: 1,
+      isPrintifyConnected: true,
+    })
+  }
+
+  trackEvent('add_to_cart', { kind: 'custom_design', style, value: 38 })
+  openCart()
+}
+
 function updateQuantity(id, nextQuantity) {
   const item = state.items.find((entry) => entry.id === id)
   if (!item) {
@@ -171,6 +201,7 @@ export function useCart() {
     addItem,
     addPetPortraitItem,
     addTeamShirtItem,
+    addCustomDesignItem,
     updateQuantity,
     removeItem,
   }

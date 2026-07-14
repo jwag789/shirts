@@ -35,6 +35,7 @@ onMounted(async () => {
         <span class="footer-col__title">Create</span>
         <RouterLink to="/pet-portrait">Custom Pet Portraits</RouterLink>
         <RouterLink to="/team-shirt">AI Team Shirts</RouterLink>
+        <RouterLink to="/design">Design Studio</RouterLink>
         <RouterLink to="/my-designs">My Designs</RouterLink>
       </div>
       <div class="footer-col">

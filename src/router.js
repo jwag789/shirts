@@ -12,6 +12,7 @@ import ReviewPage from './pages/ReviewPage.vue'
 import ReviewsPage from './pages/ReviewsPage.vue'
 import PetPortraitPage from './pages/PetPortraitPage.vue'
 import TeamShirtPage from './pages/TeamShirtPage.vue'
+import CustomDesignPage from './pages/CustomDesignPage.vue'
 import PetLandingPage from './pages/PetLandingPage.vue'
 import TeamLandingPage from './pages/TeamLandingPage.vue'
 import SeoLandingPage from './pages/SeoLandingPage.vue'
@@ -47,6 +48,11 @@ const router = createRouter({
       path: '/team-shirt/create',
       name: 'team-shirt-create',
       component: TeamShirtPage,
+    },
+    {
+      path: '/design',
+      name: 'custom-design',
+      component: CustomDesignPage,
     },
     {
       path: '/how-it-works',
