@@ -5,6 +5,7 @@ import SiteHeader from '../components/SiteHeader.vue'
 import EmailSignup from '../components/EmailSignup.vue'
 import OrderSummary from '../components/OrderSummary.vue'
 import { markWelcomeOrdered } from '../composables/welcomePopup.js'
+import { trackPurchase } from '../analytics'
 
 const route = useRoute()
 const order = ref(null)
@@ -35,6 +36,33 @@ function carrierLabel(t) {
 
 const orderDisplay = computed(() => order.value?.orderNumber ?? order.value?.id ?? '')
 
+// Fire the analytics `purchase` conversion exactly once per order — a page
+// refresh must not double-count, so we dedupe on the transaction id in
+// localStorage. Value/items come straight from the confirmed order.
+function reportPurchase(o) {
+  const transactionId = o.orderNumber || o.id
+  if (!transactionId) return
+  const key = `purchase_tracked_${transactionId}`
+  try {
+    if (localStorage.getItem(key)) return
+    localStorage.setItem(key, '1')
+  } catch {
+    // private mode / storage disabled — fall through and still report once
+  }
+  trackPurchase({
+    transactionId,
+    value: (o.amountTotal ?? 0) / 100,
+    currency: 'USD',
+    shipping: (o.amountShipping ?? 0) / 100,
+    items: (o.items ?? []).map((it) => ({
+      item_id: it.productSlug ?? it.style ?? it.name,
+      item_name: it.name,
+      quantity: it.quantity ?? 1,
+      price: (it.unitAmount ?? 0) / 100,
+    })),
+  })
+}
+
 onMounted(async () => {
   const sessionId = route.query.session_id
 
@@ -55,6 +83,7 @@ onMounted(async () => {
     order.value = data
     // They've placed an order — retire the welcome-discount popup for good.
     markWelcomeOrdered()
+    reportPurchase(data)
   } catch (requestError) {
     error.value = requestError.message
   } finally {

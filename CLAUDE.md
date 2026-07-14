@@ -85,8 +85,10 @@ All in `.env.local`:
 | `EMAIL_FROM` | From address for transactional email, e.g. `InkSpirit <orders@yourdomain.com>`. Defaults to `onboarding@resend.dev`. |
 | `SITE_URL` | Full URL of the site (used for Stripe redirect URLs and image URLs) |
 | `PORT` | Defaults to 4242 |
-| `VITE_GA_MEASUREMENT_ID` | Optional. GA4 id (`G-XXXX`). **Build-time** (Vite) — set before `npm run build`. Analytics no-op if unset. |
+| `VITE_GA_MEASUREMENT_ID` | Optional. GA4 id (`G-XXXX`). **Build-time** (Vite) — set before `npm run build`. Analytics no-op if unset. Fires a GA4 `purchase` event on the success page (link GA4 → Google Ads to import it as a conversion). |
 | `VITE_PLAUSIBLE_DOMAIN` | Optional. Plausible domain, alternative to GA4. **Build-time**. Use one or the other. |
+| `VITE_GOOGLE_ADS_ID` | Optional. Google Ads id (`AW-XXXXXXXXX`). **Build-time**. Loads gtag and fires an Ads `conversion` on purchase (alongside/without GA4). |
+| `VITE_GOOGLE_ADS_PURCHASE_LABEL` | Optional. The Ads conversion **label** for a purchase (paired with `VITE_GOOGLE_ADS_ID`). Get both from the Ads conversion action's tag setup. |
 
 ## Stripe Webhook (Local Dev)
 

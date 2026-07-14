@@ -1,21 +1,27 @@
 // Provider-agnostic analytics. No-ops until an ID is provided at BUILD time via
-// a Vite env var — set ONE of:
-//   VITE_GA_MEASUREMENT_ID   (Google Analytics 4, e.g. G-XXXXXXXXXX)
-//   VITE_PLAUSIBLE_DOMAIN    (Plausible, e.g. inkspirit.studio)
-// Nothing loads and no requests are made if neither is set.
+// a Vite env var. Set any of:
+//   VITE_GA_MEASUREMENT_ID            (Google Analytics 4, e.g. G-XXXXXXXXXX)
+//   VITE_PLAUSIBLE_DOMAIN             (Plausible, e.g. inkspirit.shop)
+//   VITE_GOOGLE_ADS_ID               (Google Ads, e.g. AW-XXXXXXXXX)
+//   VITE_GOOGLE_ADS_PURCHASE_LABEL   (Ads conversion label for a purchase)
+// Nothing loads and no requests are made if none are set. GA4 and Google Ads
+// share the same gtag loader, so you can run either or both.
 
 const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
 const PLAUSIBLE_DOMAIN = import.meta.env.VITE_PLAUSIBLE_DOMAIN
+const ADS_ID = import.meta.env.VITE_GOOGLE_ADS_ID
+const ADS_PURCHASE_LABEL = import.meta.env.VITE_GOOGLE_ADS_PURCHASE_LABEL
 
+const useGtag = Boolean(GA_ID || ADS_ID)
 let ready = false
 
 export function initAnalytics() {
   if (ready || typeof window === 'undefined') return
 
-  if (GA_ID) {
+  if (useGtag) {
     const s = document.createElement('script')
     s.async = true
-    s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID || ADS_ID}`
     document.head.appendChild(s)
     window.dataLayer = window.dataLayer || []
     window.gtag = function gtag() {
@@ -23,7 +29,8 @@ export function initAnalytics() {
     }
     window.gtag('js', new Date())
     // We send page_view manually on router changes (this is an SPA).
-    window.gtag('config', GA_ID, { send_page_view: false })
+    if (GA_ID) window.gtag('config', GA_ID, { send_page_view: false })
+    if (ADS_ID) window.gtag('config', ADS_ID)
     ready = true
   } else if (PLAUSIBLE_DOMAIN) {
     // Queue stub so calls before the script loads aren't lost.
@@ -43,7 +50,7 @@ export function initAnalytics() {
 
 export function trackPageview(path) {
   if (!ready) return
-  if (GA_ID && window.gtag) {
+  if (useGtag && window.gtag) {
     window.gtag('event', 'page_view', { page_path: path, page_location: window.location.href })
   } else if (PLAUSIBLE_DOMAIN && window.plausible) {
     window.plausible('pageview', { u: window.location.origin + path })
@@ -52,9 +59,35 @@ export function trackPageview(path) {
 
 export function trackEvent(name, params = {}) {
   if (!ready) return
-  if (GA_ID && window.gtag) {
+  if (useGtag && window.gtag) {
     window.gtag('event', name, params)
   } else if (PLAUSIBLE_DOMAIN && window.plausible) {
     window.plausible(name, { props: params })
+  }
+}
+
+// Fire once per completed order. Sends the GA4-standard `purchase` event (which
+// Google Ads imports as a conversion once GA4 is linked) and, if a Google Ads
+// conversion is configured directly, an Ads `conversion` event too.
+export function trackPurchase({ transactionId, value, currency = 'USD', shipping, items = [] } = {}) {
+  if (!ready) return
+  const revenue = Number(value) || 0
+  if (useGtag && window.gtag) {
+    const purchase = { transaction_id: transactionId, value: revenue, currency, items }
+    if (shipping != null) purchase.shipping = Number(shipping) || 0
+    window.gtag('event', 'purchase', purchase)
+    if (ADS_ID && ADS_PURCHASE_LABEL) {
+      window.gtag('event', 'conversion', {
+        send_to: `${ADS_ID}/${ADS_PURCHASE_LABEL}`,
+        value: revenue,
+        currency,
+        transaction_id: transactionId,
+      })
+    }
+  } else if (PLAUSIBLE_DOMAIN && window.plausible) {
+    window.plausible('purchase', {
+      props: { transaction_id: transactionId, value: revenue },
+      revenue: { currency, amount: revenue },
+    })
   }
 }
