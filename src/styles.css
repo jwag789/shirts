@@ -1382,6 +1382,23 @@ h3 {
   color: #635bff;
 }
 
+.cart-consent {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.cart-consent a {
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.cart-consent a:hover {
+  color: var(--ink);
+}
+
 .cart-warning,
 .cart-error {
   display: grid;

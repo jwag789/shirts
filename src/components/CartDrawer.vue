@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useCart } from '../composables/useCart'
 import { trackEvent } from '../analytics'
 import TrustBadge from './TrustBadge.vue'
@@ -149,6 +150,11 @@ const startCheckout = async () => {
             {{ isCheckingOut ? 'Opening checkout...' : 'Checkout' }}
           </button>
           <TrustBadge />
+          <p class="cart-consent">
+            By checking out you agree to our
+            <RouterLink to="/terms" @click="closeCart">Terms</RouterLink> and
+            <RouterLink to="/privacy" @click="closeCart">Privacy Policy</RouterLink>.
+          </p>
         </div>
       </aside>
     </transition>
