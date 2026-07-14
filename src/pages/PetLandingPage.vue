@@ -80,13 +80,13 @@ const FAQS = [
         <div class="lp-steps">
           <div class="lp-step">
             <span class="lp-step__num">1</span>
-            <h3>Upload a photo</h3>
-            <p>Pick a clear photo of your pet. One upload is all it takes.</p>
+            <h3>Pick a style</h3>
+            <p>Choose from 12 legendary looks — superhero, samurai, astronaut and more.</p>
           </div>
           <div class="lp-step">
             <span class="lp-step__num">2</span>
-            <h3>Pick a style</h3>
-            <p>Choose from 12 legendary looks — superhero, samurai, astronaut and more.</p>
+            <h3>Upload a photo</h3>
+            <p>Add a clear photo of your pet. One upload is all it takes.</p>
           </div>
           <div class="lp-step">
             <span class="lp-step__num">3</span>
@@ -117,7 +117,7 @@ const FAQS = [
             </RouterLink>
           </div>
           <div class="lp-section__head" style="margin-top: 40px; margin-bottom: 0">
-            <RouterLink class="button" to="/pet-portrait/create">Start with my photo →</RouterLink>
+            <RouterLink class="button" to="/pet-portrait/create">Pick your style →</RouterLink>
           </div>
         </div>
       </section>
