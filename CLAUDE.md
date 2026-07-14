@@ -145,6 +145,46 @@ To go live:
 5. In Stripe Dashboard → Developers → Webhooks → Add endpoint: `https://yourdomain.com/api/webhooks/stripe`, event `checkout.session.completed`
 6. Copy signing secret to Railway env as `STRIPE_WEBHOOK_SECRET`
 
+## Go-Live Checklist
+
+Everything that must be true for the store to actually work end to end. Env vars go in **Railway** (production); `.env.local` is only for local `npm run dev`.
+
+**Payments (Stripe)**
+- [ ] `STRIPE_SECRET_KEY` = `sk_live_…` in Railway
+- [ ] Webhook endpoint at `…/api/webhooks/stripe` listening for `checkout.session.completed`, in **live** mode (test-mode webhooks don't fire for live payments). Reachable via the Railway domain is fine.
+- [ ] Its signing secret → `STRIPE_WEBHOOK_SECRET` in Railway (must match, or payments never reach Printify)
+- [ ] Promo codes: enabled via `allow_promotion_codes` (code) — create the actual coupons/codes in the Stripe Dashboard. **Codes are per-mode: a code made in test mode won't work in live.**
+
+**AI generation (OpenAI) — the core product won't run without this**
+- [ ] `OPENAI_API_KEY` set, **and the OpenAI account has billing/credits** (a 429 "exceeded your current quota" means no credits — generation fails). Enable auto-recharge. `gpt-image-1` may also require Organization verification.
+- [ ] `FAL_KEY` set (hosts generated images for Printify)
+
+**Fulfillment (Printify)**
+- [ ] `PRINTIFY_API_TOKEN`, `PRINTIFY_SHOP_ID`, `PRINTIFY_PET_PORTRAIT_PRODUCT_ID` in Railway (team shirts reuse the pet-portrait product — no separate var)
+- [ ] Webhooks registered via `node scripts/register-printify-webhooks.mjs <base-url>` (Printify has no webhook UI — API only). Registers `order:shipment:created` + `order:shipment:delivered`.
+- [ ] `PRINTIFY_WEBHOOK_SECRET` in Railway **matches** the secret the script used (production fails closed without it)
+- [ ] **Turn OFF "send orders to production automatically"** (Printify → Settings → Orders) so orders wait for manual approval — the safety net for testing.
+
+**Email (Resend)**
+- [ ] Sending domain **Verified (green)** in Resend (DNS records added at the domain host)
+- [ ] `RESEND_API_KEY` + `EMAIL_FROM` (`InkSpirit <orders@yourdomain.com>`) in Railway. `REPLY_TO` optional (defaults to a real inbox so replies don't bounce).
+
+**Optional**
+- [ ] Analytics: `VITE_GA_MEASUREMENT_ID` **or** `VITE_PLAUSIBLE_DOMAIN` (build-time — set before deploy)
+- [ ] `WELCOME_DISCOUNT_CODE` (defaults to `WELCOME20`)
+
+### Running a full test order
+
+Because **Printify has no test mode**, a completed payment creates a *real* Printify order. The app only *creates* the order (never auto-submits to production), so with manual approval ON it sits safely on hold.
+
+1. **Safety net:** confirm Printify auto-production is OFF (orders need approval).
+2. **Minimize cost:** the live site charges a real card. Either make a 100%-off Stripe promo code (e.g. `TEST100`) to zero the product (shipping ~$4.99 still applies), or accept a small charge you'll refund.
+3. **Order:** on the live site, generate a design → add to bag → checkout → pay with a **real** card (live mode rejects `4242…`). Apply the test code if using one.
+4. **Verify the chain:** success page shows the order → confirmation email arrives → order appears in Printify → My Orders (on hold). A missing step points to a specific piece (webhook secret / Resend / etc.).
+5. **Clean up:** cancel the Printify order, and refund the Stripe payment.
+
+(No-real-money alternative: switch Railway to Stripe **test** keys + a test-mode webhook secret, use card `4242 4242 4242 4242`, then switch back. Still creates a real Printify order, so keep the approval safety net.)
+
 ## Claude Code Notes
 
 - **Do not start background server processes** (`node server/index.js &`) — they outlive the session and cause stale-process issues where the new server can't bind port 4242. Use `npm run dev` instead, which includes a `predev` hook that kills any existing :4242 process.
