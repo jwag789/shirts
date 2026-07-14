@@ -15,10 +15,13 @@ import bannerTorii from '../../images/banner-torii-category.jpg'
 import bannerFunnyBusiness from '../../images/banner-funny-business-category.jpg'
 import bannerFineLines from '../../images/banner-fine-lines-category.jpg'
 
+// `focus` is the object-position used when the banner is cropped to a taller
+// frame on mobile, so it zooms into each banner's text (left-aligned on Zen /
+// Fine Lines, centered on Funny Business) instead of shrinking the whole width.
 const CATEGORY_BANNERS = {
-  'japanese-style': { src: bannerTorii, alt: 'Zen Journey collection banner — Japanese-inspired graphic tees' },
-  'pun-shirts': { src: bannerFunnyBusiness, alt: 'Funny Business collection banner — illustrated pun tees' },
-  'ink-art': { src: bannerFineLines, alt: 'Fine Lines collection banner — raw ink illustration tees' },
+  'japanese-style': { src: bannerTorii, alt: 'Zen Journey collection banner — Japanese-inspired graphic tees', focus: '0% 50%' },
+  'pun-shirts': { src: bannerFunnyBusiness, alt: 'Funny Business collection banner — illustrated pun tees', focus: '50% 50%' },
+  'ink-art': { src: bannerFineLines, alt: 'Fine Lines collection banner — raw ink illustration tees', focus: '0% 50%' },
 }
 
 setDocumentHead({
@@ -292,6 +295,7 @@ onBeforeUnmount(() => {
           <img
             :src="CATEGORY_BANNERS[collection.slug].src"
             :alt="CATEGORY_BANNERS[collection.slug].alt"
+            :style="{ objectPosition: CATEGORY_BANNERS[collection.slug].focus }"
             loading="lazy"
           />
         </RouterLink>
