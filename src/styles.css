@@ -2206,7 +2206,7 @@ h3 {
 .personalize {
   position: relative;
   overflow: hidden;
-  padding: clamp(64px, 8vw, 120px) var(--pad);
+  padding: clamp(40px, 5.5vw, 84px) var(--pad);
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   background:
