@@ -21,8 +21,8 @@ const BRAND = {
   text: '#1b1630',
   muted: '#6b6580',
   line: '#ece8f4',
-  accent: '#7646e2',
-  accentDark: '#5c35c0',
+  accent: '#7c3aed',
+  accentDark: '#6d28d9',
   bg: '#f4f1fb',
 }
 
