@@ -104,16 +104,18 @@ const FAQS = [
             <h2>Which legend is your pet?</h2>
             <p>A world for every personality. Try as many as you like — previews are always free.</p>
           </div>
-          <div class="lp-styles">
+          <div class="lp-medallions">
             <RouterLink
               v-for="s in STYLES"
               :key="s.key"
-              class="lp-style"
+              class="lp-medallion"
               :to="`/pet-portrait/create?style=${s.key}`"
               :aria-label="`Create a ${s.label} pet portrait`"
             >
-              <img :src="`/images/pet-styles/${s.key}.png`" :alt="`${s.label} pet portrait style`" loading="lazy" />
-              <span class="lp-style__label">{{ s.label }}</span>
+              <span class="lp-medallion__frame">
+                <img :src="`/images/pet-styles/${s.key}.png`" :alt="`${s.label} pet portrait style`" loading="lazy" />
+              </span>
+              <span class="lp-medallion__label">{{ s.label }}</span>
             </RouterLink>
           </div>
           <div class="lp-section__head" style="margin-top: 40px; margin-bottom: 0">
