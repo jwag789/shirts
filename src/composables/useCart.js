@@ -128,6 +128,39 @@ function addTeamShirtItem({ generatedImageUrl, teamName, playerName = '', player
   openCart()
 }
 
+function addQuizShirtItem({ generatedImageUrl, subjectDetail = '', style = '', mood = '', palette = '', size, color = 'White', printifyVariantId = null }) {
+  const id = `quiz-shirt::${style}::${color}::${size}::${generatedImageUrl.slice(-24)}`
+  const existing = state.items.find((item) => item.id === id)
+
+  if (existing) {
+    existing.quantity += 1
+  } else {
+    state.items.push({
+      id,
+      isQuizShirt: true,
+      productSlug: 'design-my-shirt',
+      name: `Custom Design — ${subjectDetail || 'Your Design'}`,
+      collection: 'Design My Shirt',
+      priceValue: 38,
+      price: currency.format(38),
+      subjectDetail,
+      style,
+      mood,
+      palette,
+      generatedImageUrl,
+      image: generatedImageUrl,
+      size,
+      color,
+      printifyVariantId,
+      quantity: 1,
+      isPrintifyConnected: true,
+    })
+  }
+
+  trackEvent('add_to_cart', { kind: 'quiz_shirt', style, value: 38 })
+  openCart()
+}
+
 function updateQuantity(id, nextQuantity) {
   const item = state.items.find((entry) => entry.id === id)
   if (!item) {
@@ -171,6 +204,7 @@ export function useCart() {
     addItem,
     addPetPortraitItem,
     addTeamShirtItem,
+    addQuizShirtItem,
     updateQuantity,
     removeItem,
   }

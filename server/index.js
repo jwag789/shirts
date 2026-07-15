@@ -10,6 +10,7 @@ import OpenAI, { toFile } from 'openai'
 import { fal } from '@fal-ai/client'
 import sharp from 'sharp'
 import { products } from '../src/data/products.js'
+import { assemblePrompt as assembleQuizPrompt, SUBJECT_TYPES as QUIZ_SUBJECT_TYPES, STYLES as QUIZ_STYLES, MOODS as QUIZ_MOODS, PALETTES as QUIZ_PALETTES } from '../src/data/shirtQuizConfig.js'
 import {
   renderShippingEmailHtml,
   renderShippingEmailText,
@@ -52,10 +53,14 @@ const PET_PORTRAIT_OPTION_COUNT = 1
 const TEAM_SHIRT_PRICE = 42
 const TEAM_SHIRT_DAILY_LIMIT = 20
 
-// ip → { count, date } — resets each calendar day. Keyed maps let the two AI
-// features keep independent daily budgets per visitor.
+const QUIZ_SHIRT_PRICE = 38
+const QUIZ_SHIRT_DAILY_LIMIT = 20
+
+// ip → { count, date } — resets each calendar day. Keyed maps let each AI
+// feature keep an independent daily budget per visitor.
 const generateRateLimit = new Map()
 const teamGenerateRateLimit = new Map()
+const quizGenerateRateLimit = new Map()
 
 function checkRateLimitFor(map, ip, limit) {
   const today = new Date().toISOString().slice(0, 10)
@@ -102,6 +107,12 @@ function generateOrderNumber() {
     suffix += chars[Math.floor(Math.random() * chars.length)]
   }
   return `INK-${suffix}`
+}
+
+// Pet portraits, team shirts and quiz designs all print custom AI artwork on
+// the same blank DTG tee, so they share Printify fulfillment logic.
+function isCustomArtworkItem(item) {
+  return Boolean(item.isPetPortrait || item.isTeamShirt || item.isQuizShirt)
 }
 
 function requireEnv(name) {
@@ -183,6 +194,36 @@ function buildCheckoutItems(cartItems) {
         printifyVariantId: Number(item.printifyVariantId) || null,
         quantity,
         unitAmount: Math.round(TEAM_SHIRT_PRICE * 100),
+        image: generatedImageUrl,
+      }
+    }
+
+    if (item.isQuizShirt) {
+      const quantity = normalizeQuantity(item.quantity)
+      if (!quantity) throw new Error('Invalid quantity for Custom Design.')
+
+      const size = String(item.size ?? '')
+      const validSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL']
+      if (!validSizes.includes(size)) throw new Error(`Custom Design is not available in size ${size}.`)
+
+      const generatedImageUrl = String(item.generatedImageUrl ?? '')
+      if (!generatedImageUrl.startsWith('https://')) throw new Error('Missing generated design.')
+
+      const subjectDetail = String(item.subjectDetail ?? '').trim().slice(0, 40)
+
+      return {
+        isQuizShirt: true,
+        generatedImageUrl,
+        subjectDetail,
+        style: String(item.style ?? ''),
+        mood: String(item.mood ?? ''),
+        palette: String(item.palette ?? ''),
+        name: `Custom Design${subjectDetail ? ` — ${subjectDetail}` : ''}`,
+        size,
+        color: String(item.color ?? ''),
+        printifyVariantId: Number(item.printifyVariantId) || null,
+        quantity,
+        unitAmount: Math.round(QUIZ_SHIRT_PRICE * 100),
         image: generatedImageUrl,
       }
     }
@@ -368,7 +409,7 @@ function buildPrintifyOrderPayload(session, order, printifyUploads, petPortraitM
   const { blueprintId, printProviderId } = petPortraitMeta ?? {}
 
   const lineItems = order.items.map((item, index) => {
-    if (item.isPetPortrait || item.isTeamShirt) {
+    if (isCustomArtworkItem(item)) {
       const upload = printifyUploads?.[index]
       const variantId = item.printifyVariantId || petPortraitVariants?.[item.size] || null
       // Custom images require ordering by blueprint + print provider so Printify
@@ -425,7 +466,7 @@ async function createPrintifyOrder(session, order) {
   // Upload custom images for any pet portrait items
   const printifyUploads = await Promise.all(
     order.items.map(async (item) => {
-      if ((item.isPetPortrait || item.isTeamShirt) && process.env.PRINTIFY_PET_PORTRAIT_PRODUCT_ID) {
+      if (isCustomArtworkItem(item) && process.env.PRINTIFY_PET_PORTRAIT_PRODUCT_ID) {
         try {
           return await uploadImageToPrintify(item.generatedImageUrl)
         } catch (err) {
@@ -437,9 +478,7 @@ async function createPrintifyOrder(session, order) {
     }),
   )
 
-  // Team shirts and pet portraits both print on the same blank DTG tee, so they
-  // share the blueprint/print-provider/variant metadata from that product.
-  const hasCustomImage = order.items.some((item) => item.isPetPortrait || item.isTeamShirt)
+  const hasCustomImage = order.items.some(isCustomArtworkItem)
   const petPortraitMeta = hasCustomImage ? await getPetPortraitVariantData() : null
 
   const payload = buildPrintifyOrderPayload(session, order, printifyUploads, petPortraitMeta)
@@ -1203,6 +1242,57 @@ app.post('/api/team-shirt/generate', express.json({ limit: '1mb' }), async (req,
     res.json({ imageUrl, designId })
   } catch (error) {
     console.error('Team shirt generation error:', error)
+    const { status, message } = friendlyGenerationError(error)
+    res.status(status).json({ error: message })
+  }
+})
+
+app.post('/api/design-quiz/generate', express.json({ limit: '1mb' }), async (req, res) => {
+  try {
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(quizGenerateRateLimit, ip, QUIZ_SHIRT_DAILY_LIMIT)) {
+      return res.status(429).json({ error: `Limit reached — you can generate up to ${QUIZ_SHIRT_DAILY_LIMIT} designs per day. Try again tomorrow.` })
+    }
+
+    const { subjectType, subjectDetail, style, mood, palette } = req.body ?? {}
+    const safeSubjectDetail = typeof subjectDetail === 'string' ? subjectDetail.trim().slice(0, 40) : ''
+
+    if (!QUIZ_SUBJECT_TYPES.some((s) => s.key === subjectType)) return res.status(400).json({ error: 'Please choose a subject type.' })
+    if (!safeSubjectDetail) return res.status(400).json({ error: 'Please describe your subject.' })
+    if (!QUIZ_STYLES.some((s) => s.key === style)) return res.status(400).json({ error: 'Please choose a style.' })
+    if (!QUIZ_MOODS.some((m) => m.key === mood)) return res.status(400).json({ error: 'Please choose a mood.' })
+    if (!QUIZ_PALETTES.some((p) => p.key === palette)) return res.status(400).json({ error: 'Please choose a color palette.' })
+
+    requireEnv('OPENAI_API_KEY')
+    requireEnv('FAL_KEY')
+
+    const prompt = assembleQuizPrompt({ subjectType, subjectDetail: safeSubjectDetail, style, mood, palette })
+
+    const generation = await openai.images.generate({
+      model: 'gpt-image-1',
+      prompt,
+      size: '1024x1024',
+      quality: 'high',
+      background: 'transparent',
+      n: 1,
+    })
+
+    const b64 = generation.data?.[0]?.b64_json
+    if (!b64) throw new Error('Design generation returned no result.')
+
+    const imageUrl = await fal.storage.upload(
+      new Blob([Buffer.from(b64, 'base64')], { type: 'image/png' }),
+    )
+
+    const designId = await saveDesignSafe({
+      kind: 'quiz',
+      imageUrl,
+      meta: { subjectType, subjectDetail: safeSubjectDetail, style, mood, palette },
+    })
+
+    res.json({ imageUrl, designId })
+  } catch (error) {
+    console.error('Design quiz generation error:', error)
     const { status, message } = friendlyGenerationError(error)
     res.status(status).json({ error: message })
   }
