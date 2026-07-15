@@ -137,7 +137,7 @@ const FAQS = [
         </div>
         <div class="lp-story__row lp-story__row--reverse">
           <div class="lp-story__photo">
-            <img src="/images/pet-lifestyle/cozy.jpg" alt="A woman relaxing on the couch with her dog, wearing a pirate pet portrait shirt" loading="lazy" />
+            <img src="/images/pet-lifestyle/cozy.jpg" alt="A woman relaxing on the couch with her cat, wearing a pirate cat portrait shirt" loading="lazy" />
           </div>
           <div class="lp-story__text">
             <p class="eyebrow">The perfect gift</p>
