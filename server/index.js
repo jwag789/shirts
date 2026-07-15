@@ -52,14 +52,10 @@ const PET_PORTRAIT_OPTION_COUNT = 1
 const TEAM_SHIRT_PRICE = 42
 const TEAM_SHIRT_DAILY_LIMIT = 20
 
-const CUSTOM_DESIGN_PRICE = 38
-const CUSTOM_DESIGN_DAILY_LIMIT = 20
-
-// ip → { count, date } — resets each calendar day. Keyed maps let the AI
+// ip → { count, date } — resets each calendar day. Keyed maps let the two AI
 // features keep independent daily budgets per visitor.
 const generateRateLimit = new Map()
 const teamGenerateRateLimit = new Map()
-const customGenerateRateLimit = new Map()
 
 function checkRateLimitFor(map, ip, limit) {
   const today = new Date().toISOString().slice(0, 10)
@@ -187,34 +183,6 @@ function buildCheckoutItems(cartItems) {
         printifyVariantId: Number(item.printifyVariantId) || null,
         quantity,
         unitAmount: Math.round(TEAM_SHIRT_PRICE * 100),
-        image: generatedImageUrl,
-      }
-    }
-
-    if (item.isCustom) {
-      const quantity = normalizeQuantity(item.quantity)
-      if (!quantity) throw new Error('Invalid quantity for Custom Design.')
-
-      const size = String(item.size ?? '')
-      const validSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL']
-      if (!validSizes.includes(size)) throw new Error(`Custom Design is not available in size ${size}.`)
-
-      const generatedImageUrl = String(item.generatedImageUrl ?? '')
-      if (!generatedImageUrl.startsWith('https://')) throw new Error('Missing generated design.')
-
-      const styleKey = String(item.style ?? '')
-      const styleLabel = CUSTOM_DESIGN_STYLES[styleKey]?.label ?? 'Custom'
-
-      return {
-        isCustom: true,
-        generatedImageUrl,
-        style: styleKey,
-        name: `Custom Design Tee — ${styleLabel}`,
-        size,
-        color: String(item.color ?? ''),
-        printifyVariantId: Number(item.printifyVariantId) || null,
-        quantity,
-        unitAmount: Math.round(CUSTOM_DESIGN_PRICE * 100),
         image: generatedImageUrl,
       }
     }
@@ -400,7 +368,7 @@ function buildPrintifyOrderPayload(session, order, printifyUploads, petPortraitM
   const { blueprintId, printProviderId } = petPortraitMeta ?? {}
 
   const lineItems = order.items.map((item, index) => {
-    if (item.isPetPortrait || item.isTeamShirt || item.isCustom) {
+    if (item.isPetPortrait || item.isTeamShirt) {
       const upload = printifyUploads?.[index]
       const variantId = item.printifyVariantId || petPortraitVariants?.[item.size] || null
       // Custom images require ordering by blueprint + print provider so Printify
@@ -457,7 +425,7 @@ async function createPrintifyOrder(session, order) {
   // Upload custom images for any pet portrait items
   const printifyUploads = await Promise.all(
     order.items.map(async (item) => {
-      if ((item.isPetPortrait || item.isTeamShirt || item.isCustom) && process.env.PRINTIFY_PET_PORTRAIT_PRODUCT_ID) {
+      if ((item.isPetPortrait || item.isTeamShirt) && process.env.PRINTIFY_PET_PORTRAIT_PRODUCT_ID) {
         try {
           return await uploadImageToPrintify(item.generatedImageUrl)
         } catch (err) {
@@ -471,7 +439,7 @@ async function createPrintifyOrder(session, order) {
 
   // Team shirts and pet portraits both print on the same blank DTG tee, so they
   // share the blueprint/print-provider/variant metadata from that product.
-  const hasCustomImage = order.items.some((item) => item.isPetPortrait || item.isTeamShirt || item.isCustom)
+  const hasCustomImage = order.items.some((item) => item.isPetPortrait || item.isTeamShirt)
   const petPortraitMeta = hasCustomImage ? await getPetPortraitVariantData() : null
 
   const payload = buildPrintifyOrderPayload(session, order, printifyUploads, petPortraitMeta)
@@ -1240,121 +1208,6 @@ app.post('/api/team-shirt/generate', express.json({ limit: '1mb' }), async (req,
   }
 })
 
-// ── Custom "Design Your Own" studio ─────────────────────────────────────────
-// Guided text-to-design: an art style + a described idea (+ optional text and
-// colours) become one apparel graphic on the shared custom-print product.
-
-const CUSTOM_DESIGN_STYLES = {
-  'bold-graphic': { label: 'Bold Graphic', prompt: 'a bold modern graphic-tee illustration — heavy shapes, high contrast, confident flat color' },
-  retro: { label: 'Retro', prompt: 'a retro 70s/80s vibe — warm sun-faded palette, groovy rounded lettering and vintage badge shapes' },
-  vintage: { label: 'Vintage Print', prompt: 'a distressed vintage screen-print — worn texture, muted inks, timeless throwback styling' },
-  'line-art': { label: 'Minimal Line', prompt: 'clean single-weight line art — minimal and elegant in one or two colors' },
-  anime: { label: 'Anime', prompt: 'an anime / manga illustration — expressive linework and clean cel shading' },
-  watercolor: { label: 'Watercolor', prompt: 'a soft watercolor illustration — organic washes and gentle color bleeds' },
-  streetwear: { label: 'Streetwear', prompt: 'a bold streetwear graphic — oversized, fashion-forward, hype-brand energy' },
-  kawaii: { label: 'Kawaii', prompt: 'a cute kawaii cartoon — rounded chibi shapes, a pastel palette, adorable and friendly' },
-  typographic: { label: 'Typographic', prompt: 'a purely typographic design — expressive, well-hierarchied lettering that carries the whole graphic' },
-}
-
-// Fast pre-check for a few unambiguous no-gos. The Moderation API below is the
-// main text filter (hate/sexual/violence/self-harm); gpt-image-1 is the backstop.
-const CUSTOM_BLOCKLIST = ['swastika', 'nazi', 'heil hitler', ' kkk ', 'isis', 'child porn']
-
-async function moderateText(text) {
-  try {
-    const r = await openai.moderations.create({ model: 'omni-moderation-latest', input: text })
-    return r.results?.[0]?.flagged === true
-  } catch {
-    // Fail open on a moderation API hiccup — don't block legit users; the image
-    // model still refuses disallowed content.
-    return false
-  }
-}
-
-function buildCustomDesignPrompt({ style, subject, text, colors }) {
-  const styleDef = CUSTOM_DESIGN_STYLES[style] ?? CUSTOM_DESIGN_STYLES['bold-graphic']
-  const textDirective = text
-    ? `Incorporate the text "${text}", spelled EXACTLY, as an integrated part of the design with clear hierarchy. Add no other words.`
-    : 'Do not add any text, letters or numbers unless they are essential to the concept.'
-  const colorDirective = colors?.aiChoose
-    ? 'Choose a cohesive, print-friendly palette of 2–4 colors that suits the style.'
-    : `Use a tight, print-friendly palette built from these colors — primary ${colors?.primary ?? '#111111'}, secondary ${colors?.secondary ?? '#ffffff'}${colors?.accent ? `, accent ${colors.accent}` : ''}. Do not introduce other colors.`
-
-  return `Design a single premium apparel graphic for a custom t-shirt, illustrated by an experienced apparel designer — not an AI collage.
-
-STYLE: ${styleDef.prompt}.
-
-SUBJECT / IDEA: ${subject}.
-
-${textDirective}
-
-${colorDirective}
-
-COMPOSITION: one balanced, centered graphic that reads as a single cohesive mark with strong contrast and screen-print-ready flat color.
-
-MUST AVOID: photorealism, 3D renders, product mockups, a t-shirt or any garment in the image, backgrounds, scenery, borders or frames, watermarks, and any real person's likeness, celebrity, brand logo or copyrighted character.
-
-Deliver flat, bold, print-ready vector-style artwork on a FULLY TRANSPARENT background (alpha), isolated with no backdrop.`
-}
-
-app.post('/api/custom-design/generate', express.json({ limit: '1mb' }), async (req, res) => {
-  try {
-    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
-    if (!checkRateLimitFor(customGenerateRateLimit, ip, CUSTOM_DESIGN_DAILY_LIMIT)) {
-      return res.status(429).json({ error: `Limit reached — you can generate up to ${CUSTOM_DESIGN_DAILY_LIMIT} designs per day. Try again tomorrow.` })
-    }
-
-    const { style, subject, text, colors } = req.body ?? {}
-    const safeSubject = typeof subject === 'string' ? subject.trim().slice(0, 200) : ''
-    const safeText = typeof text === 'string' ? text.trim().slice(0, 40) : ''
-
-    if (!safeSubject) return res.status(400).json({ error: 'Please describe your idea.' })
-    if (!style || !CUSTOM_DESIGN_STYLES[style]) return res.status(400).json({ error: 'Please choose a style.' })
-
-    // Guardrails — reject clearly-disallowed prompts before spending a generation.
-    const combined = ` ${safeSubject} ${safeText} `.toLowerCase()
-    if (CUSTOM_BLOCKLIST.some((w) => combined.includes(w))) {
-      return res.status(400).json({ error: "Let's keep it friendly — please try a different idea." })
-    }
-    if (await moderateText(`${safeSubject} ${safeText}`)) {
-      return res.status(400).json({ error: "Let's keep it friendly — please try a different idea." })
-    }
-
-    requireEnv('OPENAI_API_KEY')
-    requireEnv('FAL_KEY')
-
-    const prompt = buildCustomDesignPrompt({ style, subject: safeSubject, text: safeText, colors: colors ?? {} })
-
-    const generation = await openai.images.generate({
-      model: 'gpt-image-1',
-      prompt,
-      size: '1024x1024',
-      quality: 'high',
-      background: 'transparent',
-      n: 1,
-    })
-
-    const b64 = generation.data?.[0]?.b64_json
-    if (!b64) throw new Error('Design generation returned no result.')
-
-    const imageUrl = await fal.storage.upload(
-      new Blob([Buffer.from(b64, 'base64')], { type: 'image/png' }),
-    )
-
-    const designId = await saveDesignSafe({
-      kind: 'custom',
-      imageUrl,
-      meta: { style, subject: safeSubject, text: safeText },
-    })
-
-    res.json({ imageUrl, designId })
-  } catch (error) {
-    console.error('Custom design generation error:', error)
-    const { status, message } = friendlyGenerationError(error)
-    res.status(status).json({ error: message })
-  }
-})
-
 // Personalization is composited deterministically with sharp (not re-generated
 // by the model) so the team branding is always preserved exactly and every
 // player's shirt stays consistent. A player name + jersey number are drawn as a
@@ -2076,10 +1929,6 @@ function designTitle(design) {
     const name = design.meta?.teamName?.trim()
     return name ? `${name} — Custom Team Shirt` : 'Custom Team Shirt'
   }
-  if (design.kind === 'custom') {
-    const subject = design.meta?.subject?.trim()
-    return subject ? `"${subject}" — Custom Design Tee` : 'Custom Design Tee'
-  }
   const style = design.meta?.style
   const styleLabel = style ? style.charAt(0).toUpperCase() + style.slice(1) : ''
   const petName = design.meta?.petName?.trim()
@@ -2120,9 +1969,7 @@ app.get('/d/:id', async (req, res, next) => {
     const description =
       design.kind === 'team'
         ? 'Design custom AI team shirts at InkSpirit — see this one and make your own.'
-        : design.kind === 'custom'
-          ? 'Design your own AI custom tee at InkSpirit — see this one and make your own.'
-          : 'Custom AI pet portrait tee from InkSpirit — see this one and make your own.'
+        : 'Custom AI pet portrait tee from InkSpirit — see this one and make your own.'
     res.send(
       replaceMeta(html, {
         title,

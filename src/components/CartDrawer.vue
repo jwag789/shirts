@@ -55,17 +55,6 @@ const startCheckout = async () => {
               quantity: item.quantity,
             }
           }
-          if (item.isCustom) {
-            return {
-              isCustom: true,
-              generatedImageUrl: item.generatedImageUrl,
-              style: item.style ?? '',
-              size: item.size,
-              color: item.color ?? '',
-              printifyVariantId: item.printifyVariantId ?? null,
-              quantity: item.quantity,
-            }
-          }
           return {
             productSlug: item.productSlug,
             size: item.size,
