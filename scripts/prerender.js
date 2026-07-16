@@ -468,7 +468,11 @@ async function main() {
 
   console.log(`Prerendered ${count} pages (home, collections, products, info)`)
 
-  // Sitemap
+  // Sitemap. lastmod is the build date — a real signal to Google that these
+  // pages are actively maintained, which factors into crawl prioritization
+  // (particularly relevant for a young, low-authority domain still getting
+  // its first full crawl).
+  const lastmod = new Date().toISOString().slice(0, 10)
   const urls = [
     { loc: `${siteUrl}/`, priority: '1.0' },
     { loc: `${siteUrl}/collections`, priority: '0.8' },
@@ -482,7 +486,7 @@ async function main() {
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${u.loc}</loc><priority>${u.priority}</priority></url>`).join('\n')}
+${urls.map((u) => `  <url><loc>${u.loc}</loc><lastmod>${lastmod}</lastmod><priority>${u.priority}</priority></url>`).join('\n')}
 </urlset>
 `
   await writeFile(path.join(distDir, 'sitemap.xml'), sitemap)

@@ -38,6 +38,17 @@ app.set('trust proxy', 1)
 const port = Number(process.env.PORT ?? 4242)
 const siteUrl = process.env.SITE_URL ?? `http://localhost:${port}`
 
+// Canonicalize away trailing slashes (e.g. /collections/japanese-style/ →
+// /collections/japanese-style) so we never serve the same page at two URLs —
+// left unhandled, the catch-all below would silently 200 the homepage at
+// every trailing-slash variant, which reads to Googlebot as duplicate content.
+app.use((req, res, next) => {
+  if (req.method === 'GET' && req.path !== '/' && req.path.endsWith('/') && !req.path.startsWith('/api/')) {
+    return res.redirect(301, req.path.slice(0, -1) + req.url.slice(req.path.length))
+  }
+  next()
+})
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '')
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY ?? '' })
@@ -1986,8 +1997,27 @@ app.get('/d/:id', async (req, res, next) => {
 
 app.use(express.static(distDir, { extensions: ['html'] }))
 
-app.get(/.*/, (_req, res) => {
-  res.sendFile(path.join(distDir, 'index.html'))
+// Everything prerendered (home, collections, products, /info pages) is
+// already matched by express.static above via its .html extension fallback.
+// Reaching here means either a genuine client-only route (fine, 200 — the
+// SPA mounts and renders it) or an unknown/mistyped URL (e.g. a bad product
+// slug), which must 404 rather than silently serving homepage content —
+// Search Console flags the latter as a soft 404 and it can suppress crawling
+// of the real pages.
+const clientOnlyRoutes = new Set([
+  '/pet-portrait/create',
+  '/team-shirt/create',
+  '/how-it-works',
+  '/contact',
+  '/returns',
+  '/terms',
+  '/privacy',
+  '/checkout/success',
+  '/checkout/cancel',
+])
+
+app.get(/.*/, (req, res) => {
+  res.status(clientOnlyRoutes.has(req.path) ? 200 : 404).sendFile(path.join(distDir, 'index.html'))
 })
 
 async function start() {
