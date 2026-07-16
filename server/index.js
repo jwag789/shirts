@@ -212,6 +212,7 @@ function buildCheckoutItems(cartItems) {
     return {
       productSlug: product.slug,
       name: product.name,
+      collection: product.collection,
       size,
       quantity,
       unitAmount: Math.round(product.priceValue * 100),

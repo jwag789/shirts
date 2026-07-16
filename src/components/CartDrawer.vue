@@ -1,8 +1,8 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCart } from '../composables/useCart'
-import { trackEvent } from '../analytics'
+import { trackViewCart, trackBeginCheckout, makeItem } from '../analytics'
 import TrustBadge from './TrustBadge.vue'
 
 const { state, itemCount, subtotal, subtotalLabel, closeCart, updateQuantity, removeItem } = useCart()
@@ -13,6 +13,26 @@ const checkoutError = ref('')
 const unconnectedItems = computed(() => state.items.filter((item) => !item.isPrintifyConnected))
 const canCheckout = computed(() => state.items.length > 0 && unconnectedItems.value.length === 0)
 
+function toGaItems() {
+  return state.items.map((item) =>
+    makeItem({
+      id: item.productSlug ?? item.id,
+      name: item.name,
+      category: item.collection,
+      variant: `${item.color ?? ''} / ${item.size}`.trim(),
+      price: item.priceValue,
+      quantity: item.quantity,
+    }),
+  )
+}
+
+watch(
+  () => state.isOpen,
+  (isOpen) => {
+    if (isOpen && state.items.length) trackViewCart(toGaItems())
+  },
+)
+
 const startCheckout = async () => {
   if (!canCheckout.value || isCheckingOut.value) {
     return
@@ -20,7 +40,7 @@ const startCheckout = async () => {
 
   checkoutError.value = ''
   isCheckingOut.value = true
-  trackEvent('begin_checkout', { value: subtotal.value, items: state.items.length })
+  trackBeginCheckout(toGaItems())
 
   try {
     const response = await fetch('/api/create-checkout-session', {

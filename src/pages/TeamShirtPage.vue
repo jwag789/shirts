@@ -174,6 +174,7 @@ async function fetchMockupPhoto(color) {
 
 function selectStyle(key) {
   selectedStyle.value = key
+  trackEvent('choose_template', { kind: 'team_shirt', style: key })
   // Auto-advance after a beat so the selection check is visible, matching the
   // pet wizard — no separate Continue click needed.
   setTimeout(() => { if (step.value === 2) next() }, 320)
@@ -215,13 +216,14 @@ function back() {
 
 async function generate() {
   if (!canGenerate.value || isGenerating.value) return
+  const isRegenerate = Boolean(generatedUrl.value)
   isGenerating.value = true
   generateError.value = ''
   generatedUrl.value = null
   addedCount.value = 0
   step.value = TOTAL_STEPS
   startLoadingAnimation()
-  trackEvent('generate_team_shirt', { style: selectedStyle.value })
+  trackEvent(isRegenerate ? 'regenerate_design' : 'generate_team_shirt', { style: selectedStyle.value })
 
   try {
     const body = {

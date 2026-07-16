@@ -1,11 +1,16 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { trackSelectItem, makeItem } from '../analytics'
 
 const props = defineProps({
   shirt: {
     type: Object,
     required: true,
+  },
+  listName: {
+    type: String,
+    default: 'Products',
   },
 })
 
@@ -15,10 +20,22 @@ const badgeClass = computed(() => ({
   'shirt-card__badge--popular': props.shirt.tag === 'Popular',
   'shirt-card__badge--bestseller': props.shirt.tag === 'Best Seller',
 }))
+
+function onSelect() {
+  trackSelectItem(
+    makeItem({
+      id: props.shirt.slug,
+      name: props.shirt.name,
+      category: props.shirt.collection,
+      price: props.shirt.priceValue,
+    }),
+    props.listName,
+  )
+}
 </script>
 
 <template>
-  <RouterLink :to="`/products/${shirt.slug}`" class="shirt-card">
+  <RouterLink :to="`/products/${shirt.slug}`" class="shirt-card" @click="onSelect">
     <div class="shirt-card__media">
       <img class="shirt-card__image" :src="shirt.cardImage" :alt="shirt.name" loading="lazy" />
       <img

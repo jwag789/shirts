@@ -322,6 +322,7 @@ onBeforeUnmount(() => {
             :key="shirt.slug"
             v-reveal="i * 80"
             :shirt="shirt"
+            :list-name="collection.name"
           />
         </div>
       </section>

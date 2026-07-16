@@ -154,6 +154,7 @@ function selectStyle(key) {
   generatedOptions.value = []
   selectedOptions.value = []
   generateError.value = ''
+  trackEvent('choose_template', { kind: 'pet_portrait', style: key })
   setTimeout(() => { step.value = 2 }, 360)
 }
 
@@ -193,6 +194,7 @@ function handleFile(file) {
   selectedOptions.value = []
   addedToBag.value = false
   uploadedPreview.value = URL.createObjectURL(file)
+  trackEvent('upload_pet_photo', {})
 }
 
 function toBase64(file) {
@@ -206,6 +208,7 @@ function toBase64(file) {
 
 async function generate() {
   if (!uploadedFile.value || !selectedStyle.value || isGenerating.value) return
+  const isRegenerate = generatedOptions.value.length > 0
   isGenerating.value = true
   generateError.value = ''
   generatedOptions.value = []
@@ -213,7 +216,7 @@ async function generate() {
   addedToBag.value = false
   step.value = 3
   startLoadingAnimation()
-  trackEvent('generate_pet_portrait', { style: selectedStyle.value })
+  trackEvent(isRegenerate ? 'regenerate_design' : 'generate_pet_portrait', { style: selectedStyle.value })
 
   try {
     const imageBase64 = await toBase64(uploadedFile.value)

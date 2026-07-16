@@ -56,7 +56,12 @@ watchEffect(() => {
         <p v-if="page.extra" class="seo-extra">{{ page.extra }}</p>
 
         <div v-if="relatedProducts.length" class="product-grid" style="margin-top: 32px">
-          <ShirtCard v-for="shirt in relatedProducts" :key="shirt.slug" :shirt="shirt" />
+          <ShirtCard
+            v-for="shirt in relatedProducts"
+            :key="shirt.slug"
+            :shirt="shirt"
+            :list-name="collection?.name ?? page.h1"
+          />
         </div>
 
         <div class="seo-cta">

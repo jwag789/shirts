@@ -1,5 +1,5 @@
 import { computed, reactive } from 'vue'
-import { trackEvent } from '../analytics'
+import { trackAddToCart, trackRemoveFromCart, makeItem } from '../analytics'
 
 const state = reactive({
   isOpen: false,
@@ -60,7 +60,13 @@ function addItem(product, color, size) {
     state.items.push(createLineItem(product, resolvedColor, size))
   }
 
-  trackEvent('add_to_cart', { kind: 'catalog', item: product.slug, value: product.priceValue })
+  trackAddToCart(makeItem({
+    id: product.slug,
+    name: product.name,
+    category: product.collection,
+    variant: `${resolvedColor.name} / ${size}`,
+    price: product.priceValue,
+  }))
   openCart()
 }
 
@@ -90,7 +96,13 @@ function addPetPortraitItem(style, generatedImageUrl, size, color = 'White', pri
     })
   }
 
-  trackEvent('add_to_cart', { kind: 'pet_portrait', style, value: 38 })
+  trackAddToCart(makeItem({
+    id: `pet-portrait-${style}`,
+    name: `Custom Pet Portrait — ${style.charAt(0).toUpperCase() + style.slice(1)}`,
+    category: 'Pet Portraits',
+    variant: `${color} / ${size}`,
+    price: 38,
+  }))
   openCart()
 }
 
@@ -124,7 +136,13 @@ function addTeamShirtItem({ generatedImageUrl, teamName, playerName = '', player
     })
   }
 
-  trackEvent('add_to_cart', { kind: 'team_shirt', style, value: 42 })
+  trackAddToCart(makeItem({
+    id: `team-shirt-${style}`,
+    name: `${teamName || 'Team'} Team Shirt${suffix ? ` — ${suffix}` : ''}`,
+    category: 'Team Shirts',
+    variant: `${color} / ${size}`,
+    price: 42,
+  }))
   openCart()
 }
 
@@ -145,6 +163,15 @@ function updateQuantity(id, nextQuantity) {
 function removeItem(id) {
   const index = state.items.findIndex((item) => item.id === id)
   if (index >= 0) {
+    const item = state.items[index]
+    trackRemoveFromCart(makeItem({
+      id: item.productSlug ?? item.id,
+      name: item.name,
+      category: item.collection,
+      variant: `${item.color ?? ''} / ${item.size}`.trim(),
+      price: item.priceValue,
+      quantity: item.quantity,
+    }))
     state.items.splice(index, 1)
   }
 }

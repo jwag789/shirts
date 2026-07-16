@@ -6,6 +6,7 @@ import SiteHeader from '../components/SiteHeader.vue'
 import { useCart } from '../composables/useCart'
 import { products } from '../data/products'
 import { setDocumentHead } from '../composables/useDocumentHead'
+import { trackViewItem, makeItem } from '../analytics'
 
 const route = useRoute()
 const { addItem } = useCart()
@@ -20,6 +21,12 @@ watch(
   (nextProduct) => {
     activeSize.value = nextProduct.sizes[2] ?? nextProduct.sizes[0]
     activeGallery.value = nextProduct.gallery[0]
+    trackViewItem(makeItem({
+      id: nextProduct.slug,
+      name: nextProduct.name,
+      category: nextProduct.collection,
+      price: nextProduct.priceValue,
+    }))
   },
   { immediate: true },
 )
@@ -137,7 +144,7 @@ watchEffect(() => {
         </div>
 
         <div class="product-grid">
-          <ShirtCard v-for="shirt in relatedProducts" :key="shirt.slug" :shirt="shirt" />
+          <ShirtCard v-for="shirt in relatedProducts" :key="shirt.slug" :shirt="shirt" list-name="Related products" />
         </div>
       </section>
     </main>

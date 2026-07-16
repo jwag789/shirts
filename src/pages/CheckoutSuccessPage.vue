@@ -5,7 +5,7 @@ import SiteHeader from '../components/SiteHeader.vue'
 import EmailSignup from '../components/EmailSignup.vue'
 import OrderSummary from '../components/OrderSummary.vue'
 import { markWelcomeOrdered } from '../composables/welcomePopup.js'
-import { trackPurchase } from '../analytics'
+import { trackPurchase, makeItem } from '../analytics'
 
 const route = useRoute()
 const order = ref(null)
@@ -54,12 +54,16 @@ function reportPurchase(o) {
     value: (o.amountTotal ?? 0) / 100,
     currency: 'USD',
     shipping: (o.amountShipping ?? 0) / 100,
-    items: (o.items ?? []).map((it) => ({
-      item_id: it.productSlug ?? it.style ?? it.name,
-      item_name: it.name,
-      quantity: it.quantity ?? 1,
-      price: (it.unitAmount ?? 0) / 100,
-    })),
+    items: (o.items ?? []).map((it) =>
+      makeItem({
+        id: it.productSlug ?? it.style ?? it.name,
+        name: it.name,
+        category: it.isPetPortrait ? 'Pet Portraits' : it.isTeamShirt ? 'Team Shirts' : it.collection,
+        variant: [it.color, it.size].filter(Boolean).join(' / '),
+        price: (it.unitAmount ?? 0) / 100,
+        quantity: it.quantity ?? 1,
+      }),
+    ),
   })
 }
 

@@ -5,6 +5,7 @@ import ShirtCard from '../components/ShirtCard.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import { getCollectionBySlug, getProductsByCollection } from '../data/products'
 import { setDocumentHead } from '../composables/useDocumentHead'
+import { trackViewItemList, makeItem } from '../analytics'
 
 const route = useRoute()
 
@@ -18,6 +19,16 @@ watchEffect(() => {
     path: `/collections/${collection.value.slug}`,
     image: collection.value.heroImage,
   })
+})
+
+watchEffect(() => {
+  if (!collectionProducts.value.length) return
+  trackViewItemList(
+    collectionProducts.value.map((product) =>
+      makeItem({ id: product.slug, name: product.name, category: product.collection, price: product.priceValue }),
+    ),
+    collection.value.name,
+  )
 })
 </script>
 
@@ -38,7 +49,12 @@ watchEffect(() => {
         </div>
 
         <div class="product-grid">
-          <ShirtCard v-for="shirt in collectionProducts" :key="shirt.slug" :shirt="shirt" />
+          <ShirtCard
+            v-for="shirt in collectionProducts"
+            :key="shirt.slug"
+            :shirt="shirt"
+            :list-name="collection.name"
+          />
         </div>
       </section>
     </main>
