@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { trackEvent } from '../analytics'
 
 // Optional "email me my design" capture shown on a result step. Posts the email
 // against the design so the backend can send it right away and (if they don't
@@ -35,6 +36,7 @@ async function submit() {
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || 'Could not send. Please try again.')
     status.value = 'sent'
+    trackEvent('capture_design_email', { kind: props.kind || 'design' })
   } catch (e) {
     error.value = e.message
     status.value = 'error'
