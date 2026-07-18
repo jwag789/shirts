@@ -161,6 +161,129 @@ main {
   font-size: 0.78rem;
 }
 
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-self: end;
+}
+
+/* Hamburger — hidden on desktop, shown at the mobile breakpoint below. */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 0 10px;
+  border: 1px solid #111111;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: #111111;
+  border-radius: 2px;
+}
+
+/* Slide-out mobile menu */
+.mobile-menu__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(15, 10, 30, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 91;
+  width: min(340px, 84vw);
+  background: #ffffff;
+  box-shadow: -18px 0 50px -24px rgba(30, 20, 60, 0.5);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px calc(20px + env(safe-area-inset-bottom));
+}
+
+.mobile-menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-menu__close {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--soft);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  color: var(--text);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.mobile-menu__nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 6px;
+}
+
+.mobile-menu__nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.mobile-menu__nav a:hover,
+.mobile-menu__nav a.router-link-active {
+  color: var(--accent);
+}
+
+.mobile-menu__chevron {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.mobile-menu__nav a.router-link-active .mobile-menu__chevron {
+  color: var(--accent);
+}
+
+.menu-fade-enter-active,
+.menu-fade-leave-active {
+  transition: opacity 220ms ease;
+}
+.menu-fade-enter-from,
+.menu-fade-leave-to {
+  opacity: 0;
+}
+
+.menu-slide-enter-active,
+.menu-slide-leave-active {
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.menu-slide-enter-from,
+.menu-slide-leave-to {
+  transform: translateX(100%);
+}
+
 .button {
   position: relative;
   display: inline-flex;
@@ -1579,12 +1702,13 @@ h3 {
     grid-template-columns: 1fr auto;
   }
 
+  /* Collapse the inline nav into the hamburger drawer. */
   .site-nav {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 4px;
+    display: none;
+  }
+
+  .nav-toggle {
+    display: flex;
   }
 
   .collection-feature-grid,
@@ -1605,10 +1729,16 @@ h3 {
 }
 
 @media (max-width: 720px) {
+  /* Fit the strip instead of letting it scroll off-screen: center it, shrink
+     the text, and drop the lowest-priority messages as space runs out. */
   .announcement-bar {
-    justify-content: flex-start;
-    overflow-x: auto;
-    white-space: nowrap;
+    justify-content: center;
+    gap: 18px;
+    font-size: 0.62rem;
+  }
+
+  .announcement-bar span:nth-child(3) {
+    display: none;
   }
 
   .hero-carousel {
@@ -3648,6 +3778,10 @@ h3 {
   }
   .design-capture__btn {
     width: 100%;
+  }
+  /* On the narrowest phones, keep just the single highest-value message. */
+  .announcement-bar span:nth-child(2) {
+    display: none;
   }
 }
 

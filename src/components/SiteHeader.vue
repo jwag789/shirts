@@ -1,7 +1,29 @@
 <script setup>
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCart } from '../composables/useCart'
 
 const { itemCount, toggleCart } = useCart()
+const route = useRoute()
+
+const menuOpen = ref(false)
+const openMenu = () => { menuOpen.value = true }
+const closeMenu = () => { menuOpen.value = false }
+
+// Close on navigation, and lock background scroll while open.
+watch(() => route.fullPath, closeMenu)
+watch(menuOpen, (open) => {
+  if (typeof document === 'undefined') return
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+
+const NAV_LINKS = [
+  { to: '/collections', label: 'Collections' },
+  { to: '/how-it-works', label: 'How It Works' },
+  { to: '/pet-portrait', label: 'Pet Portraits' },
+  { to: '/team-shirt', label: 'Team Shirts' },
+  { to: '/my-designs', label: 'My Designs' },
+]
 </script>
 
 <template>
@@ -24,9 +46,46 @@ const { itemCount, toggleCart } = useCart()
       <RouterLink to="/my-designs">My Designs</RouterLink>
     </nav>
 
-    <button class="cart-trigger" type="button" @click="toggleCart">
-      Bag
-      <span>{{ itemCount }}</span>
-    </button>
+    <div class="site-header__actions">
+      <button class="cart-trigger" type="button" @click="toggleCart">
+        Bag
+        <span>{{ itemCount }}</span>
+      </button>
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-label="Open menu"
+        aria-controls="mobile-menu"
+        :aria-expanded="menuOpen"
+        @click="openMenu"
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </header>
+
+  <Teleport to="body">
+    <transition name="menu-fade">
+      <div v-if="menuOpen" class="mobile-menu__overlay" @click="closeMenu"></div>
+    </transition>
+    <transition name="menu-slide">
+      <aside v-if="menuOpen" id="mobile-menu" class="mobile-menu" aria-label="Menu">
+        <div class="mobile-menu__head">
+          <p class="eyebrow">Menu</p>
+          <button class="mobile-menu__close" type="button" aria-label="Close menu" @click="closeMenu">✕</button>
+        </div>
+        <nav class="mobile-menu__nav" aria-label="Primary">
+          <RouterLink
+            v-for="link in NAV_LINKS"
+            :key="link.to"
+            :to="link.to"
+            @click="closeMenu"
+          >
+            {{ link.label }}
+            <span aria-hidden="true" class="mobile-menu__chevron">→</span>
+          </RouterLink>
+        </nav>
+      </aside>
+    </transition>
+  </Teleport>
 </template>
