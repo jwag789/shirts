@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ReviewStars from '../src/components/ReviewStars.vue'
 import EmailSignup from '../src/components/EmailSignup.vue'
+import DesignEmailCapture from '../src/components/DesignEmailCapture.vue'
 
 describe('ReviewStars', () => {
   it('fills the rounded number of stars', () => {
@@ -22,5 +23,25 @@ describe('EmailSignup', () => {
     const w = mount(EmailSignup, { props: { source: 'test' } })
     await w.find('form').trigger('submit.prevent')
     expect(w.find('.email-signup__error').exists()).toBe(true)
+  })
+})
+
+describe('DesignEmailCapture', () => {
+  it('renders nothing until a design has been saved', () => {
+    const w = mount(DesignEmailCapture, { props: { designId: null } })
+    expect(w.find('.design-capture').exists()).toBe(false)
+  })
+
+  it('shows the capture field once a designId is present', () => {
+    const w = mount(DesignEmailCapture, { props: { designId: 'abc123', kind: 'pet' } })
+    expect(w.find('.design-capture').exists()).toBe(true)
+    expect(w.find('input[type="email"]').exists()).toBe(true)
+  })
+
+  it('rejects an invalid email client-side without calling the API', async () => {
+    const w = mount(DesignEmailCapture, { props: { designId: 'abc123', kind: 'pet' } })
+    await w.find('input[type="email"]').setValue('not-an-email')
+    await w.find('form').trigger('submit.prevent')
+    expect(w.find('.design-capture__err').exists()).toBe(true)
   })
 })

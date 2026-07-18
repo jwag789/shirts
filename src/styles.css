@@ -3582,6 +3582,75 @@ h3 {
   margin-top: 16px;
 }
 
+/* "Email me my design" capture on the result step (pet + team). */
+.design-capture {
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--soft);
+}
+
+.design-capture__label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.design-capture__row {
+  display: flex;
+  gap: 8px;
+}
+
+.design-capture__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.design-capture__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(118, 70, 226, 0.14);
+}
+
+.design-capture__btn {
+  flex: 0 0 auto;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.design-capture__err {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: #c0392b;
+}
+
+.design-capture__done {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a7f37;
+}
+
+@media (max-width: 480px) {
+  .design-capture__row {
+    flex-direction: column;
+  }
+  .design-capture__btn {
+    width: 100%;
+  }
+}
+
 .shared-design {
   max-width: 1100px;
   margin: 0 auto;

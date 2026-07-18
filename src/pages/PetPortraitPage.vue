@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
+import DesignEmailCapture from '../components/DesignEmailCapture.vue'
 import { useCart } from '../composables/useCart'
 import { recordDesign } from '../composables/useDesigns'
 import { trackEvent } from '../analytics'
@@ -599,6 +600,8 @@ async function shareDesign() {
                   <template v-else-if="shareCopied">✓ Link copied</template>
                   <template v-else>Share this design</template>
                 </button>
+
+                <DesignEmailCapture :design-id="shareableDesignId" kind="pet" />
 
                 <div class="pet-result__footlinks">
                   <button class="pet-regen-btn" type="button" @click="step = 2">← Try a different photo</button>

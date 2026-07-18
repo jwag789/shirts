@@ -19,6 +19,10 @@ import {
   renderReviewRequestText,
   renderWelcomeEmailHtml,
   renderWelcomeEmailText,
+  renderDesignSavedHtml,
+  renderDesignSavedText,
+  renderDesignFollowupHtml,
+  renderDesignFollowupText,
   renderContactNotificationHtml,
   renderContactNotificationText,
 } from './emails.js'
@@ -257,6 +261,16 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `)
+  // Optional email capture on a design ("email me my design") + abandoned-design
+  // follow-up bookkeeping. Added via ALTER so existing installs upgrade cleanly.
+  await pool.query(`ALTER TABLE designs ADD COLUMN IF NOT EXISTS email TEXT`)
+  await pool.query(`ALTER TABLE designs ADD COLUMN IF NOT EXISTS email_captured_at TIMESTAMPTZ`)
+  await pool.query(`ALTER TABLE designs ADD COLUMN IF NOT EXISTS followup_sent_at TIMESTAMPTZ`)
+  // Powers the follow-up sweep: only rows with a captured email and no follow-up yet.
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS designs_followup_idx ON designs (email_captured_at)
+     WHERE email IS NOT NULL AND followup_sent_at IS NULL`,
+  )
 
   // Marketing email signups. We own the list here; syncing to an ESP later
   // (Mailchimp/Klaviyo/etc.) just reads from this table.
@@ -1573,6 +1587,121 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
   }
 })
 
+// "Email me my design" — captures an email against a generated design, sends it
+// to them right away, and grows the marketing list. This is the only point we
+// learn a visitor's email before checkout, so it also seeds abandoned-design
+// follow-ups below. No-ops on the email send until RESEND_API_KEY is set.
+const designEmailRateLimit = new Map()
+
+function designNoun(kind) {
+  return kind === 'pet' ? 'pet portrait' : kind === 'team' ? 'team shirt' : 'design'
+}
+
+async function maybeSendDesignSavedEmail(design) {
+  try {
+    if (!process.env.RESEND_API_KEY) return
+    const designUrl = `${siteUrl}/d/${design.id}`
+    await sendEmail({
+      to: design.email,
+      subject: `Here's your ${designNoun(design.kind)}`,
+      html: renderDesignSavedHtml({ imageUrl: design.imageUrl, designUrl, kind: design.kind }, siteUrl),
+      text: renderDesignSavedText({ designUrl, kind: design.kind }, siteUrl),
+    })
+  } catch (err) {
+    console.error('Design-saved email failed:', err.message)
+  }
+}
+
+app.post('/api/designs/:id/email', express.json(), async (req, res) => {
+  try {
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+    if (!checkRateLimitFor(designEmailRateLimit, ip, 30)) {
+      return res.status(429).json({ error: 'Too many attempts. Please try again later.' })
+    }
+
+    const email = String(req.body?.email ?? '').trim().toLowerCase()
+    if (!EMAIL_RE.test(email) || email.length > 254) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' })
+    }
+
+    const design = await readDesign(req.params.id)
+    if (!design) return res.status(404).json({ error: 'Design not found.' })
+
+    // Attach the email and (re)start the follow-up window. Leave followup_sent_at
+    // untouched so a repeat submit can't queue a second nudge.
+    await pool.query('UPDATE designs SET email = $2, email_captured_at = NOW() WHERE id = $1', [
+      design.id,
+      email,
+    ])
+    // Grow the owned marketing list too (idempotent).
+    await pool.query(
+      'INSERT INTO subscribers (email, source) VALUES ($1, $2) ON CONFLICT (email) DO NOTHING',
+      [email, 'design_capture'],
+    )
+
+    await maybeSendDesignSavedEmail({ ...design, email })
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('Design email capture error:', err)
+    res.status(500).json({ error: 'Could not save your design. Please try again.' })
+  }
+})
+
+// Abandoned-design follow-up sweep. Nudges once, for designs that captured an
+// email, waited long enough, weren't nudged yet, and whose owner hasn't since
+// become a customer. Idempotent via followup_sent_at; bounded by a 48h window so
+// a persistent send failure can't loop forever. Scheduled in start().
+async function sendDueDesignFollowups() {
+  // With no email provider we'd only mark rows "sent" without sending — skip the
+  // whole sweep so the backlog still goes out once Resend is configured.
+  if (!process.env.RESEND_API_KEY) return
+
+  let rows
+  try {
+    ;({ rows } = await pool.query(
+      `SELECT id, kind, image_url, email FROM designs
+       WHERE email IS NOT NULL
+         AND followup_sent_at IS NULL
+         AND email_captured_at <= NOW() - INTERVAL '2 hours'
+         AND email_captured_at >= NOW() - INTERVAL '48 hours'
+       ORDER BY email_captured_at ASC
+       LIMIT 100`,
+    ))
+  } catch (err) {
+    console.error('Design follow-up sweep query failed:', err.message)
+    return
+  }
+
+  for (const r of rows) {
+    try {
+      // Don't nudge someone who already became a customer.
+      const converted = await pool.query(
+        `SELECT 1 FROM orders WHERE status = 'printify_created' AND lower(data->>'customerEmail') = $1 LIMIT 1`,
+        [String(r.email).toLowerCase()],
+      )
+      if (converted.rowCount > 0) {
+        await pool.query('UPDATE designs SET followup_sent_at = NOW() WHERE id = $1', [r.id])
+        continue
+      }
+
+      const designUrl = `${siteUrl}/d/${r.id}`
+      await sendEmail({
+        to: r.email,
+        subject: `Your ${designNoun(r.kind)} is waiting`,
+        html: renderDesignFollowupHtml(
+          { imageUrl: r.image_url, designUrl, kind: r.kind, discountCode: WELCOME_DISCOUNT_CODE },
+          siteUrl,
+        ),
+        text: renderDesignFollowupText({ designUrl, kind: r.kind, discountCode: WELCOME_DISCOUNT_CODE }, siteUrl),
+      })
+      await pool.query('UPDATE designs SET followup_sent_at = NOW() WHERE id = $1', [r.id])
+    } catch (err) {
+      // Leave followup_sent_at unset to retry next sweep (bounded by the 48h window).
+      console.error('Design follow-up send failed for', r.id, err.message)
+    }
+  }
+}
+
 // Contact form → emails the shop inbox. No DB row; just a notification with
 // reply-to set to the sender so a reply goes straight back to the customer.
 const contactRateLimit = new Map()
@@ -2025,6 +2154,9 @@ async function start() {
   app.listen(port, () => {
     console.log(`Store server running at ${siteUrl}`)
   })
+  // Abandoned-design follow-up: sweep shortly after boot, then every 15 min.
+  setTimeout(() => sendDueDesignFollowups().catch(() => {}), 60_000)
+  setInterval(() => sendDueDesignFollowups().catch(() => {}), 15 * 60 * 1000)
 }
 
 // Only auto-start when run directly (node server/index.js) — not when imported

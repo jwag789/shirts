@@ -6,6 +6,10 @@ import {
   renderReviewRequestHtml,
   renderWelcomeEmailHtml,
   renderWelcomeEmailText,
+  renderDesignSavedHtml,
+  renderDesignSavedText,
+  renderDesignFollowupHtml,
+  renderDesignFollowupText,
 } from '../server/emails.js'
 
 const site = 'https://inkspirit.studio'
@@ -84,6 +88,53 @@ describe('welcome discount email', () => {
     const text = renderWelcomeEmailText('WELCOME20', site)
     expect(text).toContain('WELCOME20')
     expect(text).toContain(site)
+  })
+})
+
+describe('design saved email ("email me my design")', () => {
+  const design = { imageUrl: 'https://fal.media/design-abc.png', designUrl: `${site}/d/abc123`, kind: 'pet' }
+  const html = renderDesignSavedHtml(design, site)
+
+  it('shows the design image, a link back, and the right noun', () => {
+    expect(html).toContain('https://fal.media/design-abc.png')
+    expect(html).toContain(`${site}/d/abc123`)
+    expect(html).toContain('pet portrait')
+    expect(html).toContain('Make it a shirt')
+  })
+
+  it('uses "team shirt" for team designs and "design" as the fallback', () => {
+    expect(renderDesignSavedHtml({ ...design, kind: 'team' }, site)).toContain('team shirt')
+    expect(renderDesignSavedHtml({ ...design, kind: 'custom' }, site)).toContain("Here's your design")
+  })
+
+  it('plain-text version carries the design link', () => {
+    const text = renderDesignSavedText(design, site)
+    expect(text).toContain(`${site}/d/abc123`)
+    expect(text).toContain('pet portrait')
+  })
+})
+
+describe('design follow-up (abandoned-design nudge)', () => {
+  const design = { imageUrl: 'https://fal.media/d2.png', designUrl: `${site}/d/xyz`, kind: 'team', discountCode: 'WELCOME20' }
+  const html = renderDesignFollowupHtml(design, site)
+
+  it('includes the image, link, discount code and waiting copy', () => {
+    expect(html).toContain('https://fal.media/d2.png')
+    expect(html).toContain(`${site}/d/xyz`)
+    expect(html).toContain('WELCOME20')
+    expect(html).toContain('team shirt')
+    expect(html).toContain('Order your shirt')
+  })
+
+  it('omits the discount block when no code is provided', () => {
+    const noCode = renderDesignFollowupHtml({ ...design, discountCode: '' }, site)
+    expect(noCode).not.toContain('20% off your first order')
+  })
+
+  it('plain-text version carries link and code', () => {
+    const text = renderDesignFollowupText(design, site)
+    expect(text).toContain(`${site}/d/xyz`)
+    expect(text).toContain('WELCOME20')
   })
 })
 

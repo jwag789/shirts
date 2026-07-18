@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import SiteHeader from '../components/SiteHeader.vue'
 import ShirtMockup from '../components/ShirtMockup.vue'
 import Icon from '../components/Icon.vue'
+import DesignEmailCapture from '../components/DesignEmailCapture.vue'
 import { useCart } from '../composables/useCart'
 import { recordDesign } from '../composables/useDesigns'
 import { trackEvent } from '../analytics'
@@ -649,6 +650,8 @@ function startOver() {
                   <template v-else-if="shareCopied">✓ Link copied</template>
                   <template v-else>Share this design</template>
                 </button>
+
+                <DesignEmailCapture :design-id="generatedDesignId" kind="team" />
 
                 <div class="ts-footlinks">
                   <button class="pet-regen-btn" type="button" @click="generate">↻ Regenerate design</button>

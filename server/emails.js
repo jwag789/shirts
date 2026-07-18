@@ -349,6 +349,129 @@ export function renderWelcomeEmailText(code, siteUrl) {
   ].join('\n')
 }
 
+// Friendly noun for a design kind, used in the design emails below.
+function kindLabel(kind) {
+  if (kind === 'pet') return 'pet portrait'
+  if (kind === 'team') return 'team shirt'
+  return 'design'
+}
+
+// Shared big-image + button block for the two design emails. `imageUrl` is the
+// fal-hosted generated PNG (already absolute https), shown on a soft card.
+function designHeroRows({ imageUrl, designUrl, ctaLabel }) {
+  return `
+        <tr>
+          <td style="padding:26px 32px 6px;" align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+              <tr>
+                <td style="background:${BRAND.bg};border:1px solid ${BRAND.line};border-radius:16px;padding:18px;">
+                  <img src="${esc(imageUrl)}" width="320" alt="Your custom design" style="display:block;width:320px;max-width:100%;border-radius:8px;" />
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:24px 32px 8px;" align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="border-radius:999px;background:${BRAND.accent};">
+                  <a href="${esc(designUrl)}" target="_blank" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:999px;">${esc(ctaLabel)} &rarr;</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>`
+}
+
+// "Here's your design" — sent immediately when someone opts in to have their
+// generated design emailed to them ("email me my design"). No side effects.
+export function renderDesignSavedHtml({ imageUrl, designUrl, kind }, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  const noun = kindLabel(kind)
+  const bodyRows = `
+        <tr>
+          <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">Saved for you</div>
+            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Here's your ${esc(noun)}</h1>
+            <p style="margin:0;font-size:15px;color:${BRAND.muted};">We saved it so you won't lose it. Open it anytime to put it on a shirt.</p>
+          </td>
+        </tr>
+        ${designHeroRows({ imageUrl, designUrl, ctaLabel: 'Make it a shirt' })}
+        <tr>
+          <td style="padding:16px 32px 36px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <p style="margin:0;font-size:13px;color:${BRAND.muted};line-height:1.6;">Every shirt is made to order and ships in about 3&ndash;5 business days. Questions? Just reply to this email.</p>
+          </td>
+        </tr>`
+  return emailShell({ preheader: `Here's your ${noun} — ready to put on a shirt.`, bodyRows, siteUrl: site })
+}
+
+export function renderDesignSavedText({ designUrl, kind }, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  const noun = kindLabel(kind)
+  return [
+    `Here's your ${noun}!`,
+    '',
+    "We saved it so you won't lose it. Open it anytime to put it on a shirt:",
+    designUrl,
+    '',
+    'Every shirt is made to order and ships in about 3-5 business days.',
+    'Questions? Just reply to this email.',
+    'InkSpirit Studio',
+  ].join('\n')
+}
+
+// "Still thinking it over?" — the abandoned-design nudge, sent once if a captured
+// design hasn't converted. Includes the first-order discount code.
+export function renderDesignFollowupHtml({ imageUrl, designUrl, kind, discountCode }, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  const noun = kindLabel(kind)
+  const promo = esc(discountCode ?? '')
+  const bodyRows = `
+        <tr>
+          <td style="padding:40px 32px 8px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <div style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.accent};font-weight:bold;">Still thinking it over?</div>
+            <h1 style="margin:10px 0 6px;font-size:30px;line-height:1.15;color:${BRAND.text};">Your ${esc(noun)} is waiting</h1>
+            <p style="margin:0;font-size:15px;color:${BRAND.muted};">You made something great. Here's a little nudge to make it yours.</p>
+          </td>
+        </tr>
+        ${designHeroRows({ imageUrl, designUrl, ctaLabel: 'Order your shirt' })}
+        ${promo ? `
+        <tr>
+          <td style="padding:14px 32px 6px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+              <tr>
+                <td style="border:2px dashed ${BRAND.accent};border-radius:14px;background:${BRAND.bg};padding:14px 34px;">
+                  <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:${BRAND.muted};font-weight:bold;padding-bottom:6px;">${esc('20% off your first order')}</div>
+                  <div style="font-size:26px;letter-spacing:0.08em;font-weight:bold;color:${BRAND.text};">${promo}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>` : ''}
+        <tr>
+          <td style="padding:18px 32px 36px;font-family:Arial,Helvetica,sans-serif;" align="center">
+            <p style="margin:0;font-size:13px;color:${BRAND.muted};line-height:1.6;">No pressure — your design stays saved either way. Not interested? Just ignore this and we won't nudge again.</p>
+          </td>
+        </tr>`
+  return emailShell({ preheader: `Your ${noun} is still waiting${promo ? ` — ${discountCode} for 20% off` : ''}.`, bodyRows, siteUrl: site })
+}
+
+export function renderDesignFollowupText({ designUrl, kind, discountCode }, siteUrl) {
+  const site = String(siteUrl ?? '').replace(/\/$/, '')
+  const noun = kindLabel(kind)
+  return [
+    `Your ${noun} is waiting.`,
+    '',
+    "You made something great — here's a nudge to make it yours:",
+    designUrl,
+    '',
+    ...(discountCode ? [`Use ${discountCode} for 20% off your first order.`, ''] : []),
+    "No pressure — your design stays saved either way. Not interested? Just ignore this and we won't nudge again.",
+    'InkSpirit Studio',
+  ].join('\n')
+}
+
 // "New message from the contact form" — sent to the shop inbox. `msg` is
 // { name, email, subject, message }. Reply-to is set to the sender in index.js
 // so hitting reply goes straight back to the customer.

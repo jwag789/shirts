@@ -116,6 +116,8 @@ Triggers:
 - **Order confirmation** — Stripe `checkout.session.completed` webhook, sent before Printify fulfillment so the customer is confirmed even if fulfillment errors (idempotent via `confirmationEmailSentAt`).
 - **Shipping** — Printify's `order:shipment:created` webhook → `POST /api/webhooks/printify`. Matches the order by its stored Printify id, refreshes tracking, sends once (idempotent via `shippingEmailSentAt`). Fallback: viewing an order after it ships also fires it.
 - **Review request** — Printify's `order:shipment:delivered` event → invites a review (idempotent via `reviewRequestEmailSentAt`).
+- **Design saved** — when a visitor opts into "email me my design" on a pet/team result step (`POST /api/designs/:id/email`), stores the email on the `designs` row (+ a `subscribers` row, source `design_capture`) and emails them the design immediately. This is the only pre-checkout email capture.
+- **Abandoned-design follow-up** — `sendDueDesignFollowups()` sweeps every 15 min (scheduled in `start()`): designs with a captured email, no follow-up yet, captured 2–48h ago, whose email has no completed order, get one nudge with the `WELCOME_DISCOUNT_CODE` (idempotent via `followup_sent_at`; skips the whole sweep when `RESEND_API_KEY` is unset so the backlog still sends once configured). Abandoned *checkout* (they reached Stripe) is handled separately by Stripe's own cart-recovery emails.
 
 ## Reviews
 
