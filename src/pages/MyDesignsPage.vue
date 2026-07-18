@@ -15,6 +15,10 @@ setDocumentHead({
 const designs = ref([])
 const isLoading = ref(true)
 
+// A real blank-tee photo to composite designs onto (same product the result
+// pages use). Pet/team share one blank product, so a single default is enough.
+const mockupPhoto = ref(null)
+
 const hasDesigns = computed(() => designs.value.length > 0)
 
 function titleFor(d) {
@@ -34,12 +38,26 @@ function mockupColor(d) {
   return s === '#ffffff' || s === '#fff' ? '#ececec' : s
 }
 
+// Grab a real garment photo once — prefer a white/light tee, else the first color.
+async function loadMockupPhoto() {
+  try {
+    const res = await fetch('/api/pet-portrait/variants')
+    const data = await res.json()
+    const colors = data.colors ?? []
+    const white = colors.find((c) => /white/i.test(c.name ?? ''))
+    mockupPhoto.value = white?.mockupUrls?.[0] ?? colors[0]?.mockupUrls?.[0] ?? null
+  } catch {
+    /* fall back to the SVG silhouette */
+  }
+}
+
 onMounted(async () => {
   const ids = getDesignIds()
   if (!ids.length) {
     isLoading.value = false
     return
   }
+  loadMockupPhoto()
   try {
     const res = await fetch(`/api/designs?ids=${encodeURIComponent(ids.join(','))}`)
     const data = await res.json()
@@ -84,7 +102,7 @@ onMounted(async () => {
           :to="`/d/${d.id}`"
         >
           <div class="design-card__art">
-            <ShirtMockup :color="mockupColor(d)" :art-url="d.imageUrl" />
+            <ShirtMockup :color="mockupColor(d)" :art-url="d.imageUrl" :photo-url="mockupPhoto" />
           </div>
           <div class="design-card__copy">
             <strong>{{ titleFor(d) }}</strong>
